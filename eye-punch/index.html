@@ -1,0 +1,566 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Eye Punch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap">
+<style>
+/* Layout: one tall anvil view, a thumb strip stuck to the bottom on phones, the score card drops over the anvil. */
+:root{
+  --bg:#15120f; --panel:#1f1a16; --line:#3a312a; --fg:#efe6da; --muted:#a3958a;
+  --accent:#f26522; --accent-2:#ffb347; --cold:#4a4448; --water:#3b6ea5;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);padding-block:14px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto;display:grid;gap:12px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+h1{font-family:var(--display);font-weight:700;font-size:2.2rem;letter-spacing:.02em;margin:0;text-transform:uppercase}
+header p{margin:0;color:var(--muted);max-width:60ch;line-height:1.4}
+.hud{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.95rem;color:var(--muted)}
+.hud b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
+.stage{position:relative}
+canvas{width:100%;display:block;background:#0f0d0b;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab}
+.msg{position:absolute;left:10px;right:10px;top:10px;}
+.stage.press .msg{top:196px;}
+.msg{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:1.05rem;color:var(--accent-2);pointer-events:none;text-shadow:0 1px 2px #000}
+.card{position:absolute;inset:0;display:grid;place-items:center;padding:12px}
+.card[hidden]{display:none}
+.card>div{background:rgba(21,18,15,.96);border:1px solid var(--line);border-radius:8px;padding:14px 16px;max-width:360px;width:100%;display:grid;gap:8px}
+.card h2{font-family:var(--display);font-size:1.9rem;margin:0;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.card .stars{font-size:1.6rem;color:var(--accent-2);letter-spacing:.1em}
+.card p{margin:0;line-height:1.4}
+.card small{color:var(--muted)}
+.card svg{width:100%;height:auto;display:block;background:#0f0d0b;border:1px solid var(--line);border-radius:4px}
+.strip{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;display:grid;gap:8px;z-index:5;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));touch-action:none}
+.heat{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.85rem;color:var(--muted)}
+.bar{height:12px;background:#0f0d0b;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5a5a5e,#ffb347 55%,#ff3b1f);transition:width .12s linear}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font-family:var(--display);font-size:1.4rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border:0;border-radius:8px;min-height:60px;cursor:pointer;color:#1a0d05;background:var(--accent)}
+button.quiet{background:#3a312a;color:var(--fg)}
+button.water{background:var(--water);color:#eaf2ff}
+button.wide{grid-column:1/-1}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible,canvas:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.modes{display:flex;gap:6px}
+.mode{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:8px 12px;cursor:pointer;min-height:44px;font-size:1.05rem;font-weight:500;flex:1 1 0}
+.mode[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#2a1d14}
+button.dust{background:#6b5a3e;color:var(--fg)}
+button small{display:block;font-size:.7rem;letter-spacing:.08em;font-weight:500}
+.notes{color:var(--muted);font-size:.92rem;line-height:1.5;max-width:70ch}
+.notes h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:1.1rem;margin:0 0 4px;color:var(--fg)}
+.notes p{margin:0 0 8px}
+.copy{color:var(--muted);font-size:.8rem;margin:8px 0 0}
+@media (min-width:720px){.strip{position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Eye Punch</h1>
+    <p>Hot hammer blank, 3 1/2 long by 1 3/4 wide by 2 tall. Put the eye dead center by eye, along the length and across the width. Turn the center punch dot on to practice or trust your eye. Drag the punch, strike, keep it cool, flip, find the dark spot, punch through.</p>
+  </header>
+
+  <div class="modes" role="tablist">
+    <button class="mode" id="modeHand" role="tab" aria-selected="true">Hand punch on the anvil</button>
+    <button class="mode" id="modePress" role="tab" aria-selected="false">Under the press</button>
+  </div>
+
+  <div class="hud"><span>Round <b id="hRound">1</b>/3</span><span>Side <b id="hSide">front</b></span><span><span id="hStrikesLabel">Strikes</span> <b id="hStrikes">0</b></span><span>Score <b id="hScore">0</b></span><span>Best <b id="hBest">0</b></span></div>
+
+  <div class="stage">
+    <canvas id="view" height="380" aria-label="Top view of the blank on the anvil" tabindex="0"></canvas>
+    <p class="msg" id="msg"></p>
+    <div class="card" id="card" hidden><div id="cardBody"></div></div>
+  </div>
+
+  <div class="strip">
+    <div class="heat"><span>Punch heat</span><div class="bar"><i id="heatBar"></i></div><span id="heatTxt">cool</span></div>
+    <div class="btns">
+      <button id="strike">Strike</button>
+      <button id="dip" class="water">Dip</button>
+      <button id="cpunch" class="quiet wide" aria-pressed="false">Center punch: off<small>tap to show a dot dead center</small></button>
+      <button id="mark" hidden>Mark</button>
+      <button id="dust" class="dust" hidden>Coal dust<small>punch lube</small></button>
+      <button id="drive" hidden>Drive<small>hold</small></button>
+      <button id="cool" class="water" hidden>Cool</button>
+      <button id="flip" class="quiet wide" hidden>Flip the blank</button>
+      <button id="next" class="wide" hidden>Next round</button>
+    </div>
+    <p class="hint" id="hint" style="margin:0;color:var(--muted);font-size:.85rem">Drag the punch over the blank. Center punch shows a dot dead center. Strike drives it. Dip cools it. Arrow keys nudge, P toggles the dot, space strikes, D dips.</p>
+  </div>
+
+  <div class="notes">
+    <h2>How a real eye punch goes</h2>
+    <p>Find the center first. Andrew scribes lines across the face with a carbide edge marker to find it, then sets one center punch dot where the middle of the eye goes. Some guys center punch both faces, front and back. One dot on the front is enough. The slot punch sits in that dot and does not walk. Turn the Center punch button on to see that dot. Turn it off to go by eye alone. Then drive it about halfway through. Pull it and dip it every two or three blows. Sticking is not the steel fighting the punch. It is the hot steel shrinking onto the cold punch so you cannot get it back out. Leave it in too long and the hole grabs it. Beat on it then and you wreck the eye and the tool. A pinch of coal dust in the hole is what lets it come back out clean. That is the punch lube smiths have always used. The dust burns off in the hole and the gas and carbon keep the hot steel from grabbing the cold punch. Flip the blank. The cold punch chilled a dark spot on the back. That is your mark. Set the punch on it and drive through to meet the first hole. The slug drops out. Then drift from both sides to open the eye.</p>
+    <p>Under the press it goes the same way. The long tapered punch hangs from the top die. A stripper plate with a slot through it sits on two threaded posts over the base, double nutted so the plate height is set to the blank. The blank goes in under the plate between the posts, end on. The plate holds the blank down so the punch pulls free of the hole when the ram comes back up. Without the plate the blank comes up with the punch. Without coal dust the hole grabs the punch and will not give it back. Pull anyway and the punch, the plate and the blank are all scrap. Lay it out cold first if you want. Scribe lines with the carbide marker and one center punch dot where the eye goes. The Center punch button puts that dot dead center so you can practice lining it up under the slot. Bring the ram down light. The tip drops into the dot and leaves a mark. Nudge and mark again if it is off. Pinch of coal dust in the mark. Drive most of the way through. Cool the punch. Flip, find the dark spot, mark, coal dust, drive, and the slug drops out.</p>
+    <p>This game is modeled on how Andrew at Portland Ironworks punches every hammer eye freehand, on the anvil and under his press. His eye is the fixture.</p>
+    <p class="copy">&copy; 2026 Portland Ironworks. All rights reserved. First published October 17, 2026. Part of the Portland Ironworks forge interactives.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const ROUNDS=[
+  {w:3.5,h:1.75,t:2.0,fade:0.09,name:'3 lb blank · 3 1/2 x 1 3/4 x 2'},       // w is the length of the hammer, h the width of the face seen from above, t the height standing in the press
+  {w:3.25,h:1.5,t:1.75,fade:0.14,name:'2 lb blank · 3 1/4 x 1 1/2 x 1 3/4'},
+  {w:3.0,h:1.375,t:1.5,fade:0.22,name:'1 1/2 lb blank · 3 x 1 3/8 x 1 1/2'},
+];
+const PUNCH={w:0.75,h:0.25};           // slot punch, long axis along the blank
+const STRIKE_DEPTH=0.3;                 // 4 strikes to halfway
+const HEAT_PER_STRIKE=0.34;             // 3 strikes without a dip reds it out
+const DRIVE_MS=1600;                    // hold time for a full press drive
+const TOP=190;                           // press mode: height of the side strip at the top of the canvas
+
+const canvas=document.getElementById('view');
+let mode='hand';                        // 'hand' | 'press'
+let S;                                  // game state
+let best={hand:0,press:0};
+let cpOn=false;                       // show a center punch dot dead center of the blank, as a training aid
+try{ best.hand=+localStorage.getItem('eyepunch-best')||0; best.press=+localStorage.getItem('eyepunch-best-press')||0; }catch(e){}
+
+function newGame(){ S={round:0,total:0,results:[]}; newRound(); }
+function newRound(){
+  const R=ROUNDS[S.round];
+  Object.assign(S,{
+    R, side:'front',
+    off:{x:(Math.random()-0.5)*0.5, y:(Math.random()-0.5)*0.3},   // hand mode: blank sits off the canvas center so the center is not a cheat
+    punch:{x:R.w/2-0.5, y:0.45}, holeF:null, holeB:null, depthF:0, depthB:0,
+    heat:0, dips:0, redlined:false, strikes:0, spot:0, slug:0, stuck:false, lastT:performance.now(), cp:cpOn?{x:0,y:0}:null,   // cp: the center punch dot, blank coords, dead center when the aid is on
+    // press mode
+    blank:{x:-0.25, y:0.9},        // blank comes in from your side of the press, center a bit short of the slot
+    spots:Array.from({length:22},()=>({u:Math.random(),v:Math.random(),r:0.04+Math.random()*0.09})),   // scale and dust on the hot steel        // where the blank center sits relative to the fixed punch
+    marks:[], extraMarks:0, dusted:false, missedDust:0, drive:0, ram:0, driving:false, stickT:0, yankT:0, wrecked:false, puff:0, cooled:0,
+    step:'align'                        // align | marked | dusted | driven | cooled | flip | drivenB | slug | score
+  });
+  S.phase = mode==='hand' ? 'front' : 'press';
+  S.msg = mode==='hand' ? 'Front side. Find the center.' : 'Front side. Slide the blank under the punch. Center it by eye.';
+  document.getElementById('card').hidden=true;
+  buttons(); hud();
+}
+
+// ---------- geometry ----------
+function fit(c){
+  if(!c.dataset.h){ c.dataset.h=c.getAttribute('height'); c.style.height=c.dataset.h+'px'; }
+  const H=+c.dataset.h, r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  if(c.width!==Math.round(r.width*dpr)||c.height!==Math.round(H*dpr)){ c.width=Math.round(r.width*dpr); c.height=Math.round(H*dpr); }
+  const g=c.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); return {g,W:r.width,H};
+}
+function geom(){
+  const r=canvas.getBoundingClientRect(); const W=r.width, H=+canvas.dataset.h||380;
+  if(mode==='press'){ const s=Math.min(W/3.4,(H-TOP)/(S.R.w+0.9)); return {W,H,s, cx:W/2, cy:TOP+(H-TOP)/2, r}; }   // press: the blank runs up the screen, away from you, like it does in the press
+  const s=Math.min(W/(S.R.w+1.2), H/3.0);              // px per inch, the long face fills most of the width
+  return {W,H,s, cx:W/2+S.off.x*s, cy:H/2+S.off.y*s, r};
+}
+// hand mode: points are in blank coords, view mirrors x on the back side
+function toPx(p){ const g=geom(); const vx=S.side==='back'?-p.x:p.x; return [g.cx+vx*g.s, g.cy+p.y*g.s]; }
+function toIn(px,py){ const g=geom(); const vx=(px-g.cx)/g.s; return {x:S.side==='back'?-vx:vx, y:(py-g.cy)/g.s}; }
+// press mode: the punch is fixed at (cx,cy); the blank center sits at S.blank (view coords in inches); a point in blank coords maps through the blank
+// view x is across the width of the blank, view y runs along its length (face end up the screen). flipping the blank end for end swaps the ends
+function lenSign(){ return S.side==='back'?-1:1; }
+function blankToPx(p){ const g=geom(); return [g.cx+(S.blank.x+p.y)*g.s, g.cy+(S.blank.y-lenSign()*p.x)*g.s]; }
+function underPunch(){ return {x:lenSign()*S.blank.y, y:-S.blank.x}; }   // blank coords of the point under the slot
+function pdim(G,kx=1,ky=1){ return mode==='press'?[PUNCH.h*G.s*ky,PUNCH.w*G.s*kx]:[PUNCH.w*G.s*kx,PUNCH.h*G.s*ky]; }   // punch footprint in px, long axis along the blank
+
+// ---------- drawing ----------
+function oval(g,x,y,w,h){ g.beginPath(); g.ellipse(x,y,w/2,h/2,0,0,Math.PI*2); }
+function draw(){ if(mode==='press') drawPress(); else drawHand(); document.getElementById('msg').textContent=S.msg; }
+function drawBlankBody(g,G,cx,cy){
+  const vert=mode==='press';
+  const bw=(vert?S.R.h:S.R.w)*G.s, bh=(vert?S.R.w:S.R.h)*G.s;
+  g.save(); g.shadowColor='rgba(255,140,30,.5)'; g.shadowBlur=18;
+  g.fillStyle='#ffd24a'; g.beginPath(); g.roundRect(cx-bw/2,cy-bh/2,bw,bh,6); g.fill(); g.restore();
+  g.strokeStyle='rgba(0,0,0,.55)'; g.lineWidth=1.5; g.beginPath(); g.roundRect(cx-bw/2,cy-bh/2,bw,bh,6); g.stroke();
+  g.fillStyle='rgba(0,0,0,.08)';
+  if(vert){ const n=Math.max(8,Math.round(bh/22)); for(let i=0;i<n;i++){ g.fillRect(cx-bw/2+4, cy-bh/2+6+i*(bh-12)/n, bw-8, 1); } }
+  else { const n=Math.max(8,Math.round(bw/22)); for(let i=0;i<n;i++){ g.fillRect(cx-bw/2+6+i*(bw-12)/n, cy-bh/2+4, 1, bh-8); } }
+  // face end and peen end so a lengthwise miss has a name. the ends swap when the blank is flipped
+  const back=S.side==='back'; g.fillStyle='rgba(60,30,5,.7)'; g.font='bold 11px "Barlow Condensed", sans-serif'; g.textAlign='center';
+  if(vert){ g.fillText(back?'PEEN':'FACE', cx, cy-bh/2+14); g.fillText(back?'FACE':'PEEN', cx, cy+bh/2-6); g.textAlign='left'; g.fillText('BLANK', cx+bw/2+5, cy+bh/2-6); }
+  else { g.fillText(back?'PEEN':'FACE', cx+bw/2-18, cy+4); g.fillText(back?'FACE':'PEEN', cx-bw/2+18, cy+4); g.textAlign='left'; }
+}
+function drawHoles(g,G,map){
+  if(S.holeF && (S.side==='front'||S.depthB>=1)){
+    const [hx,hy]=map(S.holeF); const d=S.side==='front'?S.depthF:1;
+    g.fillStyle='rgba(20,12,8,'+(0.35+0.65*Math.min(1,d))+')'; oval(g,hx,hy,...pdim(G)); g.fill();
+    if(d<1){ g.strokeStyle='rgba(255,180,80,.5)'; g.lineWidth=1; g.stroke(); }
+  }
+  if(S.side==='back' && S.spot>0 && S.depthB<1){
+    const [sx,sy]=map(S.holeF);
+    const rad=g.createRadialGradient(sx,sy,2,sx,sy,PUNCH.w*G.s*0.75);
+    rad.addColorStop(0,'rgba(60,30,15,'+(0.85*S.spot)+')'); rad.addColorStop(0.5,'rgba(90,45,20,'+(0.45*S.spot)+')'); rad.addColorStop(1,'rgba(90,45,20,0)');
+    g.fillStyle=rad; oval(g,sx,sy,...pdim(G,1.5,2.2)); g.fill();
+  }
+  if(S.holeB && S.side==='back'){
+    const [hx,hy]=map(S.holeB);
+    g.fillStyle='rgba(20,12,8,'+(0.35+0.65*Math.min(1,S.depthB))+')'; oval(g,hx,hy,...pdim(G)); g.fill();
+    if(S.depthB>=1){ g.fillStyle='#0f0d0b'; oval(g,hx,hy,...pdim(G,.9,.9)); g.fill(); }
+  }
+}
+function drawSlug(g,G,map){
+  if(S.slug<=0) return;
+  const [hx,hy]=map(S.holeB); const t=S.slug;
+  g.save(); g.translate(hx+(mode==='press'?0:t*70), hy+(mode==='press'?t*90:-Math.sin(t*Math.PI)*90)); g.rotate(t*4);
+  g.globalAlpha=mode==='press'?1-t*0.8:1;
+  g.fillStyle='#ff8a1f'; oval(g,0,0,...pdim(G,.8,.8)); g.fill(); g.strokeStyle='#000'; g.stroke(); g.restore();
+  for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; g.fillStyle='rgba(255,200,80,'+(1-t)+')'; g.fillRect(hx+Math.cos(a)*t*60, hy+Math.sin(a)*t*60-20*t, 3,3); }
+}
+// the layout: carbide marker lines scribed across the face to find the center, and one center punch dot where the eye goes
+function drawLayout(g,G,map){
+  if(!S.cp || S.side!=='front') return;
+  const [x,y]=map(S.cp); const hw=S.R.w/2, hh=S.R.h/2;
+  const a=map({x:-hw,y:S.cp.y}), b=map({x:hw,y:S.cp.y}), c=map({x:S.cp.x,y:-hh}), d=map({x:S.cp.x,y:hh});
+  g.save(); g.strokeStyle='rgba(255,255,255,.55)'; g.lineWidth=1; g.setLineDash([3,3]);
+  g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.moveTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.stroke();
+  g.restore();
+  g.fillStyle='#1a0d05'; g.beginPath(); g.arc(x,y,5,0,Math.PI*2); g.fill(); g.strokeStyle='#fff'; g.lineWidth=1.5; g.stroke();
+  g.fillStyle='#1a0d05'; g.font='bold 12px "Barlow Condensed", sans-serif'; g.textAlign='left'; g.fillText('CENTER PUNCH',x+9,y-8);
+}
+function drawHand(){
+  const {g,W,H}=fit(canvas); const G=geom();
+  g.fillStyle='#1a1715'; g.fillRect(0,0,W,H);
+  g.fillStyle='#2b2724'; g.fillRect(0,H*0.18,W,H*0.64);
+  g.fillStyle='#3a3431'; g.fillRect(0,H*0.18,W,4); g.fillRect(0,H*0.82-4,W,4);
+  g.fillStyle='#2a4b73'; g.beginPath(); g.arc(W-34,H-34,24,0,Math.PI*2); g.fill();
+  g.fillStyle='#a3958a'; g.font='11px Barlow, sans-serif'; g.fillText('slack tub',W-62,H-6);
+  drawBlankBody(g,G,G.cx,G.cy);
+  drawLayout(g,G,toPx);
+  drawHoles(g,G,toPx); drawSlug(g,G,toPx);
+  if(S.phase==='front'||S.phase==='back'||S.phase==='flip'){
+    const [px,py]=toPx(S.punch); const hot=S.heat;
+    g.save(); g.shadowColor='rgba(0,0,0,.6)'; g.shadowBlur=10; g.shadowOffsetY=4;
+    g.fillStyle=hot>0.66?'#b3261a':hot>0.33?'#6e3a2a':'#8d8a86';
+    oval(g,px,py,PUNCH.w*G.s,PUNCH.h*G.s); g.fill(); g.restore();
+    g.strokeStyle='#efe6da'; g.lineWidth=2; oval(g,px,py,PUNCH.w*G.s,PUNCH.h*G.s); g.stroke();
+    g.fillStyle='rgba(141,138,134,.55)'; g.beginPath(); g.arc(px,py,PUNCH.h*G.s*0.9,0,Math.PI*2); g.fill();
+  }
+  g.fillStyle='#a3958a'; g.font='bold 12px "Barlow Condensed", sans-serif'; g.fillText((S.side==='back'?'BACK SIDE':'FRONT SIDE')+' · '+S.R.name, 10, H-8);
+  g.fillRect(10,H-26,G.s,1); g.fillText('1 in',12,H-29);
+}
+function hexNut(g,x,y,w,h){ g.beginPath(); g.moveTo(x-w/2,y); g.lineTo(x-w/4,y-h/2); g.lineTo(x+w/4,y-h/2); g.lineTo(x+w/2,y); g.lineTo(x+w/4,y+h/2); g.lineTo(x-w/4,y+h/2); g.closePath(); }
+function scaleSpots(g,x0,y0,w,h,k){ g.fillStyle='rgba(70,25,5,.55)'; S.spots.forEach(p=>{ const r=p.r*k; g.beginPath(); g.ellipse(x0+p.u*w,y0+p.v*h,r,r*0.75,0,0,Math.PI*2); g.fill(); }); }
+function punchColor(){ return S.heat>0.66?'#c0392b':S.heat>0.33?'#7a3b2a':'#7d7a76'; }
+function drawPress(){
+  const {g,W,H}=fit(canvas); const G=geom();
+  g.fillStyle='#1a1715'; g.fillRect(0,0,W,H);
+  const stripping = !!(S.ramAnim && !S.ramAnim.back);   // ram coming back up after a drive: the stripper plate is doing its job
+  const lift = stripping ? 2 : 0;
+  // ================= front view, like standing at the press =================
+  const fs=Math.min((W-20)/6.2, 30), cx=W/2;       // px per inch in the front view
+  const baseTop=TOP-14, bh=S.R.t*fs, bw=S.R.h*fs;    // blank end on, standing taller than it is wide, the length runs away from you
+  const blankTop=baseTop-bh-lift, blankX=cx+S.blank.x*fs;
+  const plateH=0.4*fs, plateBot=blankTop-0.3*fs+lift, plateTop=plateBot-plateH;   // a little breath between the blank and the plate
+  const postX=2.0*fs, postW=0.4*fs, nutW=0.6*fs, nutH=0.34*fs, plateHalf=2.5*fs;   // 4 in opening between the posts
+  g.fillStyle='#2b2724'; g.fillRect(0,0,W,TOP); g.fillStyle='#3a3431'; g.fillRect(0,TOP-2,W,2);
+  // press bed and base plate
+  g.fillStyle='#b8431f'; g.fillRect(0,TOP-6,W,6);
+  g.fillStyle='#5b5955'; g.fillRect(cx-2.9*fs,baseTop,5.8*fs,TOP-6-baseTop); g.fillStyle='#4e6b6a'; g.fillRect(cx-2.9*fs,baseTop,5.8*fs,2);
+  // posts: square section, threaded, bolted into the base
+  [-1,1].forEach(d=>{ const x=cx+d*postX; g.fillStyle='#6b665f'; g.fillRect(x-postW/2,plateTop-nutH-6,postW,baseTop-(plateTop-nutH-6)); g.fillStyle='rgba(0,0,0,.25)'; for(let y=plateBot+nutH+2;y<baseTop-2;y+=3) g.fillRect(x-postW/2,y,postW,1); });
+  // soapstone on the base by the right post
+  g.fillStyle='#5aa0c8'; g.fillRect(cx+postX+postW/2+4,baseTop-9,8,9);
+  // blank end on between the posts, hot, scaled
+  g.save(); g.shadowColor='rgba(255,140,30,.6)'; g.shadowBlur=16; g.fillStyle='#ffd24a'; g.beginPath(); g.roundRect(blankX-bw/2,blankTop,bw,bh,5); g.fill(); g.restore();
+  g.strokeStyle='rgba(0,0,0,.5)'; g.lineWidth=1; g.beginPath(); g.roundRect(blankX-bw/2,blankTop,bw,bh,5); g.stroke();
+  // the hole it has already made shows as a dark slit. front side from the top, back side the first hole is at the bottom
+  const holeX=S.holeF?blankX+S.holeF.y*fs:blankX;
+  if(S.holeF&&S.side==='front'){ g.fillStyle='#2a1208'; g.fillRect(holeX-3,blankTop,6,bh*0.5*Math.max(S.drive,S.step==='driven'||S.step==='cooled'?1:0)); }
+  if(S.holeF&&S.side==='back'){ g.fillStyle='#2a1208'; g.fillRect(holeX-3,blankTop+bh*0.5,6,bh*0.5); if(S.holeB){ g.fillRect(holeX-3,blankTop,6,bh*0.5*Math.max(S.drive,S.depthB>=1?1:0)); } }
+  // stripper plate: oval ended bar clamped between double nuts, with a slot through the middle
+  g.fillStyle=stripping?'#f26522':'#5c5751'; g.beginPath(); g.roundRect(cx-plateHalf,plateTop,plateHalf*2,plateH,plateH/2); g.fill();
+  g.fillStyle='#15110e'; g.beginPath(); g.roundRect(cx-0.42*fs,plateTop+2,0.84*fs,plateH-4,4); g.fill();   // the slot, seen end on
+  [-1,1].forEach(d=>{ const x=cx+d*postX; g.fillStyle='#8d8a86'; hexNut(g,x,plateTop-nutH/2-1,nutW,nutH); g.fill(); hexNut(g,x,plateBot+nutH/2+1,nutW,nutH); g.fill(); g.strokeStyle='rgba(0,0,0,.4)'; g.stroke(); });
+  // ram: wide orange block with a dark flat die plate under it. the punch hangs from that plate
+  const restTip=plateTop-10, ramDrop=S.ram, thru=ramDrop>1?(ramDrop-1)/0.35:0;
+  const tipY=restTip+Math.min(1,ramDrop)*(blankTop-restTip)+thru*bh*(S.side==='front'?0.5:0.98);
+  const punchLen=restTip-28, punchTop=tipY-punchLen;
+  g.fillStyle='#b8431f'; g.fillRect(cx-2.9*fs,punchTop-30,5.8*fs,26); g.fillStyle='#2a2522'; g.fillRect(cx-2.2*fs,punchTop-5,4.4*fs,6);
+  // tapered punch, wide shank to a narrow rounded slot tip
+  g.save(); g.fillStyle=punchColor(); g.beginPath(); g.moveTo(cx-0.36*fs,punchTop); g.lineTo(cx+0.36*fs,punchTop); g.lineTo(cx+0.12*fs,tipY-4); g.quadraticCurveTo(cx,tipY+2,cx-0.12*fs,tipY-4); g.closePath(); g.fill();
+  if(S.heat>0.2){ const hg=g.createLinearGradient(0,tipY-punchLen*0.5,0,tipY); hg.addColorStop(0,'rgba(255,80,20,0)'); hg.addColorStop(1,'rgba(255,90,20,'+Math.min(1,S.heat)*0.9+')'); g.fillStyle=hg; g.fill(); }
+  g.strokeStyle='rgba(0,0,0,.5)'; g.lineWidth=1; g.stroke(); g.restore();
+  // labels
+  g.fillStyle='#efe6da'; g.font='bold 10px "Barlow Condensed", sans-serif'; g.textAlign='left';
+  g.fillText('RAM',8,Math.max(10,punchTop-13)); g.fillText('PUNCH',cx+0.4*fs+6,Math.min(tipY-20,punchTop+punchLen*0.45));
+  g.fillStyle='#a3958a'; g.fillText('STRIPPER PLATE',cx+plateHalf+5,plateTop+plateH/2+4);
+  g.textAlign='right'; g.fillText('POSTS AND NUTS',cx-postX-nutW/2-5,plateBot+nutH+2); g.fillText('BASE',cx-2.9*fs-5,baseTop+9);
+  g.textAlign='center'; g.fillStyle='rgba(60,30,5,.75)'; g.fillText('BLANK',blankX,blankTop+bh/2+4);
+  if(stripping){ g.fillStyle='#ffb347'; g.font='bold 11px "Barlow Condensed", sans-serif'; g.fillText('PLATE HOLDS THE BLANK. PUNCH PULLS FREE.',cx,TOP+16); }
+  g.textAlign='left';
+  // ================= top view: looking down past the ram at the stripper plate =================
+  const s=G.s, tcx=G.cx, tcy=G.cy;
+  g.fillStyle='#7a3418'; g.fillRect(0,TOP,W,H-TOP);
+  g.fillStyle='#4a4745'; g.beginPath(); g.roundRect(8,TOP+22,W-16,H-TOP-30,6); g.fill(); g.fillStyle='rgba(78,107,106,.35)'; g.fillRect(8,TOP+22,W-16,H-TOP-30);
+  g.fillStyle='#a3958a'; g.font='10px Barlow, sans-serif'; g.fillText('base',14,TOP+34);
+  // blank slides in under the plate
+  const [bx,by]=[tcx+S.blank.x*s, tcy+S.blank.y*s];
+  drawBlankBody(g,G,bx,by);
+  drawLayout(g,G,blankToPx);
+  S.marks.forEach((m,i)=>{ const [mx,my]=blankToPx(m); g.strokeStyle=i===S.marks.length-1?'rgba(90,40,10,.9)':'rgba(90,40,10,.45)'; g.lineWidth=2; oval(g,mx,my,...pdim(G,.9,.9)); g.stroke(); });
+  drawHoles(g,G,blankToPx);
+  if(S.puff>0){ const [mx,my]=blankToPx(S.marks[S.marks.length-1]||{x:0,y:0}); for(let i=0;i<10;i++){ const a=i/10*Math.PI*2; g.fillStyle='rgba(30,30,30,'+(S.puff*0.8)+')'; g.beginPath(); g.arc(mx+Math.cos(a)*(1-S.puff)*28, my+Math.sin(a)*(1-S.puff)*20, 3+(1-S.puff)*4,0,Math.PI*2); g.fill(); } }
+  drawSlug(g,G,blankToPx);
+  // the stripper plate straddles the play area and dims what it covers. the slot is the fixed reference
+  const ph=1.1*s, phalf=Math.min(W/2-12,2.5*s), sw=(PUNCH.h+0.14)*s, sl=(PUNCH.w+0.22)*s;
+  g.save(); g.beginPath(); g.roundRect(tcx-phalf,tcy-ph/2,phalf*2,ph,ph/2); g.roundRect(tcx-sw/2,tcy-sl/2,sw,sl,sw/2);
+  g.fillStyle=stripping?'rgba(242,101,34,.8)':'rgba(44,40,37,.82)'; g.fill('evenodd'); g.restore();
+  g.strokeStyle=stripping?'#ffb347':'rgba(163,149,138,.8)'; g.lineWidth=1.5; g.beginPath(); g.roundRect(tcx-phalf,tcy-ph/2,phalf*2,ph,ph/2); g.stroke();
+  g.strokeStyle='#efe6da'; g.lineWidth=2; g.beginPath(); g.roundRect(tcx-sw/2,tcy-sl/2,sw,sl,sw/2); g.stroke();
+  // posts and nuts at the ends of the plate
+  [-1,1].forEach(d=>{ const x=tcx+d*Math.min(phalf-0.35*s,2.0*s); g.fillStyle='#6b665f'; g.fillRect(x-0.2*s,tcy-0.2*s,0.4*s,0.4*s); g.fillStyle='#8d8a86'; hexNut(g,x,tcy,0.62*s,0.62*s); g.fill(); g.strokeStyle='rgba(0,0,0,.45)'; g.stroke(); g.fillStyle='#55504c'; g.beginPath(); g.arc(x,tcy,0.12*s,0,Math.PI*2); g.fill(); });
+  // the punch in the slot when the ram is down
+  if(S.ram>0.6){ g.fillStyle=punchColor(); g.beginPath(); g.roundRect(tcx-PUNCH.h*s/2,tcy-PUNCH.w*s/2,PUNCH.h*s,PUNCH.w*s,PUNCH.h*s/2); g.fill(); }
+  g.fillStyle='#efe6da'; g.font='bold 10px "Barlow Condensed", sans-serif';
+  g.fillText('STRIPPER PLATE',tcx-phalf+0.5*s,tcy-ph/2-5); g.fillText('SLOT',tcx+sw/2+8,tcy-sl/2+10); g.fillText('PUNCH COMES DOWN HERE',tcx+sw/2+8,tcy-sl/2+22);
+  g.fillStyle='#a3958a'; g.fillText('POSTS AND NUTS',tcx-phalf+0.5*s,tcy+ph/2+13);
+  // readouts
+  g.fillStyle='#a3958a'; g.font='bold 12px "Barlow Condensed", sans-serif';
+  g.fillText((S.side==='back'?'BACK SIDE':'FRONT SIDE')+' · '+S.R.name+(S.step==='driving'||S.driving?' · driving '+Math.round(S.drive*100)+'%':''), 10, H-8);
+  g.fillRect(10,H-26,G.s,1); g.fillText('1 in',12,H-29);
+}
+// ---------- hand mode rules ----------
+function overBlank(p){ return Math.abs(p.x)<=S.R.w/2+PUNCH.w*0.3 && Math.abs(p.y)<=S.R.h/2+PUNCH.h*0.3; }
+function strike(){
+  if(S.phase!=='front'&&S.phase!=='back') return;
+  if(!overBlank(S.punch)){ S.msg='Swung at the anvil. Get the punch on the steel.'; draw(); return; }
+  if(S.heat>=1){ stuck(); return; }
+  S.strikes++;
+  S.heat=Math.min(1.15,S.heat+HEAT_PER_STRIKE);
+  if(S.heat>1) S.redlined=true;
+  if(S.phase==='front'){
+    if(!S.holeF){ if(S.cp && Math.hypot(S.punch.x-S.cp.x,S.punch.y-S.cp.y)<0.2){ S.punch={x:S.cp.x,y:S.cp.y}; } S.holeF={x:S.punch.x,y:S.punch.y}; }
+    else { S.holeF.x+=Math.max(-1/16,Math.min(1/16,S.punch.x-S.holeF.x)); S.holeF.y+=Math.max(-1/16,Math.min(1/16,S.punch.y-S.holeF.y)); S.punch={x:S.holeF.x,y:S.holeF.y}; }
+    S.depthF=Math.min(1,S.depthF+STRIKE_DEPTH);
+    S.msg=S.depthF>=1?'Halfway through. Flip it.':'Driving. '+Math.round(S.depthF*50)+'% through.'+(S.heat>0.66?' Punch is getting hot.':'');
+    if(S.depthF>=1){ S.phase='flip'; }
+  } else {
+    if(!S.holeB){ S.holeB={x:S.punch.x,y:S.punch.y}; }
+    else { S.holeB.x+=Math.max(-1/16,Math.min(1/16,S.punch.x-S.holeB.x)); S.holeB.y+=Math.max(-1/16,Math.min(1/16,S.punch.y-S.holeB.y)); S.punch={x:S.holeB.x,y:S.holeB.y}; }
+    S.depthB=Math.min(1,S.depthB+STRIKE_DEPTH);
+    S.msg='Driving to meet the first hole. '+Math.round(50+S.depthB*50)+'% through.';
+    if(S.depthB>=1){ S.phase='slug'; S.slugT0=performance.now(); S.msg='Slug is out.'; }
+  }
+  if(S.heat>1){ stuck(); return; }
+  buttons(); hud(); draw();
+}
+function centerPunch(){
+  cpOn=!cpOn;
+  const canSet = S.phase!=='score' && (mode==='hand' ? !S.holeF : !S.marks.length && !S.holeF);
+  if(canSet) S.cp=cpOn?{x:0,y:0}:null;   // once a hole is started the dot stays as it was for this blank
+  S.msg=cpOn?'Center punch dot on. Dead center of the blank. Line it up under the punch.':'Dot off. Your eye is the fixture.';
+  const b=document.getElementById('cpunch'); b.setAttribute('aria-pressed',cpOn); b.innerHTML=cpOn?'Center punch: on<small>dot sits dead center of the blank</small>':'Center punch: off<small>tap to show a dot dead center</small>';
+  draw();
+}
+function dip(){ if(S.phase!=='front'&&S.phase!=='back'&&S.phase!=='flip') return; if(S.heat<=0.02){ S.msg='Already cool. Save the trip.'; draw(); return; } S.heat=0; S.dips++; S.msg='Punch dipped. Back on it.'; hud(); draw(); }
+function stuck(){ S.stuck=true; S.phase='score'; S.step='score'; S.msg='Stuck. The hot steel grabbed the punch.'; finishRound(); }
+function flip(){
+  if(mode==='hand'){ if(S.phase!=='flip') return; S.phase='back'; S.side='back'; S.spot=1; S.punch={x:-(S.R.w/2-0.5),y:-0.45}; S.msg='Back side. Find the dark spot before it fades.'; }
+  else { if(S.step!=='cooled') return; S.side='back'; S.spot=1; S.step='align'; S.marks=[]; S.dusted=false; S.blank={x:0.25,y:0.9}; S.msg='Back side. Find the dark spot. Slide it under the punch before it fades.'; }
+  buttons(); hud(); draw();
+}
+
+// ---------- press mode rules ----------
+function blankUnderPunch(){ const p=underPunch(); return Math.abs(p.x)<=S.R.w/2 && Math.abs(p.y)<=S.R.h/2; }
+function mark(){
+  if(S.step!=='align'&&S.step!=='marked') return;
+  if(!blankUnderPunch()){ S.msg='Punch is off the steel. Slide the blank under it.'; draw(); return; }
+  if(S.step==='marked') S.extraMarks++;
+  let m=underPunch(); if(S.cp && S.side==='front' && !S.marks.length && Math.hypot(m.x-S.cp.x,m.y-S.cp.y)<0.2){ m=S.cp; S.blank={x:-m.y,y:lenSign()*m.x}; }   // the tip drops into the center punch dot
+  S.marks.push(m); S.step='marked'; S.ramAnim={t0:performance.now(),to:1.0,back:true};
+  S.msg=S.extraMarks?'Marked again. Each extra mark costs 5. Happy with it? Coal dust it.':(S.cp&&S.side==='front'&&m===S.cp?'Tip found the dot. Coal dust it.':'Light touch. There is your mark. Nudge and mark again, or coal dust it.');
+  buttons(); hud();
+}
+function dust(){
+  if(S.step!=='marked') return;
+  S.dusted=true; S.puff=1; S.step='dusted'; S.msg='Pinch of coal dust in the mark. Now hold Drive.'; buttons();
+}
+function driveStart(){
+  if(S.step!=='marked'&&S.step!=='dusted') return;
+  if(S.heat>=1){ stuck(); return; }
+  if(S.step==='marked'){ S.missedDust++; }
+  // the punch goes where the mark is: snap the blank so the last mark sits under the punch
+  const m=S.marks[S.marks.length-1]; S.blank={x:-m.y,y:lenSign()*m.x};   // inverse of underPunch(): blank x is minus the mark's across-width coord, blank y is the mark's along-length coord
+  if(S.side==='front') S.holeF={x:m.x,y:m.y}; else S.holeB={x:m.x,y:m.y};
+  S.driving=true; S.step='driving'; S.driveT=performance.now(); S.stickT=0; S.msg='Driving. Keep holding.'; buttons();
+}
+function driveStop(){
+  if(!S.driving) return; S.driving=false;
+  if(S.drive<1){ S.msg='Eased off at '+Math.round(S.drive*100)+'%. Hold Drive to finish.'; S.step=S.dusted?'dusted':'marked'; buttons(); }
+}
+function driveTick(now,dt){
+  if(!S.driving) return;
+  S.drive=Math.min(1,S.drive+dt*1000/DRIVE_MS); S.ram=1.0+0.35*S.drive;
+  // no dust: the hot steel shrinks onto the cold punch and will not let go. that is the punch, the plate and the blank gone. game over
+  if(!S.dusted && S.drive>=1){ S.driving=false; S.drive=0; S.ram=1.35; S.wrecked=true; S.phase='score'; S.step='score'; S.msg='Stuck. No coal dust. Game over.'; finishRound(); return; }
+  if(S.side==='front'){ S.depthF=S.drive; } else { S.depthB=S.drive; }
+  S.heat=Math.min(1,0.2+S.drive*0.8);
+  if(S.drive>=1){
+    S.driving=false; S.drive=0; S.ramAnim={t0:now,to:0,back:false};
+    if(S.side==='front'){ S.step='driven'; S.msg='Halfway through. Ram coming up. Plate holds the blank.'; }
+    else { S.step='slug'; S.phase='slug'; S.slugT0=now; S.msg='Through. Slug is out. Lift it with the tongs.'; }
+    buttons();
+  }
+}
+function cool(){
+  if(mode==='hand'){ dip(); return; }
+  if(S.ramAnim || S.ram>0){ S.msg='Punch is still in the steel. Wait for the ram to come up.'; draw(); return; }
+  if(S.step!=='driven'){ if(S.heat>0.02&&(S.step==='align'||S.step==='marked'||S.step==='dusted')){ S.heat=0; S.cooled++; S.msg='Punch cooled.'; draw(); } return; }
+  S.heat=0; S.cooled++; S.step='cooled'; S.msg='Punch cooled. Flip the blank.'; buttons(); draw();
+}
+
+// ---------- scoring ----------
+function finishRound(){
+  let text='', pts=0, stars='', centErr=0, meetErr=0;
+  const to32=v=>Math.round(v*32*10)/10;
+  if(S.wrecked){
+    pts=0;
+    text='<h2>You wrecked the tooling</h2><p>No coal dust in the hole. The hot steel shrank onto the cold punch and would not let go. You pulled anyway. The punch bent, the hole tore open and the stripper plate bowed on its posts. That is a new punch, a plate to straighten and a blank in the scrap bin.</p><p>A pinch of coal dust before you drive and it comes right back out. Game over. Start again.</p><p class="stars">&nbsp;</p>';
+  } else if(S.stuck){
+    text='<h2>Stuck punch</h2><p>The punch sat too long in the hot steel. The hole shrank onto it and it is not coming out. Beat on it and you wreck the eye and the punch. Round lost.</p><p class="stars">&nbsp;</p>';
+  } else {
+    const lenErr=Math.abs(S.holeF.x), widErr=Math.abs(S.holeF.y);   // along the length and across the width, scored separately
+    centErr=lenErr;
+    meetErr=Math.hypot(S.holeB.x-S.holeF.x,S.holeB.y-S.holeF.y);
+    const l32=to32(lenErr), w32=to32(widErr), m32=to32(meetErr);
+    // along the length a hair off only shifts the balance of the head. across the width it thins one cheek of the eye. the back hole has to meet the front
+    const lenG=l32<2?0:l32<5?1:l32<10?2:3, widG=w32<1.5?0:w32<3?1:w32<5?2:3, meetG=m32<1?0:m32<2?1:m32<4?2:3;
+    const grade=Math.max(lenG,widG,meetG);
+    stars=['★★★','★★☆','★☆☆','☆☆☆'][grade];
+    pts=Math.max(0,Math.round(100-l32*5-w32*12))+Math.max(0,Math.round(100-m32*12));
+    let verdict= grade===0?'Dead nuts.': grade===1?'Close enough. The drift will fix it.': grade===2?'A little off. Dress it with the drift and nobody will know.':
+      meetG===3?'Cold shut. That eye will crack.': widG===3?'Thin cheek. That is a tong rivet hole now.': S.holeF.x>0?'Way toward the face. Peen heavy hammer.':'Way toward the peen. Face heavy hammer.';
+    let extra='';
+    if(meetG===3){ pts-=50; extra+='<p><b>Cold shut.</b> The two holes missed by 1/8 in or more. There is a fold inside that eye and it will crack. Minus 50.</p>'; }
+    if(mode==='hand'){
+      if(!S.redlined && S.dips<=2){ pts+=20; extra+='<p>Pulled it and dipped it, '+S.dips+(S.dips===1?' dip':' dips')+', and it came out clean every time. Plus 20.</p>'; }
+      else if(S.redlined){ extra+='<p>Left it in the hot steel longer than you should have and got away with it. No bonus.</p>'; }
+    } else {
+      if(S.extraMarks){ pts-=5*S.extraMarks; extra+='<p>'+S.extraMarks+' extra mark'+(S.extraMarks>1?'s':'')+'. Minus '+(5*S.extraMarks)+'.</p>'; }
+      if(S.missedDust){ pts-=15*S.missedDust; extra+='<p>Skipped the coal dust '+(S.missedDust>1?S.missedDust+' times':'once')+' and the hot steel grabbed the punch on the way out. Fight that and you wreck the blank and the tool. Minus '+(15*S.missedDust)+'.</p>'; }
+      if(!S.extraMarks&&!S.missedDust){ pts+=20; extra+='<p>One mark each side, dusted, cooled. Clean work. Plus 20.</p>'; }
+    }
+    pts=Math.max(0,pts);
+    text='<h2>'+verdict+'</h2><p class="stars">'+stars+'</p>'+section(centErr,meetErr)+
+      '<p>Along the length: <b>'+l32+'/32</b> in'+(l32<2?'. Balanced.':(S.holeF.x>0?' toward the face.':' toward the peen.')+(l32<10?' Shifts the balance a hair. Nobody will feel it under 1/4 in.':' You will feel that in the swing.'))+'</p>'+
+      '<p>Across the width: <b>'+w32+'/32</b> in'+(w32<1.5?'. On the line.':w32<5?'. One cheek is thinner. The drift will even it out.':'. One cheek is too thin. The eye splits.')+'</p>'+
+      '<p>Back hole met the front within <b>'+m32+'/32</b> in'+(m32<2?'. Clean.':m32<4?'. Small step inside. The drift takes it.':'. Fold inside the eye.')+'</p>'+extra;
+  }
+  S.total=Math.max(0,S.total+pts); S.results.push(pts);
+  if(S.wrecked){ S.round=2; S.total=0; }   // game over: the next button starts a new game
+  else text+='<p>Round '+(S.round+1)+' of 3: <b>'+pts+'</b> points. Game: <b>'+S.total+'</b>.</p>';
+  if(S.round===2 && !S.wrecked){
+    if(S.total>best[mode]){ best[mode]=S.total; try{ localStorage.setItem(mode==='hand'?'eyepunch-best':'eyepunch-best-press',String(best[mode])); }catch(e){} text+='<p><b>New best.</b></p>'; }
+    text+='<p><small>Three blanks punched. Tap Next for a new game.</small></p>';
+  }
+  document.getElementById('cardBody').innerHTML=text;
+  document.getElementById('card').hidden=false;
+  S.step='score'; S.phase='score'; buttons(); hud();
+}
+function section(centErr,meetErr){
+  const W=320,H=110, s=Math.min(120,290/S.R.w); const bw=S.R.w*s, bh=S.R.t*s*0.5;
+  const x0=(W-bw)/2, top=25, bot=25+bh;
+  const fx=W/2+S.holeF.x*s, bx=W/2+S.holeB.x*s, hw=PUNCH.w*s/2;
+  const clean=meetErr*32<4;   // same line as the cold shut penalty
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cross section through the eye">'+
+    '<rect x="'+x0+'" y="'+top+'" width="'+bw+'" height="'+bh+'" fill="#8d8a86" stroke="#1a1715" stroke-width="2"/>'+
+    '<path d="M'+(fx-hw)+','+top+' L'+(fx+hw)+','+top+' L'+(fx+hw*0.75)+','+(top+bh/2)+' L'+(fx-hw*0.75)+','+(top+bh/2)+' Z" fill="#0f0d0b"/>'+
+    '<path d="M'+(bx-hw)+','+bot+' L'+(bx+hw)+','+bot+' L'+(bx+hw*0.75)+','+(top+bh/2)+' L'+(bx-hw*0.75)+','+(top+bh/2)+' Z" fill="#0f0d0b"/>'+
+    (clean?'':'<path d="M'+(Math.min(fx,bx)+hw*0.75)+','+(top+bh/2)+' L'+(Math.max(fx,bx)-hw*0.75)+','+(top+bh/2)+'" stroke="#ff3b1f" stroke-width="3"/>')+
+    '<line x1="'+W/2+'" y1="'+(top-8)+'" x2="'+W/2+'" y2="'+(bot+8)+'" stroke="#f26522" stroke-dasharray="3 3"/>'+
+    '<text x="'+(W/2+4)+'" y="'+(top-10)+'" font-family="Barlow" font-size="10" fill="#a3958a">true center</text>'+
+    '<text x="'+(x0)+'" y="'+(top+bh+12)+'" font-family="Barlow" font-size="10" fill="#a3958a">peen end</text><text x="'+(x0+bw)+'" y="'+(top+bh+12)+'" text-anchor="end" font-family="Barlow" font-size="10" fill="#a3958a">face end</text><text x="8" y="'+(H-6)+'" font-family="Barlow" font-size="11" fill="#a3958a">'+(clean?'Holes meet.':'Holes missed. Red line is the fold.')+'</text></svg>';
+}
+
+// ---------- loop ----------
+function tick(now){
+  const dt=Math.min(0.1,(now-S.lastT)/1000); S.lastT=now;
+  const onBack = mode==='hand' ? (S.side==='back'&&S.phase==='back') : (S.side==='back'&&S.step!=='slug'&&S.step!=='score');
+  if(onBack && S.spot>0){ S.spot=Math.max(0,S.spot-S.R.fade*dt); if(S.spot===0 && !S.holeB && !S.marks.length) S.msg='Spot is gone. Commit from memory.'; }
+  if(S.heat>0 && S.phase!=='score' && !S.driving) S.heat=Math.max(0,S.heat-(mode==='press'?0.08:0.015)*dt);
+  if(mode==='press'){
+    if(S.step==='driven' && !S.ramAnim && S.heat<0.3){ S.step='cooled'; S.msg='It cooled on its own. Flip the blank.'; buttons(); }
+    driveTick(now,dt);
+    if(S.ramAnim){ const k=Math.min(1,(now-S.ramAnim.t0)/(S.ramAnim.back?260:700)); S.ram=S.ramAnim.back? (k<0.5? k*2*S.ramAnim.to : (1-(k-0.5)*2)*S.ramAnim.to) : S.ramAnim.to+(1.35-S.ramAnim.to)*(1-k); if(k>=1){ S.ram=S.ramAnim.back?0:S.ramAnim.to; S.ramAnim=null; if(S.step==='driven'){ S.msg='Punch is out and it is hot. Cool it before you flip.'; } buttons(); } }
+    if(S.puff>0) S.puff=Math.max(0,S.puff-dt*2.2);
+  }
+  if(S.phase==='slug'){ S.slug=Math.min(1,(now-S.slugT0)/900); if(S.slug>=1){ S.phase='score'; S.slug=0; finishRound(); } }
+  hudHeat(); draw();
+  requestAnimationFrame(tick);
+}
+function hud(){
+  document.getElementById('hRound').textContent=S.round+1; document.getElementById('hSide').textContent=S.side;
+  document.getElementById('hStrikes').textContent=mode==='hand'?S.strikes:S.marks.length; document.getElementById('hScore').textContent=S.total; document.getElementById('hBest').textContent=best[mode];
+  document.getElementById('hStrikesLabel').textContent=mode==='hand'?'Strikes':'Marks';
+}
+function hudHeat(){ const h=Math.min(1,S.heat); document.getElementById('heatBar').style.width=(h*100)+'%'; document.getElementById('heatTxt').textContent=h<=0.02?'cool':h<0.4?'warm':h<0.7?'hot':h<1?'dip it':'RED'; }
+function show(id,on){ document.getElementById(id).hidden=!on; }
+function btn(id,on){ document.getElementById(id).disabled=!on; }
+// only the valid next action is lit
+function buttons(){
+  const hand=mode==='hand';
+  ['strike','dip'].forEach(id=>show(id,hand)); ['mark','dust','drive','cool'].forEach(id=>show(id,!hand));
+  show('cpunch', true);
+  show('next', S.phase==='score');
+  if(hand){
+    btn('strike',S.phase==='front'||S.phase==='back'); btn('dip',S.phase==='front'||S.phase==='back'||S.phase==='flip');
+    show('flip',S.phase==='flip');
+    document.getElementById('hint').textContent='Drag the punch over the blank. Center punch shows a dot dead center. Strike drives it. Dip cools it. Arrow keys nudge, P toggles the dot, space strikes, D dips.';
+  } else {
+    const st=S.step;
+    btn('mark',st==='align'||st==='marked'); btn('dust',st==='marked'); btn('drive',st==='marked'||st==='dusted'); btn('cool',!S.ramAnim && S.ram===0 && (st==='driven'||(S.heat>0.02&&(st==='align'||st==='marked'||st==='dusted'))));   // punch has to be out of the steel before you can cool it
+    show('flip',st==='cooled');
+    document.getElementById('hint').textContent='Center punch shows a dot dead center. Drag the blank under the fixed punch. Mark, coal dust, hold Drive, cool, flip. Arrow keys nudge the blank, P toggles the dot, M marks, U coal dusts, hold space to drive, C cools.';
+  }
+  document.getElementById('next').textContent=S.wrecked?'Start again':S.round===2?'New game':'Next round';
+}
+
+// ---------- input ----------
+let dragging=false;
+function canDrag(){ return mode==='hand' ? (S.phase==='front'||S.phase==='back') : (S.step==='align'||S.step==='marked'||S.step==='dusted'); }
+canvas.addEventListener('pointerdown',e=>{ if(!canDrag()) return; dragging=true; try{ canvas.setPointerCapture(e.pointerId); }catch(x){} dragStart(e); e.preventDefault(); });
+canvas.addEventListener('pointermove',e=>{ if(dragging) dragMove(e); });
+const up=()=>{ dragging=false; };
+canvas.addEventListener('pointerup',up); canvas.addEventListener('pointercancel',up);
+let dragRef=null;
+function dragStart(e){ const r=canvas.getBoundingClientRect(); if(mode==='hand'){ movePunch(e); return; } const G=geom(); dragRef={px:e.clientX-r.left, py:e.clientY-r.top, bx:S.blank.x, by:S.blank.y, s:G.s}; }
+function dragMove(e){ const r=canvas.getBoundingClientRect(); if(mode==='hand'){ movePunch(e); return; } if(!dragRef) return; const dx=(e.clientX-r.left-dragRef.px)/dragRef.s, dy=(e.clientY-r.top-dragRef.py)/dragRef.s; S.blank={x:Math.max(-1.3,Math.min(1.3,dragRef.bx+dx)), y:Math.max(-2.6,Math.min(2.6,dragRef.by+dy))}; }
+function movePunch(e){ const r=canvas.getBoundingClientRect(); const p=toIn(e.clientX-r.left,e.clientY-r.top); S.punch={x:Math.max(-2.6,Math.min(2.6,p.x)), y:Math.max(-1.2,Math.min(1.2,p.y))}; }
+document.getElementById('strike').addEventListener('click',strike);
+document.getElementById('dip').addEventListener('click',dip);
+document.getElementById('cpunch').addEventListener('click',centerPunch);
+document.getElementById('mark').addEventListener('click',mark);
+document.getElementById('dust').addEventListener('click',dust);
+document.getElementById('cool').addEventListener('click',cool);
+const driveBtn=document.getElementById('drive');
+driveBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); try{ driveBtn.setPointerCapture(e.pointerId); }catch(x){} driveStart(); });
+['pointerup','pointercancel','pointerleave'].forEach(ev=>driveBtn.addEventListener(ev,driveStop));
+document.getElementById('flip').addEventListener('click',flip);
+document.getElementById('next').addEventListener('click',()=>{ if(S.round===2) newGame(); else { S.round++; newRound(); } });
+document.getElementById('modeHand').addEventListener('click',()=>setMode('hand'));
+document.getElementById('modePress').addEventListener('click',()=>setMode('press'));
+function setMode(m){ if(m===mode) return; mode=m; canvas.dataset.h=m==='press'?540:380; canvas.style.height=canvas.dataset.h+'px'; document.querySelector('.stage').classList.toggle('press',m==='press'); document.getElementById('modeHand').setAttribute('aria-selected',m==='hand'); document.getElementById('modePress').setAttribute('aria-selected',m==='press'); newGame(); }
+window.addEventListener('keydown',e=>{
+  const n=1/32, dir=S.side==='back'?-1:1;
+  if(mode==='hand'){
+    if(e.key==='ArrowLeft'){ S.punch.x-=n*dir; e.preventDefault(); } else if(e.key==='ArrowRight'){ S.punch.x+=n*dir; e.preventDefault(); }
+    else if(e.key==='ArrowUp'){ S.punch.y-=n; e.preventDefault(); } else if(e.key==='ArrowDown'){ S.punch.y+=n; e.preventDefault(); }
+    else if(e.key===' '){ e.preventDefault(); if(S.phase==='flip') flip(); else strike(); } else if(e.key==='d'||e.key==='D') dip(); else if(e.key==='p'||e.key==='P') centerPunch();
+  } else {
+    if(!canDrag() && e.key.startsWith('Arrow')) return;
+    if(e.key==='ArrowLeft'){ S.blank.x-=n; e.preventDefault(); } else if(e.key==='ArrowRight'){ S.blank.x+=n; e.preventDefault(); }
+    else if(e.key==='ArrowUp'){ S.blank.y-=n; e.preventDefault(); } else if(e.key==='ArrowDown'){ S.blank.y+=n; e.preventDefault(); }
+    else if(e.key==='p'||e.key==='P') centerPunch(); else if(e.key==='m'||e.key==='M') mark(); else if(e.key==='u'||e.key==='U') dust(); else if(e.key==='c'||e.key==='C') cool();
+    else if(e.key===' '){ e.preventDefault(); if(S.step==='cooled') flip(); else if(!S.driving) driveStart(); }
+  }
+});
+window.addEventListener('keyup',e=>{ if(mode==='press'&&e.key===' ') driveStop(); });
+window.addEventListener('resize',draw);
+newGame(); requestAnimationFrame(tick);
+window.__eyePunch={get S(){return S},get mode(){return mode},geom,blankToPx};   // read-only hooks for tests
+})();
+</script>
+
+</body></html>
