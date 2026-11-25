@@ -139,7 +139,6 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   </header>
 
   <div class="bench">
-    <div class="picker" role="group" aria-label="Press" id="picker"></div>
     <p id="cfgNote" class="cfgnote"></p>
     <div class="diagram">
       <svg id="mainSvg" viewBox="0 30 760 450" aria-label="Animated hydraulic forging press with its hydraulic circuit">
@@ -156,6 +155,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
         <g class="part" data-part="cylinder">
           <rect x="140" y="70" width="80" height="152" rx="4" fill="#4a4f58"/>
           <rect x="146" y="82" width="68" height="134" fill="#1b1d22"/>
+          <rect x="136" y="70" width="88" height="10" rx="2" fill="#5c6168"/><rect x="136" y="212" width="88" height="10" rx="2" fill="#5c6168"/>
           <g clip-path="url(#cyl)">
             <rect id="capOil" x="146" y="82" width="68" height="10" fill="#2b5a8c"/>
             <rect id="rodOil" x="146" y="100" width="68" height="116" fill="#20405f" opacity=".55"/>
@@ -172,7 +172,11 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 
         <!-- Ram and top die -->
         <g class="part" data-part="ram" id="ramG">
-          <rect x="110" y="232" width="140" height="24" rx="2" fill="#4a4f58"/>
+          <path d="M110 256 L110 242 L126 226 L250 226 L250 256 Z" fill="#4a4f58"/>
+          <path d="M110 242 L126 226" stroke="#8a8f99" stroke-width="1.5"/>
+          <rect x="168" y="224" width="24" height="16" rx="2" fill="#3d4047"/><circle cx="180" cy="232" r="4.5" fill="#8a8f99" stroke="#1b1d22" stroke-width="1.5"/>
+          <g id="ramGib"><rect x="236" y="218" width="30" height="46" rx="2" fill="#3d4047" stroke="#1b1d22" stroke-width="1"/>
+            <circle cx="243" cy="225" r="2.6" fill="#8a8f99"/><circle cx="259" cy="225" r="2.6" fill="#8a8f99"/><circle cx="243" cy="241" r="2.6" fill="#8a8f99"/><circle cx="259" cy="241" r="2.6" fill="#8a8f99"/><circle cx="243" cy="257" r="2.6" fill="#8a8f99"/><circle cx="259" cy="257" r="2.6" fill="#8a8f99"/></g>
           <g id="topDieG"></g>
           <rect class="hit" x="106" y="228" width="148" height="52"/>
           <text class="lbl" x="258" y="252">Ram</text>
@@ -221,7 +225,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
           <circle cx="534" cy="430" r="8" fill="#1b1d22" stroke="#5aa9ff" stroke-width="2"/>
           <rect class="hit" x="484" y="402" width="72" height="56" rx="6"/>
           <text class="lbl" x="488" y="390">2-stage pump</text>
-          <text id="stage" class="val" x="488" y="474">Stage 1 Â· high flow</text>
+          <text id="stage" class="val" x="488" y="474">Stage 1 · high flow</text>
         </g>
 
         <!-- Tank -->
@@ -275,9 +279,9 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
         <g class="lever" id="lever" role="slider" aria-label="Control handle" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0" tabindex="0">
           <!-- gate: the knob's travel arc with the three valve markings -->
           <path d="M741.3 224.9 A70 70 0 0 1 741.3 305.1" fill="none" stroke="#3d4047" stroke-width="3"/>
-          <g id="zUp" class="zone"><text class="lbl zt" x="756" y="216" text-anchor="end">UP â–²</text><text class="lbl zs" x="756" y="203" text-anchor="end" font-size="10">dies open</text></g>
+          <g id="zUp" class="zone"><text class="lbl zt" x="756" y="216" text-anchor="end">UP ▲</text><text class="lbl zs" x="756" y="203" text-anchor="end" font-size="10">dies open</text></g>
           <g id="zHold" class="zone"><text class="lbl zt" x="722" y="251" text-anchor="middle">HOLD</text></g>
-          <g id="zDown" class="zone"><text class="lbl zt" x="756" y="322" text-anchor="end">DOWN â–¼</text><text class="lbl zs" x="756" y="334" text-anchor="end" font-size="10">dies close</text></g>
+          <g id="zDown" class="zone"><text class="lbl zt" x="756" y="322" text-anchor="end">DOWN ▼</text><text class="lbl zs" x="756" y="334" text-anchor="end" font-size="10">dies close</text></g>
           <!-- rod sticks straight out of the valve body toward the viewer, pivot at the valve -->
           <g id="leverArm" transform="rotate(0 684 265)">
             <line x1="684" y1="265" x2="738" y2="265" stroke="#aab0bb" stroke-width="6" stroke-linecap="round"/>
@@ -309,22 +313,22 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
         </g>
       </svg>
       <div class="track" id="track" data-zone="hold">
-        <div class="tlbl" data-z="up">UP â–²<small>dies open</small></div>
+        <div class="tlbl" data-z="up">UP ▲<small>dies open</small></div>
         <div class="trail"><div class="tcenter" data-z="hold">HOLD</div><div class="tknob" id="tknob" role="slider" aria-label="Control handle" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0"></div></div>
-        <div class="tlbl" data-z="down">DOWN â–¼<small>dies close</small></div>
+        <div class="tlbl" data-z="down">DOWN ▼<small>dies close</small></div>
       </div>
       <div class="stripside">
         <div class="tbtns">
-          <button type="button" id="feedL" aria-label="Feed bar left">â—€</button>
-          <button type="button" id="feedR" aria-label="Feed bar right">â–¶</button>
-          <button type="button" id="tTurn">Turn 90Â°</button>
+          <button type="button" id="feedL" aria-label="Feed bar left">◀</button>
+          <button type="button" id="feedR" aria-label="Feed bar right">▶</button>
+          <button type="button" id="tTurn">Turn 90°</button>
           <button type="button" id="tHeat">Back in the fire</button>
           <button type="button" id="tNew">New bar</button>
         </div>
         <div class="stripstats">
           <div class="stat"><small>Handle</small><b id="sHandle">HOLD</b></div>
           <div class="stat"><small>Ram</small><b id="dRam">free</b></div>
-          <div class="stat"><small>Under the dies</small><b id="sBar">1.00 Ã— 1.00 in</b></div>
+          <div class="stat"><small>Under the dies</small><b id="sBar">1.00 × 1.00 in</b></div>
               <div class="stat"><small>Pressure</small><b id="sP">0 psi</b></div>
               <div class="stat"><small>Squish so far</small><b id="sSquish">0.00 in</b></div>
         </div>
@@ -332,7 +336,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     </div>
 
     <div class="controls">
-      <p class="cfgnote" style="margin:0"><strong style="color:var(--fg)">Handle:</strong> pull down to close the dies, push up to open. Let go and it holds. Further you swing it the faster the ram moves. Up and down arrow keys work too. <strong style="color:var(--fg)">Bar.</strong> Drag it through the dies, or use the left and right arrow keys a quarter inch at a time. Turn 90Â° (or the T key) rolls it a quarter turn so you can squish the other face and keep it square.</p>
+      <p class="cfgnote" style="margin:0"><strong style="color:var(--fg)">Handle:</strong> pull down to close the dies, push up to open. Let go and it holds. Further you swing it the faster the ram moves. Up and down arrow keys work too. <strong style="color:var(--fg)">Bar.</strong> Drag it through the dies, or use the left and right arrow keys a quarter inch at a time. Turn 90° (or the T key) rolls it a quarter turn so you can squish the other face and keep it square.</p>
       <div class="opts">
         <label>Stock <select id="stock"><option value="0.75">3/4 in square</option><option value="1" selected>1 in square</option><option value="1.5">1 1/2 in square</option></select></label>
         <label>Dies <select id="die"><option value="flat" selected>Flat dies</option><option value="draw">Drawing dies</option><option value="vee">V block pair</option></select></label>
@@ -340,7 +344,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
         <label>Bore <select id="bore"><option>4</option><option selected>5</option><option>6</option></select> in</label>
         <label>Relief <input type="range" id="relief" min="1000" max="3000" step="50" value="3000"> <span id="reliefV">3000</span> psi</label>
         <button class="act hot desk" type="button" id="reheat">Reheat bar</button>
-        <button class="act desk" type="button" id="turn" title="T key">Turn 90Â°</button>
+        <button class="act desk" type="button" id="turn" title="T key">Turn 90°</button>
         <button class="act desk" type="button" id="newbar">New bar</button>
       </div>
     </div>
@@ -356,10 +360,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     <h2 style="margin:4px 0 0">Between the dies</h2>
     <div class="stats">
       <div class="stat"><small>Force available</small><b id="dAv">0 tons</b></div>
-      <div class="stat"><small>Force to keep moving</small><b id="dNeed">â€“</b></div>
-      <div class="stat"><small>Contact area</small><b id="dA">â€“</b></div>
+      <div class="stat"><small>Force to keep moving</small><b id="dNeed">–</b></div>
+      <div class="stat"><small>Contact area</small><b id="dA">–</b></div>
       <div class="stat"><small>Flow stress at this heat</small><b id="dS">4 ksi</b></div>
-      <div class="stat"><small>Heat under the dies</small><b id="sT">2100Â°F</b></div>
+      <div class="stat"><small>Heat under the dies</small><b id="sT">2100°F</b></div>
     </div>
 
     <div id="info"><b>Tap a part</b><span>Everything in the drawing is live. Tap the pump, the valve, the gauge or the bar to see what it is doing right now.</span></div>
@@ -368,31 +372,30 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <div class="bench math">
     <div>
       <h2>The only equation that matters</h2>
-      <div class="eq">Force = pressure Ã— piston area<br>
-        <span id="eqA">Area = Ï€ Ã— (5 Ã· 2)Â² = 19.63 inÂ²</span><br>
-        <span id="eqF">19.63 inÂ² Ã— 3000 psi = 58,900 lb â‰ˆ 29.4 tons</span><br>
+      <div class="eq">Force = pressure × piston area<br>
+        <span id="eqA">Area = π × (5 ÷ 2)² = 19.63 in²</span><br>
+        <span id="eqF">19.63 in² × 3000 psi = 58,900 lb ≈ 29.4 tons</span><br>
         <small>Change the bore or the relief setting above and the numbers follow. Bigger bore means more tons at the same pressure. More pressure means more tons from the same cylinder. The pump does not make force. The cylinder does.</small>
       </div>
     </div>
     <div>
       <h2>Why the ram slows down on steel</h2>
-      <div class="eq"><span id="eqSpeed">Stage 1: 11 gpm Ã· 19.63 inÂ² = 2.2 in/s<br>Stage 2: 2.5 gpm Ã· 19.63 inÂ² = 0.5 in/s</span><br>
+      <div class="eq"><span id="eqSpeed">Stage 1: 11 gpm ÷ 19.63 in² = 2.2 in/s<br>Stage 2: 2.5 gpm ÷ 19.63 in² = 0.5 in/s</span><br>
         <small>A two-stage pump is two pumps on one shaft. The big one moves a lot of oil at low pressure so the ram closes fast. The moment the ram meets steel and pressure climbs past the unloading point the big pump dumps to tank and only the small one keeps pushing. Less oil per second means a slower ram but it can push to full pressure without stalling the motor.</small>
       </div>
     </div>
   </div>
 
   <div class="bench">
-    <h2>C frame or H frame</h2>
-    <div class="tablewrap"><table class="cmp">
-      <thead><tr><th></th><th>C frame</th><th>H frame</th></tr></thead>
+    <h2>Why a C frame</h2>
+    <div class="tablewrap"><table class="cmp" style="min-width:0">
       <tbody>
-        <tr><th>Access</th><td data-col="C frame">Open from three sides. Front and both sides.</td><td data-col="H frame">Open from the front and the back.</td></tr>
-        <tr><th>Die area</th><td data-col="C frame">Dies sized for the throat. Plenty for most hand tooling.</td><td data-col="H frame">Wider die area. Room for long tooling and bigger flat dies.</td></tr>
-        <tr><th>Seeing the work</th><td data-col="C frame">Nothing in the way. You see the bar and the dies from where you stand.</td><td data-col="H frame">You look in between the columns.</td></tr>
-        <tr><th>Tooling up</th><td data-col="C frame">Easy. Set a tool on the bottom die from the side and go.</td><td data-col="H frame">Tooling slides in from the front or back.</td></tr>
-        <tr><th>Floor space</th><td data-col="C frame">Smaller footprint. Sits against a wall.</td><td data-col="H frame">Takes up more floor. Needs room front and back.</td></tr>
-        <tr><th>Who runs it</th><td data-col="C frame">Most one person shops. Andrew runs a 25-ton C frame every day.</td><td data-col="H frame">Shops with long tooling or bigger dies. Anyang and Big Blue sell this style at 25 to 40 tons.</td></tr>
+        <tr><th>Access</th><td>Open from three sides. Front and both sides.</td></tr>
+        <tr><th>Die area</th><td>Dies sized for the throat. Plenty for most hand tooling.</td></tr>
+        <tr><th>Seeing the work</th><td>Nothing in the way. You see the bar and the dies from where you stand.</td></tr>
+        <tr><th>Tooling up</th><td>Easy. Set a tool on the bottom die from the side and go.</td></tr>
+        <tr><th>Floor space</th><td>Small footprint. Sits against a wall.</td></tr>
+        <tr><th>Who runs it</th><td>Most one person shops. Andrew runs a 25-ton C frame every day.</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -405,7 +408,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     <p><strong>It stalls on wide stock.</strong> Force is fixed. As the bar spreads the contact area grows and the pressure needed climbs until it hits the relief setting. Watch the gauge peg and the ram stop. The fix is smaller dies or a smaller bite, not a bigger motor.</p>
     <p><strong>Where the sim cheats.</strong> The bar is a row of 56 slices and each slice only gets thinner, wider or longer in straight lines. Die friction and the extra squeeze it takes to spread a wide thin section are folded into one factor on the flow stress. There is no bulging of the bar sides and no steel moving between slices except by stretching. Good enough for the idea.</p>
   </div>
-  <p class="cfgnote" style="font-size:.8rem">Â© 2026 Portland Ironworks. All rights reserved. First published October 17, 2026. Part of the Portland Ironworks forge interactives.</p>
+  <p class="cfgnote" style="font-size:.8rem">© 2026 Portland Ironworks. All rights reserved. First published October 17, 2026. Part of the Portland Ironworks forge interactives.</p>
 </div>
 
 <script>
@@ -422,10 +425,8 @@ let ROD_AREA=Math.PI*1.25*1.25;    // 2.5 in rod
 
 // Press configurations.
 const CONFIGS={
-  coal25:{name:'25-ton C frame',sub:'open throat Â· 5 in bore',frame:'C',bore:5,relief:2550,rated:25,gpm1:11,gpm2:2.5,rod:2.5,
-    note:'Cylinder sits on top of the C. The ram comes down through the open throat so you reach the dies from the front and both sides with nothing in the way. This is the press most one person shops run.'},
-  hframe:{name:'H frame 25 to 40t',sub:'twin column Â· cross head Â· 6 in bore',frame:'H',bore:6,relief:2850,rated:40,gpm1:14,gpm2:3,rod:3,
-    note:'Cylinder centered between two uprights. The cross head rides on the columns and carries the top die. Work passes front to back. This is the style Anyang and Big Blue also sell in the 25 to 40 ton range. Slide the relief down to about 1800 psi to see it running as a 25 ton machine. Shown side on here so you can watch the bar profile.'}
+  coal25:{name:'25-ton C frame',sub:'open throat · 5 in bore',frame:'C',bore:5,relief:2550,rated:25,gpm1:11,gpm2:2.5,rod:2.5,
+    note:'One tall slab of plate with the throat cut out of the side. The cylinder hangs from a pin at the top of the throat and the ram rides a guide rail on the back wall, so you reach the dies from the front and both sides with nothing in the way. Pump, motor and tank live in the pedestal. This is the press most one person shops run.'}
 };
 let CFG=CONFIGS.coal25;
 
@@ -489,22 +490,15 @@ function newBar(){ bar=makeBar(+$('stock').value,8); turnAnim=0; turnFrom=null; 
 function drawFrame(){
   const g=$('frameG'), u=$('upperFrame');
   let f='', up='';
-  if(CFG.frame==='H'){
-    f+='<rect x="56" y="40" width="20" height="420" fill="#2a2d33"/><rect x="284" y="40" width="20" height="420" fill="#2a2d33"/>';
-    f+='<rect x="56" y="380" width="248" height="30" fill="#33373e"/><rect x="40" y="450" width="280" height="12" fill="#22252a"/>';
-    f+='<text class="lbl" x="60" y="440">H frame</text><text class="lbl" x="60" y="456">columns</text>';
-    // top plate sits on the columns above the cylinder
-    up+='<rect x="56" y="40" width="248" height="30" fill="#33373e"/>';
-    f+='<rect class="hit" x="52" y="36" width="256" height="378" rx="4"/>';
-  } else {
-    // C frame with the back of the C on the right and the throat open to the left, where the bar comes in
-    f+='<rect x="260" y="40" width="40" height="420" fill="#2a2d33"/>';                    // back of the C
-    f+='<rect x="90" y="380" width="210" height="30" fill="#33373e"/>';                    // bottom arm with bolster
-    f+='<rect x="20" y="450" width="300" height="12" fill="#22252a"/>';
-    f+='<text class="lbl" x="200" y="440" text-anchor="end">C frame</text><text class="lbl" x="200" y="456" text-anchor="end">â† open throat</text>';
-    f+='<rect class="hit" x="86" y="36" width="218" height="378" rx="4"/>';
-    up+='<path d="M300 40 L100 40 L100 70 L260 70 L260 120 L300 120 Z" fill="#33373e"/>';   // top arm
-  }
+    // One tall slab of plate with the throat cut out of the left side, rounded top, on a tapered pedestal.
+    f+='<path d="M78 480 L96 450 L308 450 L326 480 Z" fill="#22252a"/>';                                   // pedestal (pump, motor, tank inside)
+    f+='<path d="M124 34 L282 34 Q304 34 304 56 L304 450 L100 450 L100 380 L262 380 L262 60 L100 60 L100 58 Q100 34 124 34 Z" fill="#2a2d33"/>'; // frame plate
+    f+='<circle cx="284" cy="50" r="5" fill="#15120f"/>';                                                  // lifting hole
+    f+='<rect x="104" y="380" width="146" height="18" fill="#33373e"/>';                                   // bottom die holder
+    f+='<rect x="253" y="206" width="9" height="174" fill="#8a8f99"/><rect x="253" y="206" width="2" height="174" fill="#b8bec8"/><rect x="250" y="204" width="15" height="5" fill="#3d4047"/>'; // guide rail on the throat wall
+    f+='<text class="lbl" x="312" y="432">C frame</text><text class="lbl" x="312" y="448">plate</text>';
+    f+='<rect class="hit" x="96" y="30" width="212" height="424" rx="4"/>';
+    up+='<rect x="172" y="60" width="16" height="13" fill="#3d4047"/><circle cx="180" cy="65" r="4.5" fill="#8a8f99" stroke="#1b1d22" stroke-width="1.5"/>'; // top clevis lug and pin
   g.innerHTML=f; u.innerHTML=up;
 }
 function drawDies(){
@@ -530,9 +524,7 @@ function applyConfig(key){
   $('bore').value=String(CFG.bore); $('relief').value=CFG.relief;
   $('cfgNote').textContent=CFG.note;
   document.querySelectorAll('#picker button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.key===key));
-  PARTS.frame[1]=CFG.frame==='H'
-    ? 'Two columns with a top plate and a cross head. The cylinder pushes down on the ram and pulls up on the top plate. The cross head rides the columns and keeps the dies lined up. Work feeds in from the front or the back between the uprights.'
-    : 'One heavy upright with a top arm and a bottom arm. The cylinder sits on the top arm and the ram drops through the open throat. Nothing stands between you and the dies so you can see the work and get tongs in from the front and both sides.';
+  PARTS.frame[1]='One thick slab of plate with the throat cut out. The cylinder is pinned to a clevis at the top of the throat and pinned again at the ram, so it can float a little instead of bending. The ram has a bolted gib plate that rides a guide rail on the back of the throat and keeps the top die square to the bottom die. Nothing stands between you and the dies so you can see the work and get tongs in from the front and both sides.';
   drawFrame(); updateMath();
   newBar(); S.stroke=0; setHandle('hold');
 }
@@ -620,7 +612,7 @@ function drawBar(){
   s+='<circle cx="'+(tx-24)+'" cy="'+(DIE_Y-th/2)+'" r="4" fill="#8a7c70"/>';
   if(phone) s+='<rect class="hit" x="40" y="'+(DIE_Y-58)+'" width="260" height="70" rx="4"/>';
   else if(minX<Infinity) s+='<rect class="hit" x="'+(Math.max(0,minX)-6)+'" y="'+(DIE_Y-Math.max(maxH,bar.size*PX)-16)+'" width="'+(Math.min(760,maxX)-Math.max(0,minX)+12)+'" height="'+(Math.max(maxH,bar.size*PX)+20)+'" rx="4"/>';
-  s+='<text class="lbl" x="'+(phone?46:8)+'" y="300">â—€ Drag the bar â–¶</text>';
+  s+='<text class="lbl" x="'+(phone?46:8)+'" y="300">◀ Drag the bar ▶</text>';
   if(turnAnim>0) s+='<text class="val" x="'+(CX+70)+'" y="'+(DIE_Y-maxH-8)+'" fill="#ffb347">turning</text>';
   $('barG').innerHTML=s;
 }
@@ -670,7 +662,7 @@ function render(gpm){
   $('rodOil').setAttribute('y',106+sPx); $('rodOil').setAttribute('height',Math.max(0,110-sPx));
   $('capOil').setAttribute('fill', S.P>500?'#5aa9ff':'#2b5a8c');
   drawBar(); drawTop();
-  // gauge: 0..3500 psi over 270Â°
+  // gauge: 0..3500 psi over 270°
   const ang=-135+Math.min(1,S.P/3500)*270;
   $('needle').setAttribute('transform','rotate('+(ang+135)+' 700 100)');
   $('gaugeTxt').textContent=Math.round(S.P)+' psi';
@@ -692,15 +684,15 @@ function render(gpm){
   $('spring').setAttribute('stroke', S.stalled?'#f26522':'#8a8f99');
   $('fan').setAttribute('transform','translate(445 430) rotate('+((performance.now()/4)%360)+')');
   const stage2=S.handle==='down' && S.P>STAGE_SWITCH;
-  $('stage').textContent = stage2 ? 'Stage 2 Â· high pressure' : 'Stage 1 Â· high flow';
+  $('stage').textContent = stage2 ? 'Stage 2 · high pressure' : 'Stage 1 · high flow';
   $('stage').setAttribute('fill', stage2 ? '#ffb347' : '#efe6da');
   // stats
   const u=underDie(bar,d);
   $('sP').textContent=Math.round(S.P)+' psi';
   $('sF').textContent=tonsFmt(S.P*A);
   $('sV').textContent=Math.abs(S.v).toFixed(2)+' in/s';
-  $('sBar').textContent=u?u.h.toFixed(2)+' Ã— '+u.w.toFixed(2)+' in':'nothing';
-  $('sSquish').textContent=u?Math.max(0,bar.size-u.h).toFixed(2)+' in':'â€“';
+  $('sBar').textContent=u?u.h.toFixed(2)+' × '+u.w.toFixed(2)+' in':'nothing';
+  $('sSquish').textContent=u?Math.max(0,bar.size-u.h).toFixed(2)+' in':'–';
   $('tknob').style.transform='translateY('+(leverAngle/SWING*70).toFixed(1)+'px)';
   $('track').dataset.zone=S.handle;
   $('tknob').setAttribute('aria-valuenow',S.lever.toFixed(2));
@@ -710,12 +702,12 @@ function render(gpm){
   const n=S.touching&&lastNeed?lastNeed:needed(bar,d,STROKE_MAX-S.stroke);
   const live=n.A>0?n:null;
   $('dAv').textContent=tonsFmt(Fav);
-  $('dNeed').textContent=live?tonsFmt(live.F):'â€“';
+  $('dNeed').textContent=live?tonsFmt(live.F):'–';
   $('dNeed').style.color=live&&live.F>=Fav?'var(--accent)':'';
-  $('dA').textContent=live?live.A.toFixed(2)+' sq in':'â€“';
+  $('dA').textContent=live?live.A.toFixed(2)+' sq in':'–';
   const Tu=u?u.T:(live?live.T:0);
-  $('dS').textContent=u?(sigma(u.T)/1000).toFixed(sigma(u.T)<10000?1:0)+' ksi':'â€“';
-  $('sT').textContent=u?Math.round(u.T)+'Â°F '+heatName(u.T):'â€“';
+  $('dS').textContent=u?(sigma(u.T)/1000).toFixed(sigma(u.T)<10000?1:0)+' ksi':'–';
+  $('sT').textContent=u?Math.round(u.T)+'°F '+heatName(u.T):'–';
   $('dRam').textContent=S.stalled?'stalled':S.onStop?'on the die stop':(S.handle==='down'&&S.touching?'squeezing':S.handle==='down'?'closing':S.handle==='up'?'opening':'holding');
   $('dRam').style.color=S.stalled?'var(--accent)':'';
   // status line
@@ -740,7 +732,7 @@ function showInfo(id,quiet){
   if(id==='gauge') live=' Right now: '+Math.round(S.P)+' psi, which on a '+S.bore+' in bore is '+tonsFmt(S.P*A)+'.';
   if(id==='pump') live=' Right now: '+(S.handle==='down'&&S.P>STAGE_SWITCH?'stage 2, small pump only.':'stage 1, both pumps.');
   if(id==='relief') live=' Set to '+S.relief+' psi, so the most this press can make is '+tonsFmt(S.relief*A)+'.';
-  if(id==='bar'){ const u=underDie(bar,die()); live=u?' Under the dies right now: '+u.h.toFixed(2)+' in tall, '+u.w.toFixed(2)+' in wide, '+Math.round(u.T)+'Â°F.':' Nothing under the dies right now.'; }
+  if(id==='bar'){ const u=underDie(bar,die()); live=u?' Under the dies right now: '+u.h.toFixed(2)+' in tall, '+u.w.toFixed(2)+' in wide, '+Math.round(u.T)+'°F.':' Nothing under the dies right now.'; }
   if(id==='dies') live=' On now: '+die().name+'. '+die().info;
   const txt=p[1]+live;
   if(!quiet || $('info').dataset.id!==id){ $('info').innerHTML='<b></b><span></span>'; $('info').dataset.id=id; }
@@ -818,10 +810,10 @@ window.addEventListener('keyup',e=>{ if(e.key==='ArrowDown'||e.key==='ArrowUp') 
 
 function updateMath(){
   const A=area();
-  $('eqA').textContent='Area = Ï€ Ã— ('+S.bore+' Ã· 2)Â² = '+A.toFixed(2)+' inÂ²';
-  $('eqF').textContent=A.toFixed(2)+' inÂ² Ã— '+S.relief+' psi = '+Math.round(A*S.relief).toLocaleString()+' lb â‰ˆ '+(A*S.relief/2000).toFixed(1)+' tons (rated '+CFG.rated+')';
+  $('eqA').textContent='Area = π × ('+S.bore+' ÷ 2)² = '+A.toFixed(2)+' in²';
+  $('eqF').textContent=A.toFixed(2)+' in² × '+S.relief+' psi = '+Math.round(A*S.relief).toLocaleString()+' lb ≈ '+(A*S.relief/2000).toFixed(1)+' tons (rated '+CFG.rated+')';
   $('boreLbl').textContent=S.bore+' in bore';
-  $('eqSpeed').innerHTML='Stage 1: '+GPM1+' gpm Ã· '+A.toFixed(2)+' inÂ² = '+(GPM1*231/60/A).toFixed(1)+' in/s<br>Stage 2: '+GPM2+' gpm Ã· '+A.toFixed(2)+' inÂ² = '+(GPM2*231/60/A).toFixed(1)+' in/s';
+  $('eqSpeed').innerHTML='Stage 1: '+GPM1+' gpm ÷ '+A.toFixed(2)+' in² = '+(GPM1*231/60/A).toFixed(1)+' in/s<br>Stage 2: '+GPM2+' gpm ÷ '+A.toFixed(2)+' in² = '+(GPM2*231/60/A).toFixed(1)+' in/s';
   $('reliefLbl').textContent=S.relief+' psi'; $('reliefV').textContent=S.relief;
 }
 function say(m){ S.msgUntil=performance.now()+2500; $('status').textContent=m; }
@@ -845,12 +837,6 @@ $('tTurn').addEventListener('click',turnBar);
 $('tHeat').addEventListener('click',()=>$('reheat').click());
 $('tNew').addEventListener('click',()=>$('newbar').click());
 
-for(const k in CONFIGS){
-  const b=document.createElement('button'); b.type='button'; b.dataset.key=k;
-  b.innerHTML='<b>'+CONFIGS[k].name+'</b><span>'+CONFIGS[k].sub+'</span>';
-  b.addEventListener('click',()=>applyConfig(k));
-  $('picker').appendChild(b);
-}
 layoutMode();
 drawDies();
 applyConfig('coal25');
