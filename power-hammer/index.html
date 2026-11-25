@@ -1,0 +1,1207 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Power Hammer Works</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap">
+<style>
+/* Layout: dark shop bench. Machine picker on top, animated hammer on the left with a top view strip under it, parts list and readouts on the right, compare table below. */
+:root{
+  --bg:#15120f; --panel:#1f1a16; --line:#3a312a; --fg:#efe6da; --muted:#a3958a;
+  --accent:#f26522; --accent-2:#ffb347; --cold:#5a5a5e;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);padding-block:18px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--display);font-weight:700;font-size:2.4rem;letter-spacing:.02em;margin:0;text-transform:uppercase}
+header p{margin:0;color:var(--muted);max-width:60ch}
+.howto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.howto div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.howto b{font-family:var(--display);font-size:1.6rem;color:var(--accent);line-height:1}
+.howto span{font-size:.92rem;line-height:1.3}
+.hint{color:var(--muted);font-size:.8rem;line-height:1.3}
+.pickerlabel{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;color:var(--muted);margin:0 0 6px}
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.picker button{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:8px 12px;min-height:44px;cursor:pointer;font-family:var(--body);text-align:left;flex:1 1 200px;min-width:0}
+.picker button b{display:block;font-family:var(--display);font-size:1.2rem;text-transform:uppercase;letter-spacing:.04em}
+.picker button span{display:block;color:var(--muted);font-size:.8rem;line-height:1.25}
+.picker button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#2a1d14}
+.bench{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:12px;grid-template-columns:minmax(0,420px) minmax(0,1fr)}
+.bench>div{min-width:0}
+canvas{width:100%;display:block;background:#0f0d0b;border:1px solid var(--line);border-radius:4px;touch-action:none}
+#top{margin-top:6px;cursor:ew-resize}
+.controls{display:grid;gap:10px;margin-top:10px}
+.ctl{display:grid;gap:3px}
+.ctl label,.ctl .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--fg);font-size:.95rem}
+.ctl label b,.ctl .row b{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:1rem}
+input[type=range]{accent-color:var(--accent);width:170px;height:44px;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{width:28px;height:28px}
+select{background:#0f0d0b;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:44px;font-family:var(--body);font-size:1rem}
+button.act{background:var(--accent);color:#1a0d05;border:0;border-radius:6px;padding:8px 14px;min-height:44px;font-family:var(--display);
+  font-size:1.05rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;font-weight:700}
+button.act.quiet{background:#3a312a;color:var(--fg)}
+button.act[aria-pressed="true"]{background:var(--accent-2)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.vlabel{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;color:var(--muted);margin:0 0 2px}
+.parts{display:grid;gap:4px;margin:8px 0 0;padding:0;list-style:none}
+.parts button{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--fg);padding:6px 8px;border-radius:5px;cursor:pointer;font-family:var(--body);display:flex;gap:8px;align-items:baseline}
+.parts button b{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1rem;min-width:7.5em}
+.parts button span{color:var(--muted);font-size:.85rem;line-height:1.3}
+.parts button[aria-pressed="true"]{border-color:var(--accent);background:#2a1d14}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:10px}
+.nudge{min-width:44px;padding:0;font-size:1.4rem}
+.ctl .row input[type=range]{flex:1 1 120px;min-width:0}
+.quick{margin-top:8px;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.quick .stat b{font-size:1.1rem;white-space:normal;line-height:1.15}
+.stat{border-top:2px solid var(--line);padding-top:6px;min-width:0}
+.stat small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:.7rem}
+.stat b{font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.dies{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#17130f}
+.dies h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:1.05rem;margin:0 0 2px}
+.dies .stats{margin-top:6px}
+.dies .stat b{color:var(--accent-2)}
+#log{min-height:1.5em;margin:8px 0 0;color:var(--accent-2);font-size:.95rem}
+.why{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;color:var(--fg);line-height:1.45;max-width:78ch}
+.why h2,.cmp h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:1.2rem;margin:0 0 6px}
+.why p{margin:0}
+.cmp{display:grid;gap:10px}
+.cmp .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cmp .col{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.cmp .col h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:1.25rem;margin:0 0 4px;color:var(--accent-2)}
+.cmp .col p{margin:0 0 8px;color:var(--muted);font-size:.9rem;line-height:1.4}
+.cmp .col ul{margin:0;padding-left:18px;font-size:.9rem;line-height:1.4}
+.cmp .col strong{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:8px}
+@media (max-width:720px){.bench{grid-template-columns:1fr;padding:8px}.cmp .grid{grid-template-columns:1fr}.howto{grid-template-columns:1fr;gap:4px;padding:8px 10px}.howto span{font-size:.85rem}h1{font-size:1.8rem}header p{font-size:.9rem}.wrap{gap:10px}.picker button{flex-basis:100%}input[type=range]{width:auto;max-width:none}.quick{grid-template-columns:repeat(2,minmax(0,1fr))}}
+[hidden]{display:none!important}
+/* explainer view: just the machine, one treadle, tap a part */
+.exphead,.expbar,.expcap,.expgo{display:none}
+body.exp .exphead{display:block} body.exp .expbar{display:flex} body.exp .expcap{display:block} body.exp .expgo{display:flex}
+body.exp .sim{display:none!important}
+body.exp .bench{grid-template-columns:minmax(0,1fr);max-width:560px;width:100%;margin:0 auto}
+body.exp .bench>div:last-child{display:none}
+body.exp #c{cursor:pointer}
+.exphead h1{font-size:2.2rem}
+.exphead p{margin:6px 0 0;color:var(--muted);max-width:52ch;line-height:1.4}
+.expbar{gap:6px;flex-wrap:wrap}
+.expbar button{flex:1 1 0;min-width:0;min-height:44px;background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:6px;font-family:var(--display);font-size:1.1rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;padding:6px 8px}
+.expbar button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#2a1d14}
+.expcap{background:#17130f;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;margin-top:10px;min-height:4.2em;line-height:1.4}
+.expcap b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent-2);font-size:1.05rem}
+.expgo{justify-content:center;margin-top:4px}
+.expgo button{font-size:1.25rem;padding:10px 22px;min-height:52px}
+body.exp .treadleticks{display:flex}
+.treadleticks{display:none;justify-content:space-between;color:var(--muted);font-size:.8rem;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;padding:0 50px}
+#backexp{background:none;border:0;color:var(--accent-2);font-family:var(--body);font-size:1rem;text-decoration:underline;cursor:pointer;min-height:44px;padding:0;justify-self:start}
+body.exp #backexp{display:none}
+body.exp #treadlev{display:none}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="exphead">
+    <h1>How a mechanical power hammer works</h1>
+    <p>It's a motor a crank and a spring. That's it. Push the treadle and watch. Tap any part to see what it does.</p>
+  </header>
+  <div class="expbar" id="expbar" role="group" aria-label="Which hammer">
+    <button type="button" data-x="mech" aria-pressed="true">Little Giant</button>
+    <button type="button" data-x="bd" aria-pressed="false">Beaudry</button>
+    <button type="button" data-x="sbs" aria-pressed="false">Side by side</button>
+  </div>
+  <button type="button" id="backexp">Back to explainer</button>
+  <header class="sim">
+    <h1>How a power hammer works</h1>
+    <p>Two hammers a smith might stand in front of. Run one. Feed a bar through the dies. Turn it. Draw it out. Tap any part to learn what it does.</p>
+  </header>
+
+  <div class="howto sim" aria-label="How to use this">
+    <div><b>1</b><span>Pick a hammer. Pick a bar size and a set of dies below the drawing.</span></div>
+    <div><b>2</b><span>Slide the treadle. Drag the bar through the dies between blows. Turn it 90° to keep it square.</span></div>
+    <div><b>3</b><span>Tap any part on the drawing or in the list. The box below tells you what it does.</span></div>
+  </div>
+
+  <div class="sim">
+    <p class="pickerlabel">Hammer. Tap one to switch.</p>
+    <div class="picker" id="picker" role="group" aria-label="Hammer">
+      <button type="button" data-m="mech" aria-pressed="true"><b>Little Giant</b><span>Old style mechanical. Crank plate, coil spring, toggles. Speed and force come together.</span></button>
+      <button type="button" data-m="bd" aria-pressed="false"><b>Beaudry</b><span>Champion style mechanical. Leaf spring arms on rollers inside a hollow ram.</span></button>
+      <button type="button" data-m="sbs" aria-pressed="false"><b>Side by side</b><span>Little Giant and Beaudry on one treadle. Watch the two springs work.</span></button>
+      <button type="button" data-m="air" aria-pressed="false"><b>Anyang 55 lb</b><span>Self contained air hammer. Compressor piston, control valve, 55 lb ram floats on air. 235 blows a minute.</span></button>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div>
+      <canvas id="c" width="420" height="520" aria-label="Animated cross section of the chosen hammer with the bar between the dies"></canvas>
+      <div class="stats quick sim">
+        <div class="stat"><small id="l1">Blows / min</small><b id="s1">0</b></div>
+        <div class="stat"><small>Under the die</small><b id="s4">–</b></div>
+        <div class="stat"><small>Squish this blow</small><b id="dH">–</b></div>
+        <div class="stat"><small id="l3">Spring added</small><b id="s3">–</b></div>
+      </div>
+      <canvas class="sim" id="top" width="420" height="64" aria-label="Top view of the bar showing its width"></canvas>
+      <div class="controls">
+        <div class="ctl">
+          <div class="row"><b>Treadle</b> <button class="act quiet nudge" id="tminus" aria-label="Treadle down one notch">−</button><input type="range" id="treadle" min="0" max="100" step="1" value="0" aria-label="Treadle"><button class="act quiet nudge" id="tplus" aria-label="Treadle up one notch">+</button> <span id="treadlev">up</span></div>
+          <div class="treadleticks" aria-hidden="true"><span>Off</span><span>Slow</span><span>Full</span></div>
+          <span class="hint" id="treadlehint">Push to speed up and hit harder. The first half of the travel is light taps. Use − and + for one notch at a time.</span>
+        </div>
+        <div class="ctl sim" id="feedctl">
+          <div class="row">
+            <b>Feed</b> <input type="range" id="feed" min="-2" max="7" step="0.05" value="1" aria-label="Bar position">
+            <button class="act quiet" id="turn">Turn 90°</button>
+          </div>
+          <span class="hint">Drag the bar through the dies. Or slide this. Left and right arrow keys work too. Turn 90° (or the T key) rolls the bar a quarter turn so it stays square while you draw it out.</span>
+        </div>
+        <p class="sim" id="log" style="margin:0">Treadle is up. Brake band holds the crank plate. Ram rests down. Drag the crank plate to turn it by hand.</p>
+        <div class="ctl sim" id="barctl">
+          <div class="row">
+            <b>Bar</b>
+            <select id="stock" aria-label="Bar size">
+              <option value="0.5">1/2 in square</option>
+              <option value="0.75">3/4 in square</option>
+              <option value="1" selected>1 in square</option>
+              <option value="1.5">1 1/2 in square</option>
+            </select>
+            <select id="die" aria-label="Dies">
+              <option value="flat" selected>Flat dies</option>
+              <option value="draw">Drawing dies</option>
+            </select>
+            <button class="act quiet" id="reset">New bar</button>
+            <button class="act" id="reheat">Reheat</button>
+          </div>
+          <span class="hint">Thin bar squishes out in a couple of blows. Fat bar takes more. Drawing dies touch a narrow strip so they bite deeper and push steel along the bar. Reheat puts the whole bar back to yellow.</span>
+        </div>
+        <div class="ctl" id="holdWrap" hidden>
+          <div class="row"><button class="act" id="hold" aria-pressed="false">Hold ram down</button></div>
+          <span class="hint">Air only. Turns the valve the other way so the ram clamps the bar. Tap again to let it float back up.</span>
+        </div>
+      </div>
+      <div class="dies sim">
+        <h3>Between the dies</h3>
+        <span class="hint">Why the second blow moves less than the first. Energy is the same. Contact area grows and the steel cools so each inch of squish costs more. Feed fresh bar in and it moves again.</span>
+        <div class="stats">
+          <div class="stat"><small>Blow energy</small><b id="dE">–</b></div>
+          <div class="stat"><small>Contact area</small><b id="dA">–</b></div>
+          <div class="stat"><small>Flow stress</small><b id="dS">–</b></div>
+          <div class="stat"><small>Bar length</small><b id="dB">–</b></div>
+          <div class="stat"><small id="l2">Ram</small><b id="s2">25 lb</b></div>
+          <div class="stat"><small>Blows this heat</small><b id="dN">0</b></div>
+        </div>
+      </div>
+      <div class="expcap" id="expcap" aria-live="polite"></div>
+    </div>
+    <div>
+      <p class="vlabel">Parts</p>
+      <span class="hint">Tap a part here or on the drawing to learn what it does.</span>
+      <ul class="parts" id="parts"></ul>
+    </div>
+  </div>
+
+  <div class="why sim">
+    <h2 id="whytitle">Why the spring matters</h2>
+    <p id="whytext"></p>
+  </div>
+
+  <div class="cmp sim">
+    <h2>Mechanical, Anyang 55 lb air, or press</h2>
+    <div class="grid">
+      <div class="col">
+        <h3>Mechanical hammer</h3>
+        <p>Motor, crank, coil spring and toggles, ram. Blows are tied to the crank so every stroke is the same height for a given treadle position. Old, cheap, loud and fast.</p>
+        <strong>Reach for it when</strong>
+        <ul><li>Drawing out long stock fast</li><li>Rough forging to shape</li><li>Repeat work where rhythm matters</li></ul>
+        <strong>Watch out for</strong>
+        <ul><li>No single soft blow at speed</li><li>Spring and toggle tuning</li><li>Dies that hit cockeyed from worn guides</li></ul>
+      </div>
+      <div class="col">
+        <h3>Anyang 55 lb air</h3>
+        <p>A 5 hp motor drives a compressor piston. A valve routes that air to a second piston that carries the ram. Blow height, force and speed are all on the treadle, and the ram will sit up or clamp down on command.</p>
+        <strong>Reach for it when</strong>
+        <ul><li>One controlled hit, then a flurry</li><li>Holding the ram up or clamping work down</li><li>Tooling under the dies, spring swages, fullers</li></ul>
+        <strong>Watch out for</strong>
+        <ul><li>Cost and weight</li><li>Valve timing and ring wear</li><li>Needs a foundation like any hammer</li></ul>
+      </div>
+      <div class="col">
+        <h3>Hydraulic press</h3>
+        <p>A pump pushes oil into a cylinder and a ram descends slowly with huge force. No blow at all, just a squeeze. Moves steel deep to the center instead of only at the surface.</p>
+        <strong>Reach for it when</strong>
+        <ul><li>Forge welding billets and cable</li><li>Punching, drifting and slitting with tooling</li><li>Precise sizing and bending at low heat</li></ul>
+        <strong>Watch out for</strong>
+        <ul><li>Slow, so steel cools in the dies</li><li>Tooling must take full tonnage</li><li>Dwell time pulls heat into the dies</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="expgo"><button type="button" class="act" id="forgeit">Forge with it</button></div>
+  <p class="hint" style="margin:8px 0 0">© 2026 Portland Ironworks. All rights reserved. First published October 17, 2026. Part of the Portland Ironworks forge interactives.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+const cv=document.getElementById('c'), g=cv.getContext('2d');
+const tv=document.getElementById('top'), gt=tv.getContext('2d');
+const W=420,TH=64;
+let H=520, LOWER_DIE_Y=410;   // set per machine in selectMachine
+const PX=28;                      // canvas px per inch along and above the lower die
+const treadleEl=document.getElementById('treadle'), feedEl=document.getElementById('feed');
+const holdBtn=document.getElementById('hold'), stockEl=document.getElementById('stock'), dieEl=document.getElementById('die');
+// treadle curve: the first half of the travel is light taps. energy share = t squared, speed share = t to the 1.5
+function tpos(){ return +treadleEl.value/100; }
+function tEnergy(t){ return t*t; }
+function tSpeed(t){ return Math.pow(t,1.5); }
+
+// ---------- bar model: a length of stock as segments. inches, pounds, degrees F ----------
+// each segment: L along the bar, w across it, h between the dies, vol fixed, T its own heat.
+const NSEG=56, DIE_STOP=0.125;
+const DIES={
+  flat:{name:'Flat dies',half:1.25,edge:0.2,spread:0.5,
+        z(x){ const a=Math.abs(x); if(a>this.half) return Infinity; const f=this.half-this.edge; if(a<=f) return 0; const u=a-f; return this.edge-Math.sqrt(Math.max(0,this.edge*this.edge-u*u)); }},
+  draw:{name:'Drawing dies',half:0.75,edge:0,spread:0.15,
+        z(x){ const a=Math.abs(x); if(a>=this.half) return Infinity; return this.half-Math.sqrt(this.half*this.half-a*a); }}
+};
+const SIG=[[2100,4000],[1900,6000],[1700,9000],[1500,15000],[1300,25000],[1100,45000],[950,120000],[70,400000]];
+function sigma(T){
+  if(T>=2100) return 4000;
+  for(let i=0;i<SIG.length-1;i++){ const [t1,s1]=SIG[i],[t2,s2]=SIG[i+1]; if(T<=t1&&T>=t2){ const f=(t1-T)/(t1-t2); return Math.exp(Math.log(s1)+(Math.log(s2)-Math.log(s1))*f);} }
+  return 400000;
+}
+function makeBar(size,len){
+  const seg=[]; for(let i=0;i<NSEG;i++) seg.push({L:len/NSEG,w:size,h:size,vol:len/NSEG*size*size,T:2100});
+  return {seg,size,tongX:-len+1.0,blows:0};   // tongX: bar's tong end, inches from die center. free end starts 1 in past the dies
+}
+function layout(bar){ let x=bar.tongX; const c=[]; for(const s of bar.seg){ c.push(x+s.L/2); x+=s.L; } return c; }
+function totalLength(bar){ return bar.seg.reduce((a,s)=>a+s.L,0); }
+// where the die's lowest point meets the bar: height above the lower die, or DIE_STOP if nothing is under it
+function barReach(bar,die){
+  const c=layout(bar); let H=-1;
+  for(let i=0;i<bar.seg.length;i++){ const z=die.z(c[i]); if(z===Infinity) continue; H=Math.max(H,bar.seg[i].h-z); }
+  return H<0?null:Math.max(H,DIE_STOP);
+}
+// one blow of E ft lb. returns a readout or null if the dies met nothing
+function strike(bar,die,E){
+  const c=layout(bar), seg=bar.seg;
+  const z=c.map(x=>die.z(x));
+  let Hmax=-1; for(let i=0;i<seg.length;i++) if(z[i]<Infinity) Hmax=Math.max(Hmax,seg[i].h-z[i]);
+  if(Hmax<=DIE_STOP+1e-6) return null;
+  // iterate: contact area is the segments the die is touching at the end of the blow
+  let dh0=0.02, A=0, sg=0;
+  for(let it=0;it<4;it++){
+    A=0; let sw=0, sa=0;
+    for(let i=0;i<seg.length;i++){ if(z[i]<Infinity && seg[i].h-z[i]>Hmax-dh0){ const a=seg[i].L*seg[i].w; A+=a; sw+=a*sigma(seg[i].T); sa+=a; } }
+    sg=sa>0?sw/sa:sigma(2100);
+    dh0=Math.min(0.9*E*12/(sg*Math.max(A,0.05)), 0.6*Hmax, Hmax-DIE_STOP);
+  }
+  const hf=Math.max(DIE_STOP,Hmax-dh0);
+  let maxdh=0, touched=0, moved=0;
+  for(let i=0;i<seg.length;i++){
+    if(z[i]===Infinity) continue;
+    const s=seg[i]; const target=hf+z[i]; if(s.h<=target) continue;
+    const dh=s.h-target; const V=s.L*s.w*dh;
+    const hn=target; const wn=s.w+die.spread*V/(hn*s.L);
+    s.h=hn; s.w=wn; s.L=s.vol/(wn*hn);
+    s.T=Math.max(70,s.T-40/s.h);
+    maxdh=Math.max(maxdh,dh); touched++; moved+=V;
+  }
+  bar.blows++;
+  return {E,A,sigma:sg,dh:maxdh,touched,moved,Hmax,hf};
+}
+function coolBar(bar,dt){
+  for(const s of bar.seg){ const pa=2*(s.w+s.h)/(s.w*s.h); const f=(s.T-70)/2030; s.T=Math.max(70,s.T-dt*12*(pa/4)*f*f); }
+}
+function turnBar(bar){ for(const s of bar.seg){ const t=s.w; s.w=s.h; s.h=t; } }
+
+
+let bar=null, last=null, turnAnim=0, turnFrom=null;
+function die(){ return DIES[dieEl.value]; }
+function newBar(){ bar=makeBar(+stockEl.value,8); last=null; syncFeed(); }
+function syncFeed(){ feedEl.value=(bar.tongX+totalLength(bar)).toFixed(2); }
+function setFreeEnd(v){ bar.tongX=v-totalLength(bar); clampBar(); }
+function clampBar(){ const L=totalLength(bar); bar.tongX=Math.max(-L-2, Math.min(2.5, bar.tongX)); }
+// height of the die's lowest point when it lands, in canvas px
+function barTop(){ if(SBS||EXP) return LOWER_DIE_Y-PX; const r=barReach(bar,die()); return LOWER_DIE_Y-(r==null?DIE_STOP:r)*PX; }
+function heatColor(T){
+  if(T>=2000) return '#fff2a8'; if(T>=1800) return '#ffc83d'; if(T>=1600) return '#ff8a1f';
+  if(T>=1400) return '#f24a1a'; if(T>=1200) return '#b3261a'; if(T>=1000) return '#6e1a14'; return '#4a4448';
+}
+function heatName(T){
+  if(T>=2000) return 'yellow'; if(T>=1800) return 'bright orange'; if(T>=1600) return 'orange';
+  if(T>=1400) return 'cherry red'; if(T>=1200) return 'dull red'; if(T>=1000) return 'black heat'; return 'cold';
+}
+function underDie(){ const c=layout(bar); const d=die(); let best=null; for(let i=0;i<bar.seg.length;i++){ if(d.z(c[i])===0||(d.z(c[i])<0.02)){ if(!best||bar.seg[i].h>best.h) best=bar.seg[i]; } } return best; }
+// a die face arriving at vfps feet per second with a ram of m pounds
+function hitBar(vfps,m){
+  const E=0.5*(m/32.2)*vfps*vfps;
+  if(SBS||EXP){ blowFlash=1; lastBlow=vfps; return; }
+  const r=strike(bar,die(),E);
+  blowFlash=1; lastBlow=vfps;
+  if(!r){ log('Dies met on the stop. Nothing under them. Feed the bar in.'); return; }
+  last=r;
+  if(r.sigma>100000) log('That steel is at a '+heatName(hotUnder())+'. The dies just bounce. Reheat it.');
+  else if(r.hf<=DIE_STOP+0.001) log('Down on the die stop under the dies. Feed fresh bar in or start a new one.');
+  else if(r.dh<0.01) log('Barely moved. '+r.A.toFixed(1)+' sq in of contact and the steel is cooling. Feed in or reheat.');
+  else log('Blow landed. '+E.toFixed(0)+' ft lb into '+r.A.toFixed(1)+' sq in. Squished '+r.dh.toFixed(2)+' in on '+r.touched+' segments.');
+}
+function hotUnder(){ const s=underDie(); return s?s.T:70; }
+
+// ---------- shared state ----------
+let lastBlow=null, blowFlash=0, highlight=null, regions=[], lastT=performance.now();
+let current='mech', dragBar=null, SBS=false, EXP=true, XF={ox:0,oy:0,s:1};
+function log(m){ document.getElementById('log').textContent=m; }
+function set(id,v){ document.getElementById(id).textContent=v; }
+function rr(x,y,w,h,r){ g.beginPath(); g.roundRect(x,y,w,h,r); }
+function part(id,x,y,w,h){ regions.push({id,x:XF.ox+x*XF.s,y:XF.oy+y*XF.s,w:w*XF.s,h:h*XF.s}); }
+function hl(id){ return highlight===id; }
+function fillPart(id,color){ g.fillStyle=hl(id)?'#f26522':color; }
+function label(text,x,y,align){ if(SBS) return; g.fillStyle='#efe6da'; g.font='bold '+(EXP?13:11)+'px "Barlow Condensed", sans-serif'; g.textAlign=align||'left'; g.fillText(text,x,y); g.textAlign='left'; }
+function drawFloor(){ g.fillStyle='#0f0d0b'; g.fillRect(0,0,W,H); g.fillStyle='#1a1715'; g.fillRect(0,H-20,W,20); }
+
+// bar in the side view: height profile of every segment, hot color per segment
+function drawBar(cx){
+  if(EXP&&!SBS){ // explainer: a plain cold block sits on the die so the ram has something to land on
+    g.fillStyle='#5a5a5e'; g.fillRect(cx-60,LOWER_DIE_Y-PX,120,PX); g.strokeStyle='rgba(0,0,0,.6)'; g.lineWidth=1.2; g.strokeRect(cx-60,LOWER_DIE_Y-PX,120,PX); return; }
+  if(SBS){ g.fillStyle=EXP?'#5a5a5e':heatColor(2000); g.fillRect(cx-150,LOWER_DIE_Y-PX,190,PX); g.strokeStyle='rgba(0,0,0,.6)'; g.lineWidth=1.2; g.strokeRect(cx-150,LOWER_DIE_Y-PX,190,PX); return; }
+  const c=layout(bar); const seg=bar.seg;
+  let tp=1; if(turnAnim>0){ tp=1-turnAnim; }
+  let minX=Infinity,maxX=-Infinity,maxH=0;
+  for(let i=0;i<seg.length;i++){
+    const s=seg[i]; const x=cx+(c[i]-s.L/2)*PX, wpx=s.L*PX+0.7;
+    let h=s.h; if(turnFrom) h=turnFrom[i]*(1-tp)+s.h*tp;
+    const hp=h*PX;
+    if(x+wpx<0||x>W) continue;
+    g.fillStyle=heatColor(s.T); g.fillRect(x,LOWER_DIE_Y-hp,wpx,hp);
+    minX=Math.min(minX,x); maxX=Math.max(maxX,x+wpx); maxH=Math.max(maxH,hp);
+  }
+  // outline the profile
+  g.strokeStyle='rgba(0,0,0,.6)'; g.lineWidth=1.2; g.beginPath();
+  for(let i=0;i<seg.length;i++){ const s=seg[i]; const x=cx+(c[i]-s.L/2)*PX; let h=s.h; if(turnFrom) h=turnFrom[i]*(1-tp)+s.h*tp; const y=LOWER_DIE_Y-h*PX; if(i===0) g.moveTo(x,y); else g.lineTo(x,y); g.lineTo(x+s.L*PX,y); }
+  g.stroke();
+  if(minX<Infinity) part('bar',Math.max(0,minX)-6,LOWER_DIE_Y-Math.max(maxH,30)-26,Math.min(W,maxX)-Math.max(0,minX)+12,Math.max(maxH,30)+52);
+  // tongs on the tong end
+  const tx=cx+bar.tongX*PX, th=seg[0].h*PX;
+  g.strokeStyle=hl('bar')?'#f26522':'#8a7c70'; g.lineWidth=5; g.lineCap='round';
+  g.beginPath(); g.moveTo(tx+2,LOWER_DIE_Y-th-3); g.lineTo(tx-16,LOWER_DIE_Y-th-5); g.lineTo(tx-60,LOWER_DIE_Y-th/2-30);
+  g.moveTo(tx+2,LOWER_DIE_Y+3); g.lineTo(tx-16,LOWER_DIE_Y+5); g.lineTo(tx-60,LOWER_DIE_Y-th/2+30); g.stroke();
+  g.fillStyle='#8a7c70'; g.beginPath(); g.arc(tx-24,LOWER_DIE_Y-th/2,4,0,Math.PI*2); g.fill();
+  if(blowFlash>0&&last){ g.fillStyle='rgba(255,200,80,'+(blowFlash*0.5)+')'; const d=die(); g.fillRect(cx-d.half*PX-6,LOWER_DIE_Y-maxH-6,d.half*2*PX+12,maxH+10); blowFlash=Math.max(0,blowFlash-0.08); }
+  label('Bar. Drag it through the dies',44,LOWER_DIE_Y-Math.max(maxH,bar.size*PX)-8);
+  if(turnAnim>0){ label('turning',cx+60,LOWER_DIE_Y-maxH-8); }
+}
+// top view strip: width profile, same x scale
+function drawTop(cx){
+  gt.setTransform(1,0,0,1,0,0);
+  gt.fillStyle='#0f0d0b'; gt.fillRect(0,0,W,TH);
+  const d=die();
+  gt.fillStyle='rgba(239,230,218,.08)'; gt.fillRect(cx-d.half*PX,0,d.half*2*PX,TH);
+  const c=layout(bar); const mid=TH/2; const sc=PX*0.9;
+  let tp=1; if(turnAnim>0) tp=1-turnAnim;
+  for(let i=0;i<bar.seg.length;i++){
+    const s=bar.seg[i]; const x=cx+(c[i]-s.L/2)*PX; let w=s.w; if(turnFrom) w=turnFrom.w[i]*(1-tp)+s.w*tp;
+    if(x+s.L*PX<0||x>W) continue;
+    gt.fillStyle=heatColor(s.T); gt.fillRect(x,mid-w*sc/2,s.L*PX+0.7,w*sc);
+  }
+  gt.strokeStyle='rgba(0,0,0,.6)'; gt.lineWidth=1; gt.beginPath();
+  for(let i=0;i<bar.seg.length;i++){ const s=bar.seg[i]; const x=cx+(c[i]-s.L/2)*PX; const y=mid-s.w*sc/2; if(i===0) gt.moveTo(x,y); else gt.lineTo(x,y); gt.lineTo(x+s.L*PX,y); }
+  for(let i=bar.seg.length-1;i>=0;i--){ const s=bar.seg[i]; const x=cx+(c[i]-s.L/2)*PX; const y=mid+s.w*sc/2; gt.lineTo(x+s.L*PX,y); gt.lineTo(x,y); }
+  gt.closePath(); gt.stroke();
+  gt.fillStyle='#a3958a'; gt.font='10px Barlow, sans-serif'; gt.fillText('top view. width spreads here',6,12);
+  gt.fillText('dies',cx-d.half*PX+3,TH-5);
+}
+// guided ram block (tup) with a dovetail die seat, and its guide ways
+function drawGuides(cx,rw,y,h,vee){
+  fillPart('guides','#3a332d'); g.fillRect(cx-rw/2-16,y,16,h); g.fillRect(cx+rw/2,y,16,h); part('guides',cx-rw/2-16,y,rw+32,h);
+  g.strokeStyle='#15120f'; g.lineWidth=2; g.beginPath();
+  if(vee){ g.moveTo(cx-rw/2-16,y+4); g.lineTo(cx-rw/2-4,y+h/2); g.lineTo(cx-rw/2-16,y+h-4); g.moveTo(cx+rw/2+16,y+4); g.lineTo(cx+rw/2+4,y+h/2); g.lineTo(cx+rw/2+16,y+h-4); }
+  else { g.moveTo(cx-rw/2-5,y); g.lineTo(cx-rw/2-5,y+h); g.moveTo(cx+rw/2+5,y); g.lineTo(cx+rw/2+5,y+h); }
+  g.stroke();
+}
+function drawRamBlock(cx,y,rw,rh){
+  fillPart('ram','#6b5f55'); g.fillRect(cx-rw/2,y,rw,rh); part('ram',cx-rw/2,y,rw,rh);
+  g.strokeStyle='#15120f'; g.lineWidth=1.5; g.strokeRect(cx-rw/2+0.5,y+0.5,rw-1,rh-1);
+  // dovetail slot at the bottom, wider inside than at the mouth, with a key on one side
+  fillPart('dovetail','#2b2622'); g.beginPath(); g.moveTo(cx-14,y+rh); g.lineTo(cx-20,y+rh-12); g.lineTo(cx+20,y+rh-12); g.lineTo(cx+14,y+rh); g.closePath(); g.fill();
+  g.fillStyle=hl('dovetail')?'#ffb347':'#a3958a'; g.beginPath(); g.moveTo(cx+10,y+rh); g.lineTo(cx+13,y+rh-11); g.lineTo(cx+19,y+rh-11); g.lineTo(cx+14,y+rh); g.closePath(); g.fill();
+  part('dovetail',cx-22,y+rh-14,44,16);
+}
+function drawDieFaces(cx,upperY){
+  const d=die(), w=d.half*2*PX;
+  fillPart('dies','#6b5f55');
+  if(d.edge===0){ g.beginPath(); g.moveTo(cx-w/2,LOWER_DIE_Y+14); g.lineTo(cx-w/2,LOWER_DIE_Y+6); g.arc(cx,LOWER_DIE_Y+d.half*PX,d.half*PX,Math.PI,0); g.lineTo(cx+w/2,LOWER_DIE_Y+14); g.closePath(); g.fill(); }
+  else g.fillRect(cx-w/2,LOWER_DIE_Y,w,12);
+  part('dies',cx-w/2,LOWER_DIE_Y,w,12);
+  fillPart('dies','#8a7c70');
+  if(d.edge===0){ g.beginPath(); g.moveTo(cx-w/2,upperY); g.lineTo(cx-w/2,upperY+6); g.arc(cx,upperY+20-d.half*PX,d.half*PX,Math.PI,0,true); g.lineTo(cx+w/2,upperY); g.closePath(); g.fill(); }
+  else g.fillRect(cx-w/2,upperY,w,20);
+  part('dies',cx-w/2,upperY,w,20);
+}
+function drawAnvilStack(cx){
+  fillPart('anvil','#2b2622'); g.fillRect(20,480,380,22); part('anvil',20,480,380,22);
+  fillPart('anvil','#3a332d'); g.fillRect(cx-60,440,120,42); part('anvil',cx-60,440,120,42);
+  fillPart('sow','#4a413a'); g.fillRect(cx-45,422,90,18); part('sow',cx-45,422,90,18);
+}
+function drawTitle(){
+  if(highlight){ const p=M[current].parts.find(p=>p.id===highlight); if(p){ g.fillStyle='#f26522'; g.font='bold 13px "Barlow Condensed", sans-serif'; g.fillText(p.name.toUpperCase(),28,32); } }
+}
+const BAR_PART={id:'bar',name:'Hot bar',short:'Drag it through the dies. Volume never changes.',long:'A length of stock held in tongs. The dies only hit what is under them. Each blow takes height off those segments and pushes steel out sideways and along the bar, so the contact area grows and the next blow moves less. Feed fresh bar in between blows and turn it a quarter turn to keep it square. Thin sections cool fast. Three good blows and a reheat is normal.'};
+const ANVIL_PARTS=[
+ {id:'dies',name:'Dies',short:'The faces that touch hot steel.',long:'Upper and lower dies are held in dovetails with keys. Flat dies touch the bar along their full width so the contact area is big and each blow moves less. Drawing dies are a round crown so they touch a narrow strip, bite a round groove and push the steel along the bar. Dies are the one part you swap for the job.'},
+ {id:'sow',name:'Sow block',short:'Sacrificial block under the lower die.',long:'The sow block sits between the lower die and the anvil. It holds the dovetail and takes the pounding so a cracked dovetail means replacing a block, not the whole anvil casting.'},
+ {id:'anvil',name:'Anvil',short:'Mass that makes the blow count.',long:'The anvil is the mass under everything. Rule of thumb is ten to twenty times the ram weight. Too little anvil and the blow bounces the machine instead of moving the steel. It also wants a real foundation.'}
+];
+
+// =====================================================================
+// 1. MECHANICAL (Little Giant 25 lb pattern)
+// =====================================================================
+const mech=(function(){
+  const C={x:210,y:62}, R=28, LP=40, RAM_W=44, RAM_H=150, DIE_H=20;   // tall machine: long ram nose below the guide, open throat over a tall anvil cone
+  const XH=23, ARMV=141, ARMX=42, ARM=Math.hypot(ARMX,ARMV), EAR=14, SHANK=36, LK=XH+ARMX-SHANK/2;   // proportions off a real 25 lb: winged crosshead, straight A frame arms, level links
+  const KSPRING=(2*Math.PI*10)**2, DAMP=2*0.12*Math.sqrt(KSPRING), GRAV=260;   // stiff spring: real 25 lb arms only squeeze a fraction of an inch
+  const MASS=25, VSCALE=1/56;   // canvas px/s to ft/s. a full blow lands near 21 ft/s
+  let theta=Math.PI/2, omega=0, ramY=0, ramV=0, flex=0, drag=null, lastStatic=null, lastOver=null, brake=true, parked=true;
+  const PARK=Math.PI/2;   // brake stops the crank with the ram down, resting on the die or the work
+  function kin(th){
+    const pin={x:C.x+R*Math.cos(th), y:C.y+R*Math.sin(th)};
+    const dx=pin.x-C.x; const Ty=pin.y+Math.sqrt(LP*LP-dx*dx);
+    const drop=ARMV-EAR;   // links level at rest
+    return {pin,T:{x:C.x,y:Ty},ramStatic:Ty+drop};
+  }
+  function step(dt){
+    const treadle=tpos();
+    // first 15% of travel: clutch slipping, the crank just creeps. then speed follows a curve to 250 bpm
+    const target=treadle<0.15 ? (treadle/0.15)*0.9 : tSpeed(treadle)*2*Math.PI*(250/60);
+    if(drag){ brake=false; parked=false; }
+    else if(treadle>0){ brake=false; parked=false; omega+=(target-omega)*Math.min(1,dt*3); }
+    else {
+      // let off: clutch return spring pulls the brake band onto the crank plate. stops inside about a turn with the ram down
+      brake=true;
+      if(!parked){
+        if(Math.abs(omega)>2){ omega-=Math.sign(omega)*55*dt; }
+        else { let d=((PARK-theta)%(2*Math.PI)+2*Math.PI)%(2*Math.PI); if(d<0.03||d>2*Math.PI-0.03){ theta=PARK; omega=0; parked=true; if(!SBS) log('Stopped. Brake band holds the crank plate. Ram rests down on the work.'); } else omega=Math.max(0.8,Math.min(2,d*3)); }
+      } else omega=0;
+    }
+    theta+=omega*dt;
+    const k=kin(theta);
+    let a=KSPRING*(k.ramStatic-ramY)-DAMP*ramV+GRAV;
+    if(parked && !drag) ramV*=0.8;
+    ramV+=a*dt; ramY+=ramV*dt;
+    flex=ramY-k.ramStatic;
+    const minY=k.ramStatic-40; if(ramY<minY){ ramY=minY; ramV=Math.max(ramV,0); }
+    const faceY=ramY+RAM_H+DIE_H, top=barTop();
+    if(faceY>=top){
+      if(ramV>15 && !(parked && !drag)){
+        const sFace=k.ramStatic+RAM_H+DIE_H;
+        lastStatic=Math.max(0,sFace-top); lastOver=Math.max(0,faceY-sFace);
+        // impact speed follows the treadle curve, with the spring dynamics adding or taking a little
+        const t=drag?Math.min(1,Math.abs(omega)/26):tpos();
+        const v=21*t*(0.75+0.25*Math.min(1.3,ramV*VSCALE/21));
+        hitBar(Math.min(26,v),MASS);
+      }
+      ramY=barTop()-RAM_H-DIE_H; ramV=-Math.abs(ramV)*0.15;
+    }
+  }
+  function draw(){
+    const k=kin(theta);
+    const GREEN='#3f5a46', GREEN_D='#263a2c', GREEN_L='#4d6b55';
+    const CP=38;                 // crank plate radius. this IS the flywheel, face on at the front of the shaft
+    const PUL=CP+9;              // clutch pulley on the back of the shaft, a little bigger, peeks out behind
+    const ROD_X=352;             // treadle rod up the right side
+    const tr=+treadleEl.value/100;
+    drawFloor();
+    // ---- base plate on the floor. the anvil cone and the column both stand on it
+    g.lineWidth=3; g.strokeStyle=GREEN_D;
+    fillPart('frame',GREEN); g.beginPath(); g.roundRect(24,650,372,26,[4,4,2,2]); g.fill(); g.stroke();
+    // motor on the side of the column, belt up to the clutch pulley at the back of the shaft
+    fillPart('motor',GREEN_D); g.fillRect(300,184,56,10);
+    g.strokeStyle='#5a4e44'; g.lineWidth=5; g.beginPath(); g.moveTo(316,160); g.lineTo(C.x+PUL-4,C.y+18); g.moveTo(342,176); g.lineTo(C.x+PUL-14,C.y+36); g.stroke();
+    fillPart('motor','#3a332d'); rr(302,146,52,38,6); g.fill(); part('motor',298,142,60,54);
+    fillPart('motor','#5a4e44'); g.beginPath(); g.arc(328,165,13,0,Math.PI*2); g.fill();
+    g.strokeStyle='#15120f'; g.lineWidth=2; g.beginPath(); g.arc(328,165,5,0,Math.PI*2); g.stroke();
+    label('Motor',358,160);
+    // head and column. the column sweeps back to the right so the throat in front of the dies is open
+    g.lineWidth=3; g.strokeStyle=GREEN_D;
+    fillPart('frame',GREEN); g.beginPath();
+    g.moveTo(296,652); g.lineTo(296,420); g.quadraticCurveTo(296,330,262,292); g.lineTo(262,196); g.lineTo(160,196); g.lineTo(160,140);
+    g.quadraticCurveTo(160,110,188,98); g.lineTo(188,82); g.lineTo(232,82); g.lineTo(232,98); g.quadraticCurveTo(252,114,262,140);
+    g.lineTo(300,160); g.lineTo(326,216); g.lineTo(344,652); g.closePath(); g.fill(); g.stroke();
+    part('frame',262,196,82,456);
+    // bearing cap block that carries the shaft at the top of the head
+    fillPart('frame',GREEN_L); g.beginPath(); g.roundRect(184,C.y-14,52,40,4); g.fill(); g.stroke();
+    // rear way: short face on the head the ram rides against. below it the ram nose hangs in open air
+    fillPart('frame',GREEN_L); g.fillRect(176,196,68,146); g.strokeRect(176,196,68,146);
+    // clutch pulley behind the head. only its rim shows past the crank plate
+    fillPart('clutch', tr>0?'#6a4630':'#3a332d'); g.beginPath(); g.arc(C.x,C.y,PUL,0,Math.PI*2); g.fill();
+    g.strokeStyle='#15120f'; g.lineWidth=1.5; g.beginPath(); g.arc(C.x,C.y,PUL,0,Math.PI*2); g.stroke();
+    part('clutch',C.x+CP,C.y-PUL,PUL-CP+6,PUL*2);
+    g.strokeStyle='#5a4e44'; g.lineWidth=5; g.beginPath(); g.arc(C.x,C.y,PUL+2,-0.15,1.2); g.stroke();   // belt wrap on the rim
+    label('Clutch pulley (behind)',C.x+PUL+8,C.y+4);
+    // ---- anvil: tall cast cone standing on the base, flaring toward the floor, sow block and lower die on top
+    { const top=LOWER_DIE_Y+28, capB=top+14, bot=650;
+      fillPart('anvil','#3a332d'); g.beginPath();
+      g.moveTo(C.x-50,capB); g.quadraticCurveTo(C.x-58,bot-70,C.x-98,bot-12); g.lineTo(C.x-104,bot); g.lineTo(C.x+104,bot); g.lineTo(C.x+98,bot-12); g.quadraticCurveTo(C.x+58,bot-70,C.x+50,capB); g.closePath(); g.fill();
+      g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+      fillPart('anvil','#4a413a'); g.beginPath(); g.roundRect(C.x-118,bot-16,236,14,3); g.fill(); g.stroke();   // ring at the foot
+      fillPart('anvil','#4a413a'); g.beginPath(); g.roundRect(C.x-58,top,116,14,2); g.fill(); g.stroke();      // cap on top of the cone
+      part('anvil',C.x-104,top,208,bot-top);
+      fillPart('sow','#5a4e44'); g.fillRect(C.x-45,LOWER_DIE_Y+12,90,16); g.strokeRect(C.x-44.5,LOWER_DIE_Y+12.5,89,15); part('sow',C.x-45,LOWER_DIE_Y+12,90,16);
+      label('Anvil',C.x-64,top+100,'right'); }
+    // ---- treadle: long foot bar just off the floor, rod up the right side to the clutch fork and brake lever
+    part('treadle',30,672,320,30);
+    g.strokeStyle=hl('treadle')?'#f26522':'#5a4e44'; g.lineWidth=9; g.lineCap='round'; g.beginPath(); g.moveTo(40,688); g.lineTo(330,688+tr*8); g.stroke();
+    g.fillStyle='#2b2622'; g.beginPath(); g.arc(40,688,5,0,Math.PI*2); g.fill();
+    g.strokeStyle=hl('treadle')?'#f26522':'#5a4e44'; g.lineWidth=3; g.beginPath(); g.moveTo(330,688+tr*8); g.lineTo(ROD_X,636); g.lineTo(ROD_X,40+tr*8); g.stroke();
+    // shifting fork: from the rod across to the pulley hub. treadle down pushes the loose pulley onto the spider
+    g.strokeStyle=hl('clutch')?'#f26522':'#8a7c70'; g.lineWidth=4; g.beginPath(); g.moveTo(ROD_X,120+tr*8); g.lineTo(C.x+PUL+18,C.y+22); g.lineTo(C.x+PUL+4,C.y+12); g.stroke();
+    label('Clutch fork',ROD_X-4,136+tr*8,'right');
+    // ---- crank plate, face on. the one flywheel. carries the crank pin
+    fillPart('flywheel','#4a413a'); g.beginPath(); g.arc(C.x,C.y,CP,0,Math.PI*2); g.fill(); part('flywheel',C.x-CP,C.y-CP,CP*2,CP*2);
+    g.strokeStyle='#15120f'; g.lineWidth=3;
+    for(let i=0;i<4;i++){ const a=theta+i*Math.PI/2+Math.PI/4; g.beginPath(); g.moveTo(C.x+Math.cos(a)*9,C.y+Math.sin(a)*9); g.lineTo(C.x+Math.cos(a)*(CP-5),C.y+Math.sin(a)*(CP-5)); g.stroke(); }
+    g.beginPath(); g.arc(C.x,C.y,CP,0,Math.PI*2); g.stroke();
+    g.fillStyle='#2b2622'; g.beginPath(); g.arc(C.x,C.y,8,0,Math.PI*2); g.fill();
+    g.fillStyle=hl('flywheel')?'#ffb347':'#a3958a'; g.beginPath(); g.arc(k.pin.x,k.pin.y,6,0,Math.PI*2); g.fill();
+    // ---- brake: band with a leather shoe over the top of the crank plate rim. anchored on the bearing cap at left, lever at right
+    { const lift=brake?0:6, br=CP+3+lift, a0=Math.PI*1.08, a1=Math.PI*1.9;
+      const anc={x:C.x+Math.cos(a0)*br, y:C.y+Math.sin(a0)*br}, end={x:C.x+Math.cos(a1)*br, y:C.y+Math.sin(a1)*br};
+      g.strokeStyle=hl('brake')?'#f26522':'#8a7c70'; g.lineWidth=3; g.beginPath(); g.arc(C.x,C.y,br+3,a0,a1); g.stroke();
+      g.strokeStyle=hl('brake')?'#ffb347':(brake?'#8a5a3a':'#6b4a33'); g.lineWidth=5; g.beginPath(); g.arc(C.x,C.y,br,a0+0.1,a1-0.1); g.stroke();
+      g.fillStyle='#2b2622'; g.beginPath(); g.arc(anc.x,anc.y,4,0,Math.PI*2); g.fill();
+      // lever from the band end over to the treadle rod
+      g.strokeStyle=hl('brake')?'#f26522':'#8a7c70'; g.lineWidth=4; g.beginPath(); g.moveTo(end.x,end.y); g.lineTo(end.x+30,end.y-14-lift); g.lineTo(ROD_X,40+tr*8); g.stroke();
+      if(brake&&Math.abs(omega)>0.05){ g.fillStyle='rgba(255,180,80,.7)'; for(let i=0;i<3;i++){ g.beginPath(); g.arc(C.x-10+i*10,C.y-br-6-i*2,1.5,0,Math.PI*2); g.fill(); } }
+      part('brake',C.x-CP-8,C.y-CP-18,CP*2+46,24); label(brake?'Brake band on':'Brake band off',C.x-CP-10,C.y-CP-2,'right'); }
+    label('Crank plate (flywheel)',C.x-CP-10,C.y+14,'right'); label('Drag to turn by hand',C.x-CP-10,C.y+28,'right');
+    // ---- linkage geometry: winged crosshead on the pitman, straight cast arms in an A frame, level links in to the ram
+    const earY=ramY+EAR, earXo=SHANK/2;
+    const ARMD=Math.hypot(ARMX,ARMV-14);   // crosshead set so the links sit level with about 1 in stock under the die, like a smith sets it
+    function armEnd(sg){
+      const P={x:k.T.x+sg*XH,y:k.T.y-3}, Q={x:C.x+sg*earXo,y:earY};
+      let dx=Q.x-P.x, dy=Q.y-P.y, d=Math.hypot(dx,dy);
+      d=Math.max(Math.abs(ARMD-LK)+0.01,Math.min(ARMD+LK-0.01,d));
+      const a=(ARMD*ARMD-LK*LK+d*d)/(2*d), h=Math.sqrt(Math.max(0,ARMD*ARMD-a*a));
+      const ux=dx/Math.hypot(dx,dy), uy=dy/Math.hypot(dx,dy);
+      const mx=P.x+ux*a, my=P.y+uy*a;
+      const e1={x:mx-uy*h,y:my+ux*h}, e2={x:mx+uy*h,y:my-ux*h};
+      return {P,Q,E:(sg*(e1.x-C.x)>sg*(e2.x-C.x))?e1:e2};
+    }
+    const L=armEnd(-1), Rt=armEnd(1);
+    const sc=hl('spring'), pc=hl('pitman');
+    // ram: narrow tall shank rising up between the arms to just under the spring, block and dovetail below in the guide
+    const shTop=earY-55;
+    fillPart('ram','#6b5f55'); g.beginPath(); g.moveTo(C.x-SHANK/2,ramY+2); g.lineTo(C.x-SHANK/2,shTop+6); g.lineTo(C.x-SHANK/2+5,shTop); g.lineTo(C.x+SHANK/2-5,shTop); g.lineTo(C.x+SHANK/2,shTop+6); g.lineTo(C.x+SHANK/2,ramY+2); g.closePath(); g.fill();
+    g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+    g.fillStyle='#8a7c70'; g.fillRect(C.x-SHANK/2+3,shTop-3,SHANK-6,4);   // wear plate on top
+    part('ram',C.x-SHANK/2,shTop-3,SHANK,ramY-shTop+3);
+    drawRamBlock(C.x,ramY,RAM_W,RAM_H);
+    // lugs on the ram sides where the links pin on
+    fillPart('ram','#6b5f55'); [-1,1].forEach(sg=>{ g.beginPath(); g.roundRect(C.x+sg*earXo-(sg>0?0:6),earY-6,6,12,2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1; g.stroke(); });
+    drawDieFaces(C.x,ramY+RAM_H);
+    // old style wrap around front guide, bolted to the column. the ram slides behind it
+    { const gy=298, gh=46;
+      fillPart('guides','#3a332d'); g.fillRect(C.x-RAM_W/2-18,gy,RAM_W+36,gh); part('guides',C.x-RAM_W/2-18,gy,RAM_W+36,gh);
+      g.strokeStyle='#15120f'; g.lineWidth=2; g.strokeRect(C.x-RAM_W/2-17,gy+1,RAM_W+34,gh-2);
+      g.fillStyle=hl('guides')?'#ffb347':'#8a7c70';
+      for(let i=0;i<3;i++){ const by=gy+10+i*16; [C.x-RAM_W/2-10,C.x+RAM_W/2+10].forEach(bx=>{ g.beginPath(); g.arc(bx,by,3,0,Math.PI*2); g.fill(); }); }
+      label('Front guide',C.x-RAM_W/2-22,gy+12,'right'); }
+    label('Ram (tup)',C.x+RAM_W/2+24,ramY+RAM_H-34); label('Die dovetail',C.x+RAM_W/2+24,ramY+RAM_H+4);
+    // pitman: square bearing block on the crank pin, plain round rod straight down through the crosshead, bronze bushing below
+    { const px=k.T.x-k.pin.x, py=k.T.y-k.pin.y, pl=Math.hypot(px,py), ux=px/pl, uy=py/pl, ang=Math.atan2(uy,ux)-Math.PI/2;
+      g.save(); g.translate(k.pin.x,k.pin.y); g.rotate(ang);
+      g.fillStyle=pc?'#f26522':'#8a8580'; g.fillRect(-3.5,0,7,pl+14); g.strokeStyle='#15120f'; g.lineWidth=1; g.strokeRect(-3.5,0,7,pl+14);
+      g.fillStyle=pc?'#ffb347':'#a8874f'; g.fillRect(-5,pl+8,10,12); g.strokeRect(-5,pl+8,10,12);   // bronze bushing under the crosshead
+      g.fillStyle=pc?'#f26522':'#4a4540'; g.fillRect(-10,-10,20,20); g.strokeStyle='#15120f'; g.lineWidth=1.5; g.strokeRect(-10,-10,20,20);   // square bearing block
+      g.fillRect(-12,-3,24,6); g.strokeRect(-12,-3,24,6);   // cap bolts
+      g.restore();
+      g.fillStyle=pc?'#ffb347':'#c9c2b8'; g.beginPath(); g.arc(k.pin.x,k.pin.y,5.5,0,Math.PI*2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1; g.stroke(); }
+    part('pitman',Math.min(k.pin.x,k.T.x)-14,k.pin.y-12,Math.abs(k.pin.x-k.T.x)+28,k.T.y-k.pin.y+32);
+    // toggle arms: straight flat tapered castings, narrow at the crosshead, spread wide at the bottom, a little fatter where the spring cups are
+    const ARMG=sc?'#f26522':'#6f8f76', ARMB=sc?'#ffb347':'#7fa086';
+    const springF=0.47;
+    function armPt(s,t){ return {x:s.P.x+(s.E.x-s.P.x)*t, y:s.P.y+(s.E.y-s.P.y)*t}; }
+    function drawArm(s){
+      const dx=s.E.x-s.P.x, dy=s.E.y-s.P.y, l=Math.hypot(dx,dy), nx=-dy/l, ny=dx/l;
+      const W=[[0,4.5],[springF-0.12,5.5],[springF,6.5],[springF+0.12,5.5],[1,4.5]];
+      g.fillStyle=ARMG; g.beginPath();
+      W.forEach(([t,w],i)=>{ const p=armPt(s,t); i?g.lineTo(p.x+nx*w,p.y+ny*w):g.moveTo(p.x+nx*w,p.y+ny*w); });
+      for(let i=W.length-1;i>=0;i--){ const [t,w]=W[i], p=armPt(s,t); g.lineTo(p.x-nx*w,p.y-ny*w); }
+      g.closePath(); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1.2; g.stroke();
+      g.fillStyle=ARMB; [[s.P,6.5],[s.E,7.5]].forEach(([p,r])=>{ g.beginPath(); g.arc(p.x,p.y,r,0,Math.PI*2); g.fill(); g.stroke(); });
+      g.fillStyle='#2b2622'; [s.P,s.E].forEach(p=>{ g.beginPath(); g.arc(p.x,p.y,2.5,0,Math.PI*2); g.fill(); });
+    }
+    function drawLink(s){
+      // level rod from the ram lug out through the arm boss. threaded end and double nuts stick out past the arm
+      const dx=s.E.x-s.Q.x, dy=s.E.y-s.Q.y, l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l;
+      g.strokeStyle='#15120f'; g.lineWidth=7; g.lineCap='butt'; g.beginPath(); g.moveTo(s.Q.x,s.Q.y); g.lineTo(s.E.x+ux*20,s.E.y+uy*20); g.stroke();
+      g.strokeStyle=sc?'#ffb347':'#b9b2a8'; g.lineWidth=5; g.beginPath(); g.moveTo(s.Q.x,s.Q.y); g.lineTo(s.E.x+ux*19,s.E.y+uy*19); g.stroke();
+      g.save(); g.translate(s.E.x,s.E.y); g.rotate(Math.atan2(uy,ux));
+      g.fillStyle=sc?'#f26522':'#6b4a33'; g.strokeStyle='#15120f'; g.lineWidth=1;
+      g.fillRect(9,-6,6,12); g.strokeRect(9,-6,6,12); g.fillRect(15.5,-6,6,12); g.strokeRect(15.5,-6,6,12);
+      g.restore();
+    }
+    drawLink(L); drawLink(Rt); drawArm(L); drawArm(Rt);
+    // coil spring: short and fat, level between the arms a little under halfway down, seated in cups on the arm inner faces, drawn in front
+    { const a0=armPt(L,springF), b0=armPt(Rt,springF);
+      const len0=Math.hypot(b0.x-a0.x,b0.y-a0.y), ux=(b0.x-a0.x)/len0, uy=(b0.y-a0.y)/len0;
+      const a={x:a0.x+ux*7,y:a0.y+uy*7}, b={x:b0.x-ux*7,y:b0.y-uy*7};
+      const len=Math.hypot(b.x-a.x,b.y-a.y), ang=Math.atan2(uy,ux), rad=16, N=7, pitch=(len-6)/N;
+      // cups cast on the arm inner faces
+      [[a,1],[b,-1]].forEach(([p,sg])=>{ g.save(); g.translate(p.x,p.y); g.rotate(ang);
+        g.fillStyle=ARMB; g.beginPath(); g.roundRect(sg>0?-4:-2,-rad-3,6,rad*2+6,2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1.2; g.stroke(); g.restore(); });
+      // back halves of the coils, darker
+      for(let i=0;i<N;i++){ const cx=a.x+ux*(3+pitch*(i+0.5)), cy=a.y+uy*(3+pitch*(i+0.5));
+        g.save(); g.translate(cx,cy); g.rotate(ang);
+        g.strokeStyle='#15120f'; g.lineWidth=6; g.beginPath(); g.ellipse(0,0,pitch*0.55,rad,-0.3,Math.PI*0.5,Math.PI*1.5); g.stroke();
+        g.strokeStyle=sc?'#c46a2a':'#9a9188'; g.lineWidth=3.5; g.beginPath(); g.ellipse(0,0,pitch*0.55,rad,-0.3,Math.PI*0.5,Math.PI*1.5); g.stroke();
+        g.restore(); }
+      // front halves, light steel
+      for(let i=0;i<N;i++){ const cx=a.x+ux*(3+pitch*(i+0.5)), cy=a.y+uy*(3+pitch*(i+0.5));
+        g.save(); g.translate(cx,cy); g.rotate(ang);
+        g.strokeStyle='#15120f'; g.lineWidth=7; g.beginPath(); g.ellipse(0,0,pitch*0.55,rad,-0.3,-Math.PI*0.5,Math.PI*0.5); g.stroke();
+        g.strokeStyle=sc?'#ffb347':'#ddd5cb'; g.lineWidth=4.5; g.beginPath(); g.ellipse(0,0,pitch*0.55,rad,-0.3,-Math.PI*0.5,Math.PI*0.5); g.stroke();
+        g.restore(); }
+      part('spring',L.E.x-24,k.T.y-6,Rt.E.x-L.E.x+48,Math.max(L.E.y,Rt.E.y)-k.T.y+16);
+      label('Coil spring',a0.x-14,a0.y+4,'right'); label('Toggle arms',Rt.E.x+22,(b0.y+Rt.E.y)/2+6); label('Toggle links',L.E.x-28,L.E.y+4,'right'); }
+    // crosshead: winged yoke casting. hub on the pitman, short wings out and up to the arm pins, clamp bolt left of center
+    { const T=k.T;
+      fillPart('pitman','#6f8f76'); g.beginPath();
+      g.moveTo(T.x-8,T.y+7); g.lineTo(T.x-XH+3,T.y+2); g.lineTo(T.x-XH-4,T.y-6); g.lineTo(T.x-XH+2,T.y-10); g.lineTo(T.x-8,T.y-8); g.lineTo(T.x-8,T.y-11);
+      g.lineTo(T.x+8,T.y-11); g.lineTo(T.x+8,T.y-8); g.lineTo(T.x+XH-2,T.y-10); g.lineTo(T.x+XH+4,T.y-6); g.lineTo(T.x+XH-3,T.y+2); g.lineTo(T.x+8,T.y+7); g.closePath(); g.fill();
+      g.strokeStyle='#15120f'; g.lineWidth=1.3; g.stroke();
+      g.fillStyle=pc?'#ffb347':'#7d7066'; g.beginPath(); g.save(); g.translate(T.x-6,T.y-2); g.beginPath(); for(let i=0;i<6;i++){ const an=i*Math.PI/3; g.lineTo(Math.cos(an)*4.5,Math.sin(an)*4.5); } g.closePath(); g.fill(); g.stroke(); g.restore();   // clamp bolt
+      g.fillStyle=ARMB; [L.P,Rt.P].forEach(p=>{ g.beginPath(); g.arc(p.x,p.y,5,0,Math.PI*2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1.2; g.stroke(); });
+      g.fillStyle='#2b2622'; [L.P,Rt.P].forEach(p=>{ g.beginPath(); g.arc(p.x,p.y,2.2,0,Math.PI*2); g.fill(); });
+      label('Crosshead',T.x-XH-12,Math.max(T.y-4,C.y+48),'right'); }
+    drawBar(C.x);
+    const sFace=k.ramStatic+RAM_H+DIE_H;
+    if(!SBS&&!EXP){ g.strokeStyle='rgba(239,230,218,.5)'; g.setLineDash([3,3]); g.lineWidth=1; g.beginPath(); g.moveTo(C.x-40,sFace); g.lineTo(C.x+40,sFace); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#a3958a'; g.font='10px Barlow, sans-serif'; g.textAlign='right'; g.fillText('crank alone', C.x-44, sFace+3); g.textAlign='left'; }
+    label('Treadle. Push to speed up and hit harder',W-12,714,'right');
+  }
+  function readouts(){
+    set('l1','Blows / min · brake'); set('s1',Math.round(Math.abs(omega)/(2*Math.PI)*60)+' · '+(brake?(parked?'on, ram down':'on, stopping'):'off'));
+    set('l2','Ram'); set('s2','25 lb');
+    set('l3','Spring added'); set('s3',lastOver!=null?(lastStatic<1?'all the reach':Math.round(100*lastOver/(lastOver+lastStatic))+'% of travel'):'–');
+    const t=+treadleEl.value; set('treadlev',(t===0?'up':t<15?'creep':t<50?'tap':t<80?'working':'floored')+' · '+Math.round(171*tEnergy(t/100))+' ft lb');
+  }
+  function onTreadle(t){ if(t===0) log('Treadle up. Clutch lets go and the brake band clamps the crank plate. Ram stops down on the work.'); else if(t<15) log('Clutch just kissing. The crank creeps and the ram barely touches.'); else if(t<50) log('Light taps. Clutch slipping, slow blows, not much energy in each one.'); else if(t<80) log('Working blows. Spring starts to wind up and add throw.'); else log('Floored. The links snap straight and throw the ram past the crank stroke every time.'); }
+  function pointerDown(p,e){
+    if(Math.hypot(p.x-C.x,p.y-C.y)<50){ drag={a:Math.atan2(p.y-C.y,p.x-C.x),t:performance.now()}; try{cv.setPointerCapture(e.pointerId);}catch(_){} log('Cranking by hand. Notice the ram just follows the linkage.'); return true; }
+    return false;
+  }
+  function pointerMove(p){
+    if(!drag) return; const a=Math.atan2(p.y-C.y,p.x-C.x);
+    let d=a-drag.a; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI;
+    const now=performance.now(); const dt=Math.max(0.008,(now-drag.t)/1000);
+    theta+=d; omega=d/dt; drag={a,t:now};
+  }
+  function pointerUp(){ drag=null; }
+  function enter(){ ramY=Math.min(kin(theta).ramStatic,barTop()-RAM_H-DIE_H); ramV=0; lastStatic=null; lastOver=null; if(!SBS) log('Treadle is up. Brake band holds the crank plate. Ram rests down. Drag the crank plate to turn it by hand.'); }
+  const parts=[
+   {id:'motor',name:'Motor',short:'Belts to the clutch pulley at the back.',long:'The motor sits on the side of the frame and runs a belt to the clutch pulley on the back end of the main shaft. Old shops ran them off a line shaft in the ceiling. The motor runs the whole time. The treadle decides whether that power reaches the crank.'},
+   {id:'flywheel',name:'Crank plate (flywheel)',short:'The one flywheel. Carries the crank pin.',long:'The main shaft runs front to back across the top of the frame. The crank plate is keyed on the front end and it is the flywheel. Its weight carries the hammer through each blow so one hit does not bog the motor. The crank pin on its face turns the spin into up and down. Drag it to turn the hammer over by hand.'},
+   {id:'clutch',name:'Clutch',short:'Loose pulley shoved onto the spider.',long:'The belt pulley on the back of the shaft spins free. Step on the treadle and the shifting fork shoves that pulley forward onto a spider keyed to the shaft. Friction blocks grab and the shaft turns. Ease off and it slips. Let off all the way and the pulley backs off and spins on its own.'},
+   {id:'brake',name:'Brake',short:'Band on the crank plate. Stops it when you let off.',long:'A band with a leather shoe wraps over the top of the crank plate rim. One end is anchored on the bearing cap. The other end hangs off a lever tied to the treadle rod. Step down and the band lifts clear. Let off and the clutch return spring pulls it tight and the crank stops inside about a turn. The ram stops down on the die or the work. Without it the hammer coasts and keeps hitting after you let off.'},
+   {id:'pitman',name:'Pitman and crosshead',short:'Rod off the crank pin. Crosshead clamps on it.',long:'The pitman hangs off the crank pin. The crosshead is a winged casting clamped on the pitman. Loosen the clamp bolt and slide it up or down to set the die height for thick or thin stock. On the old style the adjustment is below the crank like this. The two toggle arms hang off pins at the ends of its wings.'},
+   {id:'spring',name:'Coil spring and toggles',short:'The part that throws the ram.',long:'Two straight cast toggle arms hang off the crosshead and spread out like an A frame. One short fat coil spring sits between them in cups a little under halfway down. Short toggle links run from the bottom of each arm in to the ram. The nuts on the outside ends of the links set the spring tension. At rest the links sit nearly level. When the crank yanks the crosshead faster than the ram can follow the links angle off level and squeeze the arms together against the spring. Then the spring shoves them back out and the links snap straight and whip the ram down. That is how the ram travels farther and hits harder than the crank stroke alone. Spring too loose or run too fast and the ram gets out of time with the crank. People call that the Little Giant hula.'},
+   {id:'ram',name:'Ram (tup)',short:'25 lb block. The weight that hits.',long:'The ram, or tup, is a rectangular block that slides up and down against a way cast in the front of the column. Ears near its top take the toggle links. The top die locks into a dovetail on its bottom with a key. Hammers are sized by ram weight: 25, 50, 100 pounds. Blow energy is half the ram mass times speed squared, so speed counts twice as much as weight. More ram means deeper penetration into thick stock, not just a harder surface blow.'},
+   {id:'guides',name:'Guides',short:'Rear way in the frame plus a wrap around front guide.',long:'On the old style the ram runs in a way cast into the frame at the back and a wrap around guide in front. The front guide bolts to the column and you shim it to take out slop. They keep the dies hitting flat. Worn guides let the ram cock and the dies hit on one edge. That ruins work and dies.'},
+   {id:'dovetail',name:'Die dovetail',short:'Where the top die locks into the tup.',long:'The top die sits in a dovetail slot in the bottom of the tup and is locked with a tapered key. Drive the key out to swap dies. Same on the sow block below.'},
+   ...ANVIL_PARTS,
+   {id:'treadle',name:'Treadle',short:'Push to speed up and hit harder.',long:'The treadle is your throttle. Press lightly and the clutch slips, the crank turns slowly and the blows are soft. Press hard and the hammer runs at full speed with the spring adding its throw. On a mechanical hammer speed and force come together; you cannot have one without the other.'},
+   BAR_PART
+  ];
+  return {name:'Mechanical hammer',geo:{H:720,die:440},parts,step,draw,readouts,onTreadle,pointerDown,pointerMove,pointerUp,enter,controls:{hold:false},
+    why:{title:'Why the spring matters',text:'Turn the crank plate slowly by hand and the ram just follows the crank. The links stay level and the stroke is only what the crank throw gives you. Step on the treadle and it changes. The crank now jerks the crosshead up and down faster than a heavy ram wants to go. The ram lags behind. The toggle links angle off level and squeeze the toggle arms together against the coil spring. Then the spring shoves the arms back out and the links snap straight and throw the ram down ahead of the crank. It lands lower and faster than the crank alone could send it. That is why a 25 pound Little Giant hits like more than 25 pounds. A tired spring or bad tension makes the whole hammer feel dead.'}};
+})();
+
+// =====================================================================
+// 2. BEAUDRY (Champion style). leaf spring arms on rollers inside a hollow ram
+// =====================================================================
+const bd=(function(){
+  const C={x:210,y:62}, R=28, LP=40, RAM_H=150, DIE_H=20, NOSE_W=50, DROP=127;   // same crank, throw and reach as the Little Giant so the forging feel matches
+  const BW=78, BTOP=92, CAVC=-20, CA=24, CB=58, ARML=DROP+CAVC, RR=7;           // hollow body above the nose. oval cavity inside, rollers ride its walls
+  const KSPRING=(2*Math.PI*10)**2, DAMP=2*0.12*Math.sqrt(KSPRING), GRAV=260;
+  const MASS=25, VSCALE=1/56;
+  let theta=Math.PI/2, omega=0, ramY=0, ramV=0, drag=null, lastStatic=null, lastOver=null, brake=true, parked=true;
+  const PARK=Math.PI/2;
+  function kin(th){
+    const pin={x:C.x+R*Math.cos(th), y:C.y+R*Math.sin(th)};
+    const dx=pin.x-C.x; const By=pin.y+Math.sqrt(LP*LP-dx*dx);
+    return {pin,B:{x:C.x,y:By},ramStatic:By+DROP};
+  }
+  function step(dt){
+    const treadle=tpos();
+    const target=treadle<0.15 ? (treadle/0.15)*0.9 : tSpeed(treadle)*2*Math.PI*(250/60);
+    if(drag){ brake=false; parked=false; }
+    else if(treadle>0){ brake=false; parked=false; omega+=(target-omega)*Math.min(1,dt*3); }
+    else {
+      brake=true;
+      if(!parked){
+        if(Math.abs(omega)>2){ omega-=Math.sign(omega)*55*dt; }
+        else { let d=((PARK-theta)%(2*Math.PI)+2*Math.PI)%(2*Math.PI); if(d<0.03||d>2*Math.PI-0.03){ theta=PARK; omega=0; parked=true; if(!SBS) log('Stopped. Clutch out and the brake holds the shaft.'); } else omega=Math.max(0.8,Math.min(2,d*3)); }
+      } else omega=0;
+    }
+    theta+=omega*dt;
+    const k=kin(theta);
+    let a=KSPRING*(k.ramStatic-ramY)-DAMP*ramV+GRAV;
+    if(parked && !drag) ramV*=0.8;
+    ramV+=a*dt; ramY+=ramV*dt;
+    const minY=k.ramStatic-40; if(ramY<minY){ ramY=minY; ramV=Math.max(ramV,0); }
+    const faceY=ramY+RAM_H+DIE_H, top=barTop();
+    if(faceY>=top){
+      if(ramV>15 && !(parked && !drag)){
+        const sFace=k.ramStatic+RAM_H+DIE_H;
+        lastStatic=Math.max(0,sFace-top); lastOver=Math.max(0,faceY-sFace);
+        const t=drag?Math.min(1,Math.abs(omega)/26):tpos();
+        const v=21*t*(0.75+0.25*Math.min(1.3,ramV*VSCALE/21));
+        hitBar(Math.min(26,v),MASS);
+      }
+      ramY=barTop()-RAM_H-DIE_H; ramV=-Math.abs(ramV)*0.15;
+    }
+  }
+  function draw(){
+    const k=kin(theta);
+    const BL='#3e4c5a', BL_D='#232c35', BL_L='#526476', IRON='#59636e';
+    const CP=38, PUL=CP+9, ROD_X=352;
+    const tr=+treadleEl.value/100;
+    drawFloor();
+    // ---- base plate
+    g.lineWidth=3; g.strokeStyle=BL_D;
+    fillPart('frame',BL); g.beginPath(); g.roundRect(24,650,372,26,[4,4,2,2]); g.fill(); g.stroke();
+    // ---- column behind and to the right, head up top carrying the shaft. throat in front of the dies stays open
+    fillPart('frame',BL); g.beginPath();
+    g.moveTo(300,652); g.lineTo(300,430); g.quadraticCurveTo(300,350,276,316); g.lineTo(276,150); g.lineTo(254,118); g.lineTo(166,118); g.lineTo(150,140); g.lineTo(150,176); g.lineTo(166,186); g.lineTo(254,186);
+    g.lineTo(276,190); g.lineTo(276,150); g.lineTo(310,150); g.lineTo(340,230); g.lineTo(350,652); g.closePath(); g.fill(); g.stroke();
+    part('frame',276,150,74,500);
+    // bearing block over the shaft
+    fillPart('frame',BL_L); g.beginPath(); g.roundRect(182,C.y-16,56,40,4); g.fill(); g.stroke();
+    // gibbed ways either side of the ram, hung off the head. fixed gib left, adjustable gib right with its nuts
+    { const wy=190, wh=170, gx=BW/2+2;
+      fillPart('guides',BL_L); g.fillRect(C.x-gx-14,wy,14,wh); g.fillRect(C.x+gx,wy,14,wh); part('guides',C.x-gx-14,wy,BW+32,wh);
+      g.strokeStyle=BL_D; g.lineWidth=2; g.strokeRect(C.x-gx-14,wy,14,wh); g.strokeRect(C.x+gx,wy,14,wh);
+      fillPart('guides','#8a8f96'); g.fillRect(C.x-gx-4,wy+4,4,wh-8); g.fillRect(C.x+gx,wy+4,4,wh-8);   // gib strips
+      g.fillStyle=hl('guides')?'#ffb347':'#6b4a33'; for(let i=0;i<3;i++){ g.fillRect(C.x+gx+14,wy+20+i*55,7,10); }
+      label('Gibbed ways',C.x+gx+24,wy+70); }
+    // ---- drive pulley and clutch on the back of the shaft. belt runs up to the drive
+    fillPart('clutch', tr>0?'#6a4630':'#3a332d'); g.beginPath(); g.arc(C.x,C.y,PUL,0,Math.PI*2); g.fill();
+    g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+    part('clutch',C.x+CP,C.y-PUL,PUL-CP+8,PUL*2);
+    g.strokeStyle='#5a4e44'; g.lineWidth=5; g.beginPath(); g.moveTo(C.x+PUL+1,C.y); g.lineTo(C.x+PUL+12,0); g.moveTo(C.x-PUL-1,C.y); g.lineTo(C.x-PUL+6,0); g.stroke();
+    label('Clutch and brake (behind)',C.x+PUL+8,C.y+10); label('Belt up to the drive',C.x+PUL+16,14);
+    // ---- anvil: separate tall casting, bolted down
+    { const top=LOWER_DIE_Y+28, capB=top+14, bot=650;
+      fillPart('anvil','#3a3d42'); g.beginPath();
+      g.moveTo(C.x-50,capB); g.quadraticCurveTo(C.x-58,bot-70,C.x-98,bot-12); g.lineTo(C.x-104,bot); g.lineTo(C.x+104,bot); g.lineTo(C.x+98,bot-12); g.quadraticCurveTo(C.x+58,bot-70,C.x+50,capB); g.closePath(); g.fill();
+      g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+      fillPart('anvil','#4a4e55'); g.beginPath(); g.roundRect(C.x-118,bot-16,236,14,3); g.fill(); g.stroke();
+      fillPart('anvil','#4a4e55'); g.beginPath(); g.roundRect(C.x-58,top,116,14,2); g.fill(); g.stroke();
+      g.fillStyle='#8a8f96'; [C.x-108,C.x+102].forEach(bx=>{ g.fillRect(bx,bot-22,6,8); });   // hold down bolt heads
+      part('anvil',C.x-104,top,208,bot-top);
+      fillPart('sow','#5a5e66'); g.fillRect(C.x-45,LOWER_DIE_Y+12,90,16); g.strokeRect(C.x-44.5,LOWER_DIE_Y+12.5,89,15); part('sow',C.x-45,LOWER_DIE_Y+12,90,16);
+      label('Anvil',C.x-64,top+100,'right'); label('Separate casting',C.x-64,top+114,'right'); label('bolted down',C.x-64,top+128,'right'); }
+    // ---- treadle and rod up the right side to the clutch
+    part('treadle',30,672,320,30);
+    g.strokeStyle=hl('treadle')?'#f26522':'#5a4e44'; g.lineWidth=9; g.lineCap='round'; g.beginPath(); g.moveTo(40,688); g.lineTo(330,688+tr*8); g.stroke();
+    g.fillStyle='#2b2622'; g.beginPath(); g.arc(40,688,5,0,Math.PI*2); g.fill();
+    g.strokeStyle=hl('treadle')?'#f26522':'#5a4e44'; g.lineWidth=3; g.beginPath(); g.moveTo(330,688+tr*8); g.lineTo(ROD_X+8,636); g.lineTo(ROD_X+8,100+tr*8); g.lineTo(C.x+PUL+6,C.y+30); g.stroke();
+    // ---- crank disk, face on, with the slot the crank pin adjusts in
+    fillPart('flywheel','#4a4e55'); g.beginPath(); g.arc(C.x,C.y,CP,0,Math.PI*2); g.fill(); part('flywheel',C.x-CP,C.y-CP,CP*2,CP*2);
+    g.strokeStyle='#15120f'; g.lineWidth=2; g.stroke();
+    g.save(); g.translate(C.x,C.y); g.rotate(theta);
+    g.fillStyle='#232629'; g.beginPath(); g.roundRect(6,-5,CP-10,10,5); g.fill();   // adjusting slot
+    g.fillStyle='#8a8f96'; g.fillRect(CP-6,-2,5,4);                                  // adjusting screw
+    g.restore();
+    g.fillStyle='#2b2622'; g.beginPath(); g.arc(C.x,C.y,7,0,Math.PI*2); g.fill();
+    label('Crank disk',C.x-CP-10,C.y+4,'right'); label('Drag to turn by hand',C.x-CP-10,C.y+18,'right');
+    // ---- ram geometry
+    const yc=ramY+CAVC;                       // center of the oval cavity
+    const top=ramY-BTOP;
+    // nose with the dovetail, then the hollow body above it
+    drawRamBlock(C.x,ramY+70,NOSE_W,RAM_H-70);
+    fillPart('ram',IRON); g.beginPath();
+    g.moveTo(C.x-BW/2,top+6); g.lineTo(C.x-BW/2+6,top); g.lineTo(C.x-15,top); g.lineTo(C.x-15,top+8); g.lineTo(C.x+15,top+8); g.lineTo(C.x+15,top); g.lineTo(C.x+BW/2-6,top); g.lineTo(C.x+BW/2,top+6);
+    g.lineTo(C.x+BW/2,ramY+56); g.lineTo(C.x+NOSE_W/2,ramY+72); g.lineTo(C.x-NOSE_W/2,ramY+72); g.lineTo(C.x-BW/2,ramY+56); g.closePath(); g.fill();
+    g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+    part('ram',C.x-BW/2,top,BW,RAM_H+BTOP);
+    // cut face: hatch the walls, then the dark hollow and the slot down from the top
+    g.save(); g.beginPath(); g.rect(C.x-BW/2+3,top+3,BW-6,ramY+56-top-3); g.clip();
+    g.strokeStyle='rgba(20,18,16,.45)'; g.lineWidth=1; for(let i=-120;i<160;i+=7){ g.beginPath(); g.moveTo(C.x-BW/2+i,top); g.lineTo(C.x-BW/2+i-80,top+160); g.stroke(); }
+    g.restore();
+    g.fillStyle='#141210'; g.beginPath(); g.ellipse(C.x,yc,CA,CB,0,0,Math.PI*2); g.fill();
+    g.fillRect(C.x-14,top,28,yc-CB-top+6);
+    // tracks: the oval walls the rollers ride on
+    g.strokeStyle=hl('arms')||hl('ram')?'#ffb347':'#a7b1bb'; g.lineWidth=3;
+    g.beginPath(); g.ellipse(C.x,yc,CA,CB,0,Math.PI*0.62,Math.PI*1.38); g.stroke();
+    g.beginPath(); g.ellipse(C.x,yc,CA,CB,0,-Math.PI*0.38,Math.PI*0.38); g.stroke();
+    // ---- connecting rod: eye on the crank pin, rod down, rack on its lower end, spring box clamped on the rack
+    const Bx=k.B.x, By=k.B.y, rc=hl('rod');
+    { const dx=Bx-k.pin.x, dy=By-k.pin.y, l=Math.hypot(dx,dy), ang=Math.atan2(dy,dx)-Math.PI/2;
+      g.save(); g.translate(k.pin.x,k.pin.y); g.rotate(ang);
+      g.fillStyle=rc?'#f26522':'#7d848c'; g.fillRect(-5,0,10,l+6); g.strokeStyle='#15120f'; g.lineWidth=1; g.strokeRect(-5,0,10,l+6);
+      g.strokeStyle='#3a3d42'; g.lineWidth=1.5; for(let y=l-26;y<l+4;y+=4){ g.beginPath(); g.moveTo(1,y); g.lineTo(5,y); g.stroke(); }   // rack teeth
+      g.fillStyle=rc?'#f26522':'#5a6068'; g.beginPath(); g.arc(0,0,11,0,Math.PI*2); g.fill(); g.stroke();
+      g.restore();
+      g.fillStyle=rc?'#ffb347':'#c9c2b8'; g.beginPath(); g.arc(k.pin.x,k.pin.y,5,0,Math.PI*2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1; g.stroke(); }
+    part('rod',Math.min(k.pin.x,Bx)-12,k.pin.y-12,Math.abs(k.pin.x-Bx)+24,By-k.pin.y);
+    // ---- spring arms: leaf springs from the box fulcrum down into the ram, rollers on the oval tracks
+    const ac=hl('arms');
+    let dy=(By+ARML)-yc; dy=Math.max(-CB*0.8,Math.min(CB*0.8,dy));
+    const ry=yc+dy, hw=CA*Math.sqrt(1-(dy/CB)*(dy/CB)), rx=hw-RR+1;
+    const bend=(CA-hw)*1.6;
+    [-1,1].forEach(sg=>{
+      const P={x:Bx+sg*6,y:By+12}, Q={x:C.x+sg*rx,y:ry};
+      const mx=(P.x+Q.x)/2+sg*(5+bend), my=(P.y+Q.y)/2;
+      g.lineCap='round';
+      g.strokeStyle='#15120f'; g.lineWidth=10; g.beginPath(); g.moveTo(P.x,P.y); g.quadraticCurveTo(mx,my,Q.x,Q.y); g.stroke();
+      [[-2.5,ac?'#ffb347':'#c9cfd6'],[0,ac?'#f26522':'#9aa4ae'],[2.5,ac?'#ffb347':'#c9cfd6']].forEach(([o,c])=>{
+        g.strokeStyle=c; g.lineWidth=2.2; g.beginPath(); g.moveTo(P.x+o,P.y); g.quadraticCurveTo(mx+o,my,Q.x,Q.y-Math.abs(o)); g.stroke(); });
+      g.fillStyle=ac?'#ffb347':'#d8dde2'; g.beginPath(); g.arc(Q.x,Q.y,RR,0,Math.PI*2); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+      g.fillStyle='#2b2622'; g.beginPath(); g.arc(Q.x,Q.y,2.2,0,Math.PI*2); g.fill();
+    });
+    part('arms',C.x-CA-10,By+8,CA*2+20,ry-By+10);
+    // ---- spring box clamped on the rack, set screws on top bearing on the arms
+    { const bc=hl('springbox');
+      fillPart('springbox',BL_L); g.beginPath(); g.roundRect(Bx-24,By-14,48,30,4); g.fill(); g.strokeStyle='#15120f'; g.lineWidth=1.5; g.stroke();
+      g.fillStyle='#2b2622'; g.beginPath(); g.arc(Bx,By+6,5,0,Math.PI*2); g.fill();   // round fulcrum
+      g.fillStyle=bc?'#ffb347':'#8a8f96'; [-1,1].forEach(sg=>{ g.fillRect(Bx+sg*15-3,By-22,6,10); g.fillRect(Bx+sg*15-5,By-24,10,4); });   // set screws
+      part('springbox',Bx-26,By-26,52,44); }
+    // labels sit at the resting positions so moving parts never drag them into each other
+    { const k0=kin(PARK), B0=k0.B.y, r0=k0.ramStatic;
+      label('Connecting rod',C.x-20,B0-22,'right');
+      label('Spring box',C.x-30,B0+8,'right'); label('Set screws',C.x+28,B0-6);
+      label('Leaf spring arms',C.x-BW/2-24,r0+CAVC-26,'right'); label('Rollers on tracks',C.x-BW/2-24,r0+CAVC+4,'right');
+      label('Ram (cut away)',C.x-BW/2-24,r0+CAVC+48,'right'); }
+    label('Die dovetail',C.x+NOSE_W/2+24,ramY+RAM_H+4);
+    drawDieFaces(C.x,ramY+RAM_H);
+    drawBar(C.x);
+    const sFace=k.ramStatic+RAM_H+DIE_H;
+    if(!SBS&&!EXP){ g.strokeStyle='rgba(239,230,218,.5)'; g.setLineDash([3,3]); g.lineWidth=1; g.beginPath(); g.moveTo(C.x-40,sFace); g.lineTo(C.x+40,sFace); g.stroke(); g.setLineDash([]);
+      g.fillStyle='#a3958a'; g.font='10px Barlow, sans-serif'; g.textAlign='right'; g.fillText('crank alone', C.x-44, sFace+3); g.textAlign='left'; }
+    label('Treadle. Push to speed up and hit harder',W-12,714,'right');
+  }
+  function readouts(){
+    set('l1','Blows / min · brake'); set('s1',Math.round(Math.abs(omega)/(2*Math.PI)*60)+' · '+(brake?(parked?'on':'on, stopping'):'off'));
+    set('l2','Ram'); set('s2','25 lb');
+    set('l3','Spring added'); set('s3',lastOver!=null?(lastStatic<1?'all the reach':Math.round(100*lastOver/(lastOver+lastStatic))+'% of travel'):'–');
+    const t=+treadleEl.value; set('treadlev',(t===0?'up':t<15?'creep':t<50?'tap':t<80?'working':'floored')+' · '+Math.round(171*tEnergy(t/100))+' ft lb');
+  }
+  function onTreadle(t){ if(t===0) log('Treadle up. Clutch lets go and the brake stops the shaft.'); else if(t<15) log('Clutch just kissing. The crank creeps and the ram barely touches.'); else if(t<50) log('Light taps. The rollers hardly leave the wide part of the tracks.'); else if(t<80) log('Working blows. Rollers run toward the narrow spots and the arms start to bend.'); else log('Floored. The rollers pinch in at the bottom of the tracks and the arms whip the ram past the crank stroke.'); }
+  function pointerDown(p,e){
+    if(Math.hypot(p.x-C.x,p.y-C.y)<50){ drag={a:Math.atan2(p.y-C.y,p.x-C.x),t:performance.now()}; try{cv.setPointerCapture(e.pointerId);}catch(_){} log('Cranking by hand. The rollers sit still at the wide part and the ram just follows.'); return true; }
+    return false;
+  }
+  function pointerMove(p){
+    if(!drag) return; const a=Math.atan2(p.y-C.y,p.x-C.x);
+    let d=a-drag.a; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI;
+    const now=performance.now(); const dt=Math.max(0.008,(now-drag.t)/1000);
+    theta+=d; omega=d/dt; drag={a,t:now};
+  }
+  function pointerUp(){ drag=null; }
+  function enter(){ ramY=Math.min(kin(theta).ramStatic,barTop()-RAM_H-DIE_H); ramV=0; lastStatic=null; lastOver=null; if(!SBS) log('Treadle is up. Brake holds the shaft. Drag the crank disk to turn it by hand.'); }
+  const parts=[
+   {id:'clutch',name:'Clutch and brake',short:'Back of the shaft. The treadle runs both.',long:'The drive pulley sits on the back end of the shaft. On the clutch models it runs loose on the hub of a brake section keyed to the shaft. Step on the treadle and a split friction ring grabs and the shaft turns. Let off and the brake stops it. The early ones had no clutch. Stepping down pushed a roller against a slack belt to tighten it. Letting off dropped the roller and put a brake shoe on the pulley flange.'},
+   {id:'flywheel',name:'Crank disk',short:'Front of the shaft. Carries the crank pin.',long:'The crank disk sits on the front end of the shaft and carries the crank pin. Loosen the nut on the pin and an adjusting screw in the disk slides it in or out. That sets the stroke. Drag it to turn the hammer over by hand.'},
+   {id:'rod',name:'Connecting rod',short:'Crank pin down to the spring box. Rack for ram height.',long:'The connecting rod hangs off the crank pin and runs down to the spring box. Its lower end is a long rack. Move the box along the rack and lock it to set the ram height for thick or thin stock.'},
+   {id:'springbox',name:'Spring box',short:'Holds the spring arms. Set screws set tension.',long:'The spring box rides on the connecting rod. Inside is a round fulcrum the two spring arms work on. Set screws on the box load the arms. Tighten them and the action gets snappier.'},
+   {id:'arms',name:'Spring arms and rollers',short:'Leaf springs inside the ram. The part that throws it.',long:'Two big leaf spring arms hang from the spring box down inside the ram. Each one has a roller on the end. The rollers ride oval tracks cast into each side of the ram. At rest they sit at the wide part. When the crank drives the box down faster than the ram can follow the rollers run down to the narrow point and pinch together. That bends the springs and they drive the ram down. On the way up they pinch at the top of the tracks and pull the ram up. It all happens inside the ram.'},
+   {id:'ram',name:'Ram (cut away)',short:'Hollow casting with tracks inside. Die on the bottom.',long:'The Champion style ram is a hollow casting. The spring arms and rollers work inside it on the tracks cast into each side. The front is cut away here so you can see in. The top die locks into a dovetail on the bottom. The inside wants oil and the rollers need to turn free.'},
+   {id:'guides',name:'Gibbed ways',short:'Ram slides in ways with gibs either side.',long:'The ram slides in vertical ways with a gib on each side. One gib is fixed. The other adjusts with nuts so you can take up wear and keep the dies hitting flat.'},
+   {id:'dovetail',name:'Die dovetail',short:'Where the top die locks into the ram.',long:'The top die sits in a dovetail slot in the bottom of the ram and is locked with a tapered key. Drive the key out to swap dies. Same on the sow block below.'},
+   ...ANVIL_PARTS,
+   {id:'treadle',name:'Treadle',short:'Push to speed up and hit harder.',long:'The treadle runs the clutch and the brake. Press lightly and the clutch slips and the blows are soft. Press hard and the hammer runs at full speed with the spring arms adding their throw. Like any spring hammer speed and force come together.'},
+   BAR_PART
+  ];
+  return {name:'Beaudry',geo:{H:720,die:440},parts,step,draw,readouts,onTreadle,pointerDown,pointerMove,pointerUp,enter,controls:{hold:false},
+    why:{title:'How it differs from the Little Giant',text:'Same idea. The crank runs ahead of a heavy ram and a spring soaks up the difference and throws it back for a harder blow. The Little Giant does it out in the open with a coil spring and toggles. The Beaudry hides it. Two leaf spring arms hang inside a hollow ram with rollers on their ends. When the box runs ahead of the ram the rollers roll toward a narrow spot in their tracks and the arms bend. Then they spring back and drive the ram. Tension comes from set screws on the spring box instead of nuts on toggle links. Ram height comes from a rack on the connecting rod instead of a clamp on the pitman.'}};
+})();
+
+// =====================================================================
+// 3. SIDE BY SIDE. one treadle runs both spring hammers
+// =====================================================================
+const sbs=(function(){
+  const S=0.5, CAPY=372;
+  function wrapText(t,x,y,maxW,lh){ const words=t.split(' '); let line=''; for(const w of words){ const tt=line?line+' '+w:w; if(g.measureText(tt).width>maxW&&line){ g.fillText(line,x,y); y+=lh; line=w; } else line=tt; } if(line) g.fillText(line,x,y); }
+  function draw(){
+    g.fillStyle='#0f0d0b'; g.fillRect(0,0,W,H);
+    const keepH=H;
+    [[mech,0],[bd,W/2]].forEach(([m,ox])=>{
+      H=720; XF={ox,oy:0,s:S};
+      g.save(); g.translate(ox,0); g.scale(S,S); m.draw(); g.restore();
+      XF={ox:0,oy:0,s:1}; H=keepH;
+    });
+    g.strokeStyle='#3a312a'; g.lineWidth=1; g.beginPath(); g.moveTo(W/2,0); g.lineTo(W/2,H); g.stroke();
+    const caps=[['Little Giant','Coil spring and toggles out in the open.'],['Beaudry','Leaf spring arms hidden inside the ram, riding on rollers.']];
+    caps.forEach(([n,t],i)=>{ const x=i*W/2+10;
+      g.fillStyle='#ffb347'; g.font='bold 15px "Barlow Condensed", sans-serif'; g.fillText(n.toUpperCase(),x,CAPY+4);
+      g.fillStyle='#efe6da'; g.font='13px Barlow, sans-serif'; wrapText(t,x,CAPY+22,W/2-20,16); });
+  }
+  function step(dt){ mech.step(dt); bd.step(dt); }
+  function readouts(){ mech.readouts(); set('l3','Hammers'); set('s3','2 on one treadle'); }
+  function onTreadle(t){ if(t===0) log('Treadle up. Both clutches let go and both brakes stop the shaft.'); else if(t<50) log('Light taps on both. The springs barely work.'); else if(t<80) log('Working blows. Little Giant arms squeeze the coil spring. Beaudry rollers run toward the narrow spots.'); else log('Floored. Both springs throw the ram past the crank stroke. Same trick, two ways.'); }
+  function enter(){ mech.enter(); bd.enter(); log('One treadle runs both. Slide it and watch the springs. Tap a part to see it on both.'); }
+  const parts=[
+   {id:'spring',name:'Little Giant spring',short:'Coil spring and toggles out in the open.',long:'Two straight cast toggle arms hang off a winged crosshead with one fat coil spring between them. Short links run in to the ram. When the crank runs ahead of the ram the links angle and squeeze the arms against the spring. Then the spring shoves them back out and the links snap straight and throw the ram. Nuts on the links set the tension. You can see and reach all of it.'},
+   {id:'arms',name:'Beaudry spring arms',short:'Leaf spring arms on rollers inside the ram.',long:'Two big leaf spring arms hang from a spring box down inside a hollow ram. Rollers on their ends ride oval tracks cast inside. When the box runs ahead of the ram the rollers roll toward a narrow spot and pinch together. That bends the arms and they drive the ram. Set screws on the box set the tension. It all lives inside the ram.'},
+   {id:'ram',name:'Rams',short:'25 lb on both here.',long:'Both are drawn as 25 lb hammers with the same crank throw so you can compare the springs and nothing else. The Little Giant ram slides behind a wrap around front guide. The Beaudry ram is a hollow casting in gibbed ways, cut away here so you can see inside.'},
+   {id:'treadle',name:'Treadle',short:'One treadle runs both here.',long:'In real life each hammer has its own treadle. Here one slider runs both so they stay in step. Forging is off in this view. Pick one hammer above to work a bar.'}
+  ];
+  return {name:'Side by side',geo:{H:420,die:440},parts,step,draw,readouts,onTreadle,pointerDown:()=>false,pointerMove(){},pointerUp(){},enter,controls:{hold:false},
+    why:{title:'Two ways to spring a ram',text:'Both hammers do the same job. A crank runs ahead of a heavy ram and a spring stores the difference and throws it back for a harder blow. The Little Giant does it with a coil spring and toggles out in the open where you can see and adjust everything. The Beaudry does it with leaf spring arms riding on rollers inside a hollow ram. One treadle runs both here so you can watch them side by side. Forging is off in this view. Pick one hammer above to work a bar.'}};
+})();
+
+// =====================================================================
+// 4. SELF CONTAINED AIR HAMMER (Anyang / Say-Mak pattern, 33 lb ram)
+// =====================================================================
+const air=(function(){
+  const CX=210;
+  const CYL={x:184,y:70,w:52,h:160};
+  const PIST_H=22, PROD=90, BLOCK=80, RAM_LEN=PROD+BLOCK, DIE_H=20, RAM_W=50;
+  const TOPY=92;
+  const COMP={x:300,y:150,w:50,h:190};
+  const CRK={x:325,y:400,r:48}, ROD=140;
+  const MOTOR={x:385,y:452,r:22};
+  const VALVE={x:268,y:110,r:16};
+  const K=(2*Math.PI*2.5)**2, DAMP=2*0.3*Math.sqrt(K);
+  const MASS=55, VSCALE=1/100;   // Anyang 55: 25 kg ram. a full blow lands near 18 ft/s
+  let theta=0, omega=0, pistY=TOPY, pistV=0, hold=false, flowT=0;
+  function compPist(th){ const pin={x:CRK.x+CRK.r*Math.cos(th), y:CRK.y+CRK.r*Math.sin(th)}; const dx=pin.x-CRK.x; return {pin, y:pin.y-Math.sqrt(ROD*ROD-dx*dx)-20}; }
+  function faceY(){ return pistY+PIST_H+RAM_LEN+DIE_H; }
+  function step(dt){
+    const v=tpos();
+    const target=2*Math.PI*(235/60);   // Anyang 55: 235 blows a minute
+    omega+=(target-omega)*Math.min(1,dt*2);
+    theta+=omega*dt; flowT+=dt*(0.5+v*2);
+    // first third of the valve is hold and tap: the ram barely leaves its cushion. then it opens up on a curve
+    const open=v<0.34 ? 0.12*(v/0.34) : 0.12+0.88*Math.pow((v-0.34)/0.66,1.5);
+    let center, F, k=K;
+    if(hold){ center=barTop()-PIST_H-RAM_LEN-DIE_H+12; F=0; k=K*2; }
+    else { center=TOPY+open*95; F=open*24000; }
+    const a=-k*(pistY-center)+F*Math.sin(theta)-DAMP*pistV+120*v;
+    pistV+=a*dt; pistY+=pistV*dt;
+    if(pistY<TOPY-10){ pistY=TOPY-10; pistV=Math.max(0,pistV); }
+    const top=barTop();
+    if(faceY()>=top){
+      if(pistV>15){ const t=tpos(); const vv=18*t*(0.75+0.25*Math.min(1.3,pistV*VSCALE/18)); hitBar(Math.min(24,vv),MASS); }
+      pistY=barTop()-PIST_H-RAM_LEN-DIE_H; pistV=hold?0:-Math.abs(pistV)*0.15;
+    }
+  }
+  function passage(pts,on,dir,color){
+    g.strokeStyle=hl('air')?'#f26522':color; g.lineWidth=7; g.lineCap='round'; g.lineJoin='round';
+    g.beginPath(); pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.stroke();
+    if(!on) return;
+    let total=0; const segs=[];
+    for(let i=1;i<pts.length;i++){ const L=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]); segs.push({a:pts[i-1],b:pts[i],L}); total+=L; }
+    g.fillStyle='#bfe9ff';
+    for(let d=0; d<total; d+=14){
+      let s=((d+flowT*120*dir)%total+total)%total;
+      for(const sg of segs){ if(s<=sg.L){ const t=s/sg.L; g.beginPath(); g.arc(sg.a[0]+(sg.b[0]-sg.a[0])*t, sg.a[1]+(sg.b[1]-sg.a[1])*t, 2.2,0,Math.PI*2); g.fill(); break; } s-=sg.L; }
+    }
+  }
+  function draw(){
+    const v=+treadleEl.value/100; const cp=compPist(theta);
+    drawFloor();
+    fillPart('frame','#2b2622'); g.fillRect(40,60,70,440); g.fillRect(40,40,330,30);
+    drawAnvilStack(CX);
+    g.strokeStyle='#5a4e44'; g.lineWidth=6; g.beginPath(); g.moveTo(MOTOR.x-6,MOTOR.y-MOTOR.r); g.lineTo(CRK.x+10,CRK.y-CRK.r); g.moveTo(MOTOR.x+MOTOR.r,MOTOR.y); g.lineTo(CRK.x+CRK.r,CRK.y+8); g.stroke();
+    fillPart('motor','#3a332d'); rr(MOTOR.x-28,MOTOR.y-14,56,40,6); g.fill(); part('motor',MOTOR.x-28,MOTOR.y-14,56,40);
+    fillPart('motor','#5a4e44'); g.beginPath(); g.arc(MOTOR.x,MOTOR.y,MOTOR.r,0,Math.PI*2); g.fill();
+    fillPart('crank','#4a413a'); g.beginPath(); g.arc(CRK.x,CRK.y,CRK.r,0,Math.PI*2); g.fill(); part('crank',CRK.x-CRK.r,CRK.y-CRK.r,CRK.r*2,CRK.r*2);
+    g.strokeStyle='#15120f'; g.lineWidth=3; for(let i=0;i<4;i++){ const a=theta+i*Math.PI/2; g.beginPath(); g.moveTo(CRK.x,CRK.y); g.lineTo(CRK.x+Math.cos(a)*(CRK.r-5),CRK.y+Math.sin(a)*(CRK.r-5)); g.stroke(); }
+    g.beginPath(); g.arc(CRK.x,CRK.y,CRK.r,0,Math.PI*2); g.stroke();
+    g.strokeStyle=hl('crank')?'#f26522':'#8a7c70'; g.lineWidth=8; g.lineCap='round'; g.beginPath(); g.moveTo(cp.pin.x,cp.pin.y); g.lineTo(CRK.x,cp.y+20); g.stroke();
+    g.fillStyle='#a3958a'; g.beginPath(); g.arc(cp.pin.x,cp.pin.y,5,0,Math.PI*2); g.fill();
+    fillPart('comp','#3a332d'); g.fillRect(COMP.x,COMP.y,COMP.w,COMP.h); part('comp',COMP.x,COMP.y,COMP.w,COMP.h);
+    g.fillStyle='#1a1715'; g.fillRect(COMP.x+6,COMP.y+6,COMP.w-12,COMP.h-12);
+    fillPart('comp','#8a7c70'); g.fillRect(COMP.x+6,cp.y,COMP.w-12,20);
+    g.fillStyle='#8a7c70'; g.fillRect(CRK.x-4,cp.y+20,8,COMP.y+COMP.h-cp.y-20);
+    fillPart('cyl','#3a332d'); g.fillRect(CYL.x,CYL.y,CYL.w,CYL.h); part('cyl',CYL.x,CYL.y,CYL.w,CYL.h);
+    g.fillStyle='#1a1715'; g.fillRect(CYL.x+6,CYL.y+6,CYL.w-12,CYL.h-12);
+    const down=Math.sin(theta)>0;
+    g.fillStyle='rgba(120,200,255,'+(v*(down?0.25:0.06))+')'; g.fillRect(CYL.x+6,CYL.y+6,CYL.w-12,Math.max(0,pistY-CYL.y-6));
+    g.fillStyle='rgba(120,200,255,'+((hold?0:v)*(down?0.06:0.25)+(v===0&&!hold?0.18:0))+')'; g.fillRect(CYL.x+6,pistY+PIST_H,CYL.w-12,Math.max(0,CYL.y+CYL.h-6-pistY-PIST_H));
+    const going=omega>1;
+    passage([[COMP.x+COMP.w/2,COMP.y],[COMP.x+COMP.w/2,VALVE.y],[VALVE.x+VALVE.r,VALVE.y]],going&&v>0,down?1:-1,'#5a4e44');
+    passage([[VALVE.x-VALVE.r,VALVE.y],[CYL.x+CYL.w,VALVE.y]],going&&v>0,down?1:-1,'#5a4e44');
+    passage([[COMP.x+COMP.w/2,COMP.y+COMP.h],[COMP.x+COMP.w/2,COMP.y+COMP.h+16],[VALVE.x,COMP.y+COMP.h+16],[VALVE.x,VALVE.y+VALVE.r]],going&&v>0,down?-1:1,'#5a4e44');
+    passage([[VALVE.x,VALVE.y+VALVE.r],[VALVE.x,250],[CYL.x+CYL.w,250]],going&&v>0,down?-1:1,'#5a4e44');
+    part('air',240,96,30,30); part('air',240,243,120,22);
+    fillPart('valve','#6b5f55'); g.beginPath(); g.arc(VALVE.x,VALVE.y,VALVE.r,0,Math.PI*2); g.fill(); part('valve',VALVE.x-VALVE.r,VALVE.y-VALVE.r,VALVE.r*2,VALVE.r*2);
+    g.save(); g.translate(VALVE.x,VALVE.y); g.rotate((hold?1:v)*Math.PI/2); g.fillStyle='#15120f'; g.fillRect(-VALVE.r+3,-3,VALVE.r*2-6,6); g.restore();
+    g.strokeStyle=hl('treadle')?'#f26522':'#5a4e44'; g.lineWidth=3; g.beginPath(); g.moveTo(VALVE.x,VALVE.y+VALVE.r); g.lineTo(VALVE.x,300); g.lineTo(262,300); g.lineTo(262,468-v*8); g.stroke();
+    fillPart('treadle','#5a4e44'); part('treadle',150,455,130,30);
+    g.save(); g.translate(150,474); g.rotate(-0.22+v*0.22); g.fillRect(0,-4,112,8); g.restore();
+    // piston in the cylinder, a narrower rod out the bottom gland, then the guided ram block (tup)
+    fillPart('ram','#8a7c70'); g.fillRect(CYL.x+6,pistY,CYL.w-12,PIST_H); part('ram',CYL.x+6,pistY,CYL.w-12,PIST_H);
+    const blockTop=pistY+PIST_H+PROD;
+    g.fillStyle=hl('ram')?'#f26522':'#8a7c70'; g.fillRect(CX-6,pistY+PIST_H,12,PROD);
+    g.fillStyle='#2b2622'; g.fillRect(CYL.x+4,CYL.y+CYL.h-4,CYL.w-8,10);   // rod gland
+    drawGuides(CX,RAM_W,CYL.y+CYL.h+6,120,false);
+    drawRamBlock(CX,blockTop,RAM_W,BLOCK);
+    drawDieFaces(CX,pistY+PIST_H+RAM_LEN);
+    label('Ram (tup)',CX+RAM_W/2+22,blockTop+30); label('Guides',CX+RAM_W/2+22,CYL.y+CYL.h+40); label('Die dovetail',CX+RAM_W/2+22,blockTop+BLOCK+4); label('Piston rod',CX+10,pistY+PIST_H+40);
+    drawBar(CX);
+    g.fillStyle='#a3958a'; g.font='10px Barlow, sans-serif'; g.fillText(hold?'valve: hold down':v===0?'valve: hold up':'valve: '+Math.round(v*100)+'%', VALVE.x-16, VALVE.y-VALVE.r-6);
+    label('Treadle. Push to open the valve and hit harder',150,448);
+    label('Compressor',COMP.x-2,COMP.y-6);
+  }
+  function readouts(){
+    set('l1','Compressor rpm'); set('s1',Math.round(omega/(2*Math.PI)*60));
+    set('l2','Ram'); set('s2','55 lb');
+    set('l3','Valve'); set('s3',hold?'hold down':(+treadleEl.value===0?'hold up':treadleEl.value+'%'));
+    const t=+treadleEl.value; set('treadlev',(t===0?'up':t<34?'hold and tap':t<70?'working':'full')+' · '+Math.round(277*tEnergy(t/100))+' ft lb');
+  }
+  function onTreadle(t){ hold=false; holdBtn.setAttribute('aria-pressed','false'); if(t===0) log('Treadle up. Air under the piston holds the ram up. Motor keeps running.'); else if(t<34) log('Hold and tap. Valve just cracked, the ram hovers and taps the bar.'); else if(t<70) log('Working blows. Valve opening up, full strokes at a moderate blow.'); else log('Full open. Every stroke lands as hard as the hammer can hit.'); }
+  function toggleHold(){ hold=!hold; holdBtn.setAttribute('aria-pressed',hold); if(hold){ treadleEl.value=0; log('Valve turned the other way. Air on top of the piston clamps the ram down on the bar. Handy for holding a tool or straightening.'); } else log('Released. Ram floats back up.'); }
+  function enter(){ pistY=TOPY; pistV=0; hold=false; holdBtn.setAttribute('aria-pressed','false'); log('Motor on, compressor turning, ram parked up on air. Slide the treadle.'); }
+  const parts=[
+   {id:'motor',name:'Motor',short:'5 hp. Turns the compressor crank all day.',long:'A 5 hp motor never stops while the hammer is on. It drives the compressor crank by belt. Unlike the mechanical hammer there is no clutch; the valve decides what the ram does.'},
+   {id:'crank',name:'Crank and con rod',short:'Spin into compressor stroke.',long:'The crank and connecting rod turn the motor\'s rotation into the compressor piston\'s up and down stroke. Its speed sets the top blows per minute. The Anyang 55 runs at 235.'},
+   {id:'comp',name:'Compressor piston',short:'Pumps air both ways.',long:'A double acting piston. Going down it pushes air out the bottom port and pulls it in the top. Going up it does the reverse. That alternating puff is what drives the ram up and down.'},
+   {id:'valve',name:'Control valve',short:'Routes air. Treadle turns it.',long:'A rotary or spool valve between the two cylinders. Closed, the compressor just breathes to atmosphere and the ram sits up on a cushion. Cracked open, a little air reaches the ram for light taps. Full open, every stroke arrives. Turned the other way it feeds the top of the ram and clamps it down.'},
+   {id:'air',name:'Air passages',short:'The plumbing between the cylinders.',long:'Cast or drilled passages carry air from the compressor through the valve to the top and bottom of the ram cylinder. Air is springy, so the ram always feels cushioned and never slams the frame.'},
+   {id:'cyl',name:'Ram cylinder',short:'The ram\'s piston lives in here.',long:'The second cylinder. Air above the piston drives the ram down, air below lifts it. Because the ram rides on air, it can hover, tap or hit full without any mechanical linkage.'},
+   {id:'ram',name:'Ram (tup)',short:'55 lb block in square guides. Piston rod runs up into the cylinder.',long:'The ram, or tup, is a rectangular steel block that rides in square guide ways at the front of the column. The top die bolts into a dovetail on its bottom with a key. A narrower piston rod runs up from the block through a gland into the cylinder where the piston lives. Piston, rod and tup are one 55 lb moving mass. The air cushion lets it deliver a single soft blow at speed, which a spring hammer cannot do.'},
+   {id:'guides',name:'Guides',short:'Square ways the tup slides in.',long:'Machined square guide ways on either side of the tup keep the die parallel to the lower die through the whole stroke. Gibs take up wear. A loose gib lets the tup rock and the dies hit on an edge.'},
+   {id:'dovetail',name:'Die dovetail',short:'Where the top die locks into the tup.',long:'The top die sits in a dovetail slot in the bottom of the tup and is locked with a tapered key. Drive the key out and you can swap dies in a minute. The dies on an Anyang 55 are about 2.75 by 4 inches.'},
+   ...ANVIL_PARTS,
+   {id:'treadle',name:'Treadle',short:'Turns the valve. Height, force and speed.',long:'The treadle turns the control valve. A little pressure cracks it for taps, more opens it for full blows. Height and force come from how far the valve is open, not from the motor speed. That independence is the whole reason smiths pay for air.'},
+   BAR_PART
+  ];
+  return {name:'Self contained air hammer',geo:{H:520,die:410},parts,step,draw,readouts,onTreadle,pointerDown:()=>false,pointerMove(){},pointerUp(){},enter,toggleHold,controls:{hold:true},
+    why:{title:'Why air changes the feel',text:'On a mechanical hammer the ram is chained to the crank. On an air hammer the motor just pumps. The valve decides how much of each puff reaches the ram, so you can crack it for a tap that barely touches the bar, open it for a full blow, or turn it the other way and clamp the ram down to hold a tool. Height, force and speed come apart. The ram also rides on an air cushion so it never bottoms out against the frame. The cost is a bigger, heavier, pricier machine and a motor that runs the whole time.'}};
+})();
+
+const M={mech,bd,sbs,air};
+
+// ---------- loop ----------
+function frame(now){
+  let dt=Math.min(0.05,(now-lastT)/1000); lastT=now;
+  for(let i=0;i<4;i++) M[current].step(dt/4);
+  coolBar(bar,dt);
+  if(turnAnim>0){ turnAnim=Math.max(0,turnAnim-dt*4); if(turnAnim===0) turnFrom=null; }
+  regions=[]; M[current].draw(); drawTitle(); if(!SBS&&!EXP) drawTop(210);
+  M[current].readouts();
+  if(EXP){ const t=+treadleEl.value; set('treadlev',t===0?'off':t<35?'slow':t<75?'working':'full'); }
+  const u=underDie();
+  set('s4',u?u.h.toFixed(2)+' x '+u.w.toFixed(2)+' in · '+heatName(u.T):'nothing');
+  set('dE',last?Math.round(last.E)+' ft lb':'–');
+  set('dA',last?last.A.toFixed(2)+' sq in':'–');
+  set('dS',last?(last.sigma/1000).toFixed(last.sigma<10000?1:0)+' ksi':(u?(sigma(u.T)/1000).toFixed(1)+' ksi':'–'));
+  set('dH',last?last.dh.toFixed(3)+' in':'–');
+  set('dB',totalLength(bar).toFixed(2)+' in');
+  set('dN',bar.blows);
+  if(SBS){ set('s4','1 in bar · forging off'); set('dH','–'); }
+  requestAnimationFrame(frame);
+}
+
+// ---------- UI ----------
+treadleEl.addEventListener('input',()=>M[current].onTreadle(+treadleEl.value));
+function nudge(d){ treadleEl.value=Math.max(0,Math.min(100,+treadleEl.value+d)); M[current].onTreadle(+treadleEl.value); }
+document.getElementById('tminus').addEventListener('click',()=>nudge(-1));
+document.getElementById('tplus').addEventListener('click',()=>nudge(1));
+holdBtn.addEventListener('click',()=>M.air.toggleHold());
+feedEl.addEventListener('input',()=>{ setFreeEnd(+feedEl.value); });
+function doTurn(){ if(turnAnim>0) return; turnFrom=bar.seg.map(s=>s.h); turnFrom.w=bar.seg.map(s=>s.w); turnBar(bar); turnAnim=1; log('Quarter turn. What was width is now height. Hit it again to keep it square.'); }
+document.getElementById('turn').addEventListener('click',doTurn);
+document.getElementById('reheat').addEventListener('click',()=>{ for(const s of bar.seg) s.T=2100; bar.blows=0; last=null; log('Whole bar back to a yellow heat. Flow stress drops to 4 ksi again.'); });
+function resetBar(){ newBar(); lastBlow=null; log('Fresh '+stockEl.options[stockEl.selectedIndex].text+' bar at a yellow heat. Drag it under the '+die().name.toLowerCase()+'.'); }
+document.getElementById('reset').addEventListener('click',resetBar);
+stockEl.addEventListener('change',resetBar); dieEl.addEventListener('change',()=>{ last=null; log(die().name+' on. '+(dieEl.value==='draw'?'Narrow round contact. Bites deep and pushes steel along the bar.':'Wide flat contact. Spreads every way, moves less per blow.')); });
+window.addEventListener('keydown',e=>{
+  if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement) return;
+  if(e.code==='ArrowLeft'){ bar.tongX-=0.25; clampBar(); syncFeed(); e.preventDefault(); }
+  else if(e.code==='ArrowRight'){ bar.tongX+=0.25; clampBar(); syncFeed(); e.preventDefault(); }
+  else if(e.key==='t'||e.key==='T'){ doTurn(); }
+});
+
+const list=document.getElementById('parts');
+function buildParts(){
+  list.innerHTML='';
+  M[current].parts.forEach(p=>{
+    const li=document.createElement('li'); const b=document.createElement('button'); b.type='button'; b.setAttribute('aria-pressed','false');
+    b.innerHTML='<b>'+p.name+'</b><span>'+p.short+'</span>'; b.addEventListener('click',()=>selectPart(p.id)); li.appendChild(b); list.appendChild(li);
+  });
+}
+const EXPTXT={
+ motor:'Runs all the time. A belt carries its power back to the clutch pulley.',
+ flywheel:'The big disk up front. It is the flywheel and the crank in one. The pin on it turns spin into up and down.',
+ clutch:'Step on the treadle and the clutch grabs. Let off and it slips free so the motor spins on its own.',
+ brake:'A band on the crank plate. Let off the treadle and it clamps down and stops the hammer.',
+ pitman:'The rod off the crank pin. The crosshead clamps on it. Slide it up or down to set how high the dies sit.',
+ spring:'This is the whole trick. When the crank yanks faster than the ram can follow the links tip and squeeze the spring. It shoves back and snaps the ram down harder than the crank alone.',
+ ram:'The heavy part that does the hitting. 25 pounds on this one. The top die lives on the bottom of it.',
+ guides:'Keeps the ram running straight so the dies land flat on each other.',
+ dovetail:'The slot the die slides into. A tapered key wedges it tight.',
+ treadle:'Your gas pedal. Light foot gets light slow taps. Floor it and it runs fast and hits hard.',
+ dies:'The faces that touch the steel. Swap them for the job.',
+ sow:'A block under the bottom die that takes the beating so the anvil doesn\'t have to.',
+ anvil:'The big lump of iron under it all. More anvil means more of the blow goes into the steel.',
+ rod:'Runs from the crank pin down into the spring box. Has a rack to set the ram height.',
+ springbox:'Sits on the end of the rod. Set screws on it set the spring tension.',
+ arms:'Two leaf springs hang down inside the ram. Rollers on the ends ride tracks cast inside it. Same trick as the Little Giant spring. Just hidden.'
+};
+function expCaption(){
+  const el=document.getElementById('expcap'); if(!el) return;
+  const p=highlight?M[current].parts.find(p=>p.id===highlight):null;
+  if(!p){ el.innerHTML='<b>Tap a part</b>'+(current==='sbs'?'Both hammers do the same job. The Little Giant keeps its spring out in the open. The Beaudry hides it inside the ram.':'Tap anything on the drawing and it lights up. Push the treadle to run it.'); return; }
+  el.innerHTML='<b></b>'; el.firstChild.textContent=p.name; el.appendChild(document.createTextNode(EXPTXT[p.id]||p.short));
+}
+function selectPart(id){
+  highlight=highlight===id?null:id;
+  const parts=M[current].parts;
+  list.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',parts[i].id===highlight));
+  const p=parts.find(p=>p.id===highlight);
+  document.getElementById('whytext').textContent=p?p.long:M[current].why.text;
+  document.getElementById('whytitle').textContent=p?p.name:M[current].why.title;
+  expCaption();
+}
+function selectMachine(id){
+  current=id; highlight=null; lastBlow=null; SBS=(id==='sbs'); XF={ox:0,oy:0,s:1};
+  tv.hidden=SBS; document.getElementById('feedctl').hidden=SBS; document.getElementById('barctl').hidden=SBS;
+  H=M[id].geo.H; LOWER_DIE_Y=M[id].geo.die; cv.height=H;
+  document.querySelectorAll('#picker button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===id));
+  document.getElementById('holdWrap').hidden=!M[id].controls.hold;
+  document.getElementById('treadlehint').textContent=id==='air'?'Push to open the valve. The first third is hold and tap. All the way is a full blow. Use − and + for one notch at a time.':'Push to speed up and hit harder. The first half of the travel is light taps. Use − and + for one notch at a time.';
+  if(EXP) document.getElementById('treadlehint').textContent='Slide right to run it. All the way left is off and the brake holds the ram down.';
+  treadleEl.value=0; set('treadlev',EXP?'off':'up');
+  buildParts(); M[id].enter(); selectPart(null);
+}
+document.querySelectorAll('#picker button').forEach(b=>b.addEventListener('click',()=>selectMachine(b.dataset.m)));
+function syncExpBar(){ document.querySelectorAll('#expbar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.x===current)); }
+document.querySelectorAll('#expbar button').forEach(b=>b.addEventListener('click',()=>{ selectMachine(b.dataset.x); syncExpBar(); }));
+function setView(exp){
+  EXP=exp; document.body.classList.toggle('exp',exp);
+  if(exp&&current==='air') current='mech';
+  selectMachine(current); syncExpBar();
+  if(!exp) resetBar();
+  window.scrollTo(0,0);
+}
+document.getElementById('forgeit').addEventListener('click',()=>setView(false));
+document.getElementById('backexp').addEventListener('click',()=>setView(true));
+
+// pointer: flywheel drag, bar drag, part taps
+function toCanvas(e,c,h){ const r=c.getBoundingClientRect(); return {x:(e.clientX-r.left)*W/r.width, y:(e.clientY-r.top)*h/r.height}; }
+cv.addEventListener('pointerdown',e=>{
+  const p=toCanvas(e,cv,H); e.preventDefault();
+  if(M[current].pointerDown(p,e)) return;
+  for(let i=regions.length-1;i>=0;i--){ const r=regions[i]; if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){
+    if(r.id==='bar'){ dragBar={x:p.x,tong:bar.tongX}; try{cv.setPointerCapture(e.pointerId);}catch(_){} if(highlight!=='bar') selectPart('bar'); return; }
+    selectPart(r.id); return; } }
+});
+cv.addEventListener('pointermove',e=>{ const p=toCanvas(e,cv,H); if(dragBar){ bar.tongX=dragBar.tong+(p.x-dragBar.x)/PX; clampBar(); syncFeed(); return; } M[current].pointerMove(p); });
+const up=()=>{ dragBar=null; M[current].pointerUp(); };
+cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+tv.addEventListener('pointerdown',e=>{ const p=toCanvas(e,tv,TH); e.preventDefault(); dragBar={x:p.x,tong:bar.tongX}; try{tv.setPointerCapture(e.pointerId);}catch(_){} });
+tv.addEventListener('pointermove',e=>{ if(!dragBar) return; const p=toCanvas(e,tv,TH); bar.tongX=dragBar.tong+(p.x-dragBar.x)/PX; clampBar(); syncFeed(); });
+tv.addEventListener('pointerup',()=>dragBar=null); tv.addEventListener('pointercancel',()=>dragBar=null);
+
+newBar();
+document.body.classList.add('exp');
+selectMachine('mech'); syncExpBar();
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
