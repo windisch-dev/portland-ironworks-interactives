@@ -1,0 +1,861 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Press Explainer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap">
+<style>
+/* Layout: dark shop bench. Live press diagram with hydraulic schematic beside it, handle and readouts under it, the math and the why below. */
+:root{
+  --bg:#15120f; --panel:#1f1a16; --line:#3a312a; --fg:#efe6da; --muted:#a3958a;
+  --accent:#f26522; --accent-2:#ffb347; --oil:#5aa9ff; --steel:#8a8f99; --steel-dk:#3d4047;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);padding-block:18px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font-family:var(--display);font-weight:700;font-size:2.4rem;letter-spacing:.02em;margin:0;text-transform:uppercase}
+header p{margin:0;color:var(--muted);max-width:62ch}
+h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:1.2rem;margin:0 0 6px}
+.bench{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:12px}
+.diagram{background:#0f0d0b;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+svg{width:100%;height:auto;display:block}
+.part{cursor:pointer}
+.part:hover .hit, .part[data-on="1"] .hit{stroke:var(--accent-2);stroke-width:2}
+.hit{fill:transparent;stroke:transparent}
+.lbl{font-family:var(--display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;fill:#a3958a;paint-order:stroke;stroke:#0f0d0b;stroke-width:4px;stroke-linejoin:round}
+#ctlSvg .lbl{stroke:#1f1a16}
+.val{font-family:var(--display);font-size:15px;fill:#efe6da}
+.line{fill:none;stroke:#3d4047;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke:var(--oil);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 10;opacity:0}
+.flow.on{opacity:1}
+.controls{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
+.controls .opts{order:-1}
+.handle{display:flex;gap:6px}
+.handle button{background:#3a312a;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:10px 16px;font-family:var(--display);
+  font-size:1.1rem;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+.handle button[aria-pressed="true"]{background:var(--accent);color:#1a0d05;border-color:var(--accent)}
+.opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;color:var(--muted);font-size:.9rem}
+.opts label{display:flex;align-items:center;gap:8px}
+select{background:#0f0d0b;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:var(--body)}
+input[type=range]{accent-color:var(--accent);width:140px}
+button.act{background:#3a312a;color:var(--fg);border:0;border-radius:6px;padding:8px 14px;font-family:var(--display);
+  font-size:1rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;font-weight:700}
+button.act.hot{background:var(--accent);color:#1a0d05}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.stat{border-top:2px solid var(--line);padding-top:6px}
+.stat small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:.7rem}
+.stat b{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums;font-weight:500}
+#info{border-left:3px solid var(--accent);padding:4px 12px;min-height:3.2em}
+#info b{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:1.05rem;display:block}
+#info span{color:var(--muted);font-size:.95rem;line-height:1.4}
+#status{margin:0;color:var(--accent-2);font-size:.95rem;min-height:1.4em}
+.math{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.math>div{min-width:0}
+.eq{font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.35}
+.eq small{color:var(--muted);font-size:.9rem;font-family:var(--body)}
+.notes{color:var(--muted);line-height:1.5;max-width:70ch}
+.notes p{margin:0 0 8px}
+.notes strong{color:var(--fg)}
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.picker button{background:#0f0d0b;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 12px;cursor:pointer;text-align:left;flex:1 1 180px;font-family:var(--body)}
+.picker button b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.1rem}
+.picker button span{display:block;color:var(--muted);font-size:.8rem}
+.picker button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#2a1d14}
+.cfgnote{margin:0;color:var(--muted);font-size:.9rem}
+.tablewrap{overflow-x:auto}
+.cmp{border-collapse:collapse;width:100%;min-width:480px;font-size:.9rem;line-height:1.4}
+#topv{width:100%;height:auto;display:block;border-top:1px solid var(--line);touch-action:none;cursor:ew-resize}
+#mainSvg{touch-action:pan-y}
+.bar{cursor:ew-resize;touch-action:none}
+.lever{cursor:grab;touch-action:none}
+.lever:active{cursor:grabbing}
+#ctlSvg{touch-action:none;width:100%;height:auto;max-width:300px}
+.track,.tbtns,.hyd{display:none}
+.stripside{display:grid;gap:8px;min-width:0}
+.strip{display:grid;grid-template-columns:minmax(200px,300px) 1fr;gap:8px 16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.stripstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;min-width:0}
+.zone text{transition:fill .15s}
+.zone[data-on="1"] text{fill:var(--accent)}
+#knobRing{transform-origin:742px 265px;animation:pulse 1.2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.8);opacity:0}}
+#knobRing[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){#knobRing{animation:none;opacity:.8}}
+.cmp th,.cmp td{text-align:left;vertical-align:top;padding:8px 10px;border-top:1px solid var(--line)}
+.cmp thead th{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:1rem;border-top:0}
+.cmp tbody th{color:var(--muted);font-weight:600;white-space:nowrap}
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr}.math{grid-template-columns:1fr}
+  .bench{padding:10px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opts label{min-width:0}
+  .opts select{flex:1;min-width:0;width:100%}
+  input[type=range]{width:100%;flex:1}
+  .strip{position:sticky;bottom:0;z-index:5;grid-template-columns:150px 1fr;gap:6px 10px;padding:6px 10px;padding-bottom:max(6px,env(safe-area-inset-bottom,0px));box-shadow:0 -6px 18px rgba(0,0,0,.45)}
+  #ctlSvg{display:none}
+  .desk{display:none}
+  .hyd{display:block}
+  .strip{grid-template-columns:104px 1fr;touch-action:none;align-items:start}
+  .track{display:flex;flex-direction:column;align-items:center;gap:4px;user-select:none;-webkit-user-select:none;touch-action:none}
+  .tlbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.9rem;color:var(--muted);text-align:center;line-height:1.05}
+  .tlbl small{display:block;font-size:.65rem;letter-spacing:.04em;text-transform:none;font-family:var(--body)}
+  .trail{position:relative;width:16px;height:160px;border-radius:8px;background:#0f0d0b;border:1px solid var(--line)}
+  .tcenter{position:absolute;left:38px;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:.8rem;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+  .tknob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:var(--accent);border:2px solid #1a0d05;box-shadow:0 3px 10px rgba(0,0,0,.6);touch-action:none;cursor:grab}
+  .tknob::after{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid rgba(26,13,5,.5)}
+  .track[data-zone="up"] .tlbl[data-z="up"],.track[data-zone="down"] .tlbl[data-z="down"],.track[data-zone="hold"] .tcenter{color:var(--accent)}
+  .tbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .tbtns button{min-height:46px;background:#3a312a;color:var(--fg);border:1px solid var(--line);border-radius:8px;font-family:var(--display);font-size:1.05rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;padding:0 6px}
+  .tbtns #feedL,.tbtns #feedR{font-size:1.5rem;background:#2a1d14;border-color:var(--accent)}
+  .tbtns #tTurn{grid-column:3}
+  .tbtns #tHeat{grid-column:1 / span 2;background:var(--accent);color:#1a0d05;border-color:var(--accent)}
+  .stripstats{grid-template-columns:1fr 1fr;gap:2px 8px}
+  .stripstats .stat{border-top-width:1px;padding-top:3px}
+  .stripstats .stat b{font-size:1.1rem}
+  .stripstats .stat small{font-size:.62rem}
+  #mainSvg{touch-action:none}
+  #topv{touch-action:none}
+  .stat b{font-size:1.25rem}
+  .cmp{min-width:0}
+  .cmp thead{display:none}
+  .cmp tr,.cmp th,.cmp td{display:block;border-top:0;padding:4px 0}
+  .cmp tbody tr{border-top:1px solid var(--line);padding:8px 0}
+  .cmp td::before{content:attr(data-col);display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;color:var(--accent-2);font-size:.85rem}
+  .cmp tbody th{white-space:normal;color:var(--fg)}
+}
+@media (prefers-reduced-motion:reduce){.flow{animation:none!important}}
+@keyframes run{to{stroke-dashoffset:-18}}
+@keyframes runback{to{stroke-dashoffset:18}}
+.flow.on.fwd{animation:run .5s linear infinite}
+.flow.on.back{animation:runback .5s linear infinite}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>How a forging press works</h1>
+    <p>A shop hydraulic press is a motor, a pump, a valve and a cylinder. Hold the handle down and watch where the oil goes, what the gauge does and why the ram slows down the moment it hits steel. Tap any part for what it does.</p>
+  </header>
+
+  <div class="bench">
+    <div class="picker" role="group" aria-label="Press" id="picker"></div>
+    <p id="cfgNote" class="cfgnote"></p>
+    <div class="diagram">
+      <svg id="mainSvg" viewBox="0 30 760 450" aria-label="Animated hydraulic forging press with its hydraulic circuit">
+        <defs>
+          <clipPath id="cyl"><rect x="146" y="82" width="68" height="134"/></clipPath>
+        </defs>
+
+        <!-- Frame, drawn by script for the chosen press -->
+        <g class="part" data-part="frame" id="frameG"></g>
+        <g id="upperFrame"></g>
+
+        <g id="upper">
+        <!-- Cylinder -->
+        <g class="part" data-part="cylinder">
+          <rect x="140" y="70" width="80" height="152" rx="4" fill="#4a4f58"/>
+          <rect x="146" y="82" width="68" height="134" fill="#1b1d22"/>
+          <g clip-path="url(#cyl)">
+            <rect id="capOil" x="146" y="82" width="68" height="10" fill="#2b5a8c"/>
+            <rect id="rodOil" x="146" y="100" width="68" height="116" fill="#20405f" opacity=".55"/>
+            <rect id="piston" x="146" y="92" width="68" height="14" fill="#8a8f99"/>
+          </g>
+          <rect class="hit" x="136" y="66" width="88" height="160" rx="6"/>
+          <text class="lbl" x="228" y="120">Cylinder</text>
+          <text class="lbl" x="228" y="136" id="boreLbl">5 in bore</text>
+        </g>
+        <g class="part" data-part="piston">
+          <rect id="rod" x="172" y="106" width="16" height="130" fill="#aab0bb"/>
+          <rect class="hit" x="166" y="106" width="28" height="130"/>
+        </g>
+
+        <!-- Ram and top die -->
+        <g class="part" data-part="ram" id="ramG">
+          <rect x="110" y="232" width="140" height="24" rx="2" fill="#4a4f58"/>
+          <g id="topDieG"></g>
+          <rect class="hit" x="106" y="228" width="148" height="52"/>
+          <text class="lbl" x="258" y="252">Ram</text>
+          <text class="lbl" x="258" y="268">Top die</text>
+          <g id="ramArrow" hidden transform="translate(100 254)"><line x1="0" y1="-16" x2="0" y2="10" stroke="#ffb347" stroke-width="3"/><path d="M-7 6 L0 16 L7 6 z" fill="#ffb347"/></g>
+        </g>
+        </g><!-- /upper -->
+
+        <!-- Bottom die -->
+        <g class="part" data-part="dies">
+          <g id="botDieG"></g>
+          <rect class="hit" x="126" y="356" width="108" height="28"/>
+          <text class="lbl" x="236" y="378">Bottom die</text>
+        </g>
+
+        <!-- Bar: a length of stock in segments, drawn by script. Drag it through the dies. -->
+        <g class="part bar" data-part="bar" id="barG"></g>
+
+        <g id="circuit">
+        <!-- Hydraulic lines (static sleeves) -->
+        <path class="line" d="M520 420 L520 300 L600 300 L600 290"/>           <!-- pump to valve P -->
+        <path class="line" d="M680 290 L680 300 L700 300 L700 400"/>          <!-- valve T to tank -->
+        <path class="line" id="sleeveA" d="M620 240 L620 150 L400 150 L400 92 L220 92"/>  <!-- valve A to cap end -->
+        <path class="line" id="sleeveB" d="M660 240 L660 200 L380 200 L380 205 L220 205"/>  <!-- valve B to rod end -->
+        <path class="line" d="M520 330 L470 330 L470 400"/>                    <!-- relief dump -->
+        <path class="line" d="M600 440 L570 440 L570 420"/>                    <!-- suction (visual) -->
+
+        <!-- Flow overlays -->
+        <path id="fP" class="flow" d="M520 420 L520 300 L600 300 L600 290"/>
+        <path id="fT" class="flow" d="M680 290 L680 300 L700 300 L700 400"/>
+        <path id="fA" class="flow" d="M620 240 L620 150 L400 150 L400 92 L220 92"/>
+        <path id="fB" class="flow" d="M660 240 L660 200 L380 200 L380 205 L220 205"/>
+        <path id="fR" class="flow" d="M520 330 L470 330 L470 400"/>
+
+        <!-- Motor and pump -->
+        <g class="part" data-part="motor">
+          <rect x="410" y="400" width="70" height="60" rx="6" fill="#33373e"/>
+          <circle cx="445" cy="430" r="18" fill="#1b1d22" stroke="#8a8f99" stroke-width="3"/>
+          <g id="fan" transform="translate(445 430)"><rect x="-2" y="-14" width="4" height="28" fill="#8a8f99"/><rect x="-14" y="-2" width="28" height="4" fill="#8a8f99"/></g>
+          <rect class="hit" x="406" y="396" width="78" height="68" rx="6"/>
+          <text class="lbl" x="410" y="390">Motor</text>
+        </g>
+        <g class="part" data-part="pump">
+          <rect x="488" y="406" width="64" height="48" rx="4" fill="#4a4f58"/>
+          <circle cx="506" cy="430" r="12" fill="#1b1d22" stroke="#5aa9ff" stroke-width="2"/>
+          <circle cx="534" cy="430" r="8" fill="#1b1d22" stroke="#5aa9ff" stroke-width="2"/>
+          <rect class="hit" x="484" y="402" width="72" height="56" rx="6"/>
+          <text class="lbl" x="488" y="390">2-stage pump</text>
+          <text id="stage" class="val" x="488" y="474">Stage 1 · high flow</text>
+        </g>
+
+        <!-- Tank -->
+        <g class="part" data-part="tank">
+          <rect x="600" y="400" width="130" height="60" rx="4" fill="#22252a" stroke="#3d4047" stroke-width="2"/>
+          <rect x="604" y="424" width="122" height="32" fill="#20405f"/>
+          <rect class="hit" x="596" y="396" width="138" height="68" rx="6"/>
+          <text class="lbl" x="604" y="390">Tank</text>
+        </g>
+
+        <!-- Relief valve -->
+        <g class="part" data-part="relief">
+          <rect x="506" y="316" width="28" height="28" rx="3" fill="#33373e" stroke="#8a8f99" stroke-width="2"/>
+          <path d="M534 330 l10 -6 l0 12 z" fill="#8a8f99"/>
+          <path id="spring" d="M548 322 l4 8 l-4 8 l4 8" fill="none" stroke="#8a8f99" stroke-width="2"/>
+          <rect class="hit" x="500" y="310" width="60" height="40" rx="4"/>
+          <text class="lbl" x="440" y="320">Relief</text>
+          <text id="reliefLbl" class="val" x="440" y="338">3000 psi</text>
+        </g>
+
+        <!-- Directional valve -->
+        <g class="part" data-part="valve">
+          <rect x="560" y="240" width="120" height="50" rx="3" fill="#33373e" stroke="#8a8f99" stroke-width="2"/>
+          <line x1="600" y1="240" x2="600" y2="290" stroke="#8a8f99" stroke-width="2"/>
+          <line x1="640" y1="240" x2="640" y2="290" stroke="#8a8f99" stroke-width="2"/>
+          <g id="spool" transform="translate(0 0)">
+            <!-- three positions drawn side by side, slid under the ports -->
+            <path d="M568 250 l0 30 M592 250 l0 30 M570 280 l20 -30" fill="none" stroke="#5aa9ff" stroke-width="2"/>
+            <path d="M608 250 l0 30 M632 250 l0 30" fill="none" stroke="#5aa9ff" stroke-width="2" stroke-dasharray="3 3"/>
+            <path d="M648 250 l0 30 M672 250 l0 30 M650 250 l20 30" fill="none" stroke="#5aa9ff" stroke-width="2"/>
+          </g>
+          <rect id="spoolWin" x="600" y="238" width="40" height="54" fill="none" stroke="#ffb347" stroke-width="2"/>
+          <rect class="hit" x="556" y="236" width="128" height="58" rx="4"/>
+          <text class="lbl" x="560" y="230">Control valve</text>
+        </g>
+
+        </g><!-- /circuit -->
+
+      </svg>
+      <canvas id="topv" width="760" height="64" aria-label="Top view of the bar showing its width"></canvas>
+    </div>
+    <button type="button" class="act hyd" id="hydBtn" aria-expanded="false" title="Pump, valve, relief and gauge">Show hydraulics</button>
+    <div class="diagram hyd" id="hydWrap" hidden>
+      <svg viewBox="395 60 365 420" aria-label="Pump, valve, relief, tank and gauge"><use href="#circuit"/><g transform="translate(-130 -30)"><use href="#gaugeG"/></g></svg>
+    </div>
+
+    <!-- control strip: gauge, handle and the live readouts, sticky on phones so the handle stays by your thumb -->
+    <div class="strip" id="ctl">
+      <svg id="ctlSvg" viewBox="586 192 184 190" aria-label="Pressure gauge and control handle">
+        <!-- Control handle: a lever the viewer drags -->
+        <g class="lever" id="lever" role="slider" aria-label="Control handle" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0" tabindex="0">
+          <!-- gate: the knob's travel arc with the three valve markings -->
+          <path d="M741.3 224.9 A70 70 0 0 1 741.3 305.1" fill="none" stroke="#3d4047" stroke-width="3"/>
+          <g id="zUp" class="zone"><text class="lbl zt" x="756" y="216" text-anchor="end">UP ▲</text><text class="lbl zs" x="756" y="203" text-anchor="end" font-size="10">dies open</text></g>
+          <g id="zHold" class="zone"><text class="lbl zt" x="722" y="251" text-anchor="middle">HOLD</text></g>
+          <g id="zDown" class="zone"><text class="lbl zt" x="756" y="322" text-anchor="end">DOWN ▼</text><text class="lbl zs" x="756" y="334" text-anchor="end" font-size="10">dies close</text></g>
+          <!-- rod sticks straight out of the valve body toward the viewer, pivot at the valve -->
+          <g id="leverArm" transform="rotate(0 684 265)">
+            <line x1="684" y1="265" x2="738" y2="265" stroke="#aab0bb" stroke-width="6" stroke-linecap="round"/>
+            <circle id="knobRing" cx="742" cy="265" r="16" fill="none" stroke="#f26522" stroke-width="3"/>
+            <circle cx="742" cy="265" r="11" fill="#f26522" stroke="#1a0d05" stroke-width="2"/>
+            <circle id="knobHit" cx="742" cy="265" r="34" fill="transparent"/>
+          </g>
+          <circle cx="684" cy="265" r="5" fill="#efe6da"/>
+          <g id="callout">
+            <path d="M672 346 L724 284" fill="none" stroke="#ffb347" stroke-width="2"/>
+            <path d="M727 280 l-11 3 l8 7 z" fill="#ffb347"/>
+            <text class="val" x="592" y="360" fill="#ffb347">Grab the handle.</text>
+            <text class="val" x="592" y="377" fill="#ffb347">Pull down to close.</text>
+          </g>
+        </g>
+
+        <!-- Gauge -->
+        <g transform="translate(-60 150)" id="gaugeG">
+        <g class="part" data-part="gauge">
+          <circle cx="700" cy="100" r="44" fill="#1b1d22" stroke="#8a8f99" stroke-width="3"/>
+          <path d="M666 122 A40 40 0 1 1 734 122" fill="none" stroke="#3d4047" stroke-width="6"/>
+          <path d="M721 134 A40 40 0 0 1 734 122" fill="none" stroke="#f24a1a" stroke-width="6"/>
+          <line id="needle" x1="700" y1="100" x2="672" y2="126" stroke="#f26522" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="700" cy="100" r="4" fill="#efe6da"/>
+          <text id="gaugeTxt" class="val" x="700" y="118" text-anchor="middle">0 psi</text>
+          <rect class="hit" x="652" y="52" width="96" height="96" rx="48"/>
+          <text class="lbl" x="660" y="160">Gauge</text>
+        </g>
+        </g>
+      </svg>
+      <div class="track" id="track" data-zone="hold">
+        <div class="tlbl" data-z="up">UP ▲<small>dies open</small></div>
+        <div class="trail"><div class="tcenter" data-z="hold">HOLD</div><div class="tknob" id="tknob" role="slider" aria-label="Control handle" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0"></div></div>
+        <div class="tlbl" data-z="down">DOWN ▼<small>dies close</small></div>
+      </div>
+      <div class="stripside">
+        <div class="tbtns">
+          <button type="button" id="feedL" aria-label="Feed bar left">◀</button>
+          <button type="button" id="feedR" aria-label="Feed bar right">▶</button>
+          <button type="button" id="tTurn">Turn 90°</button>
+          <button type="button" id="tHeat">Back in the fire</button>
+          <button type="button" id="tNew">New bar</button>
+        </div>
+        <div class="stripstats">
+          <div class="stat"><small>Handle</small><b id="sHandle">HOLD</b></div>
+          <div class="stat"><small>Ram</small><b id="dRam">free</b></div>
+          <div class="stat"><small>Under the dies</small><b id="sBar">1.00 × 1.00 in</b></div>
+              <div class="stat"><small>Pressure</small><b id="sP">0 psi</b></div>
+              <div class="stat"><small>Squish so far</small><b id="sSquish">0.00 in</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <p class="cfgnote" style="margin:0"><strong style="color:var(--fg)">Handle:</strong> pull down to close the dies, push up to open. Let go and it holds. Further you swing it the faster the ram moves. Up and down arrow keys work too. <strong style="color:var(--fg)">Bar.</strong> Drag it through the dies, or use the left and right arrow keys a quarter inch at a time. Turn 90° (or the T key) rolls it a quarter turn so you can squish the other face and keep it square.</p>
+      <div class="opts">
+        <label>Stock <select id="stock"><option value="0.75">3/4 in square</option><option value="1" selected>1 in square</option><option value="1.5">1 1/2 in square</option></select></label>
+        <label>Dies <select id="die"><option value="flat" selected>Flat dies</option><option value="draw">Drawing dies</option><option value="vee">V block pair</option></select></label>
+        <label>Feed <input type="range" id="feed" min="-2" max="12" step="0.05" value="1"></label>
+        <label>Bore <select id="bore"><option>4</option><option selected>5</option><option>6</option></select> in</label>
+        <label>Relief <input type="range" id="relief" min="1000" max="3000" step="50" value="3000"> <span id="reliefV">3000</span> psi</label>
+        <button class="act hot desk" type="button" id="reheat">Reheat bar</button>
+        <button class="act desk" type="button" id="turn" title="T key">Turn 90°</button>
+        <button class="act desk" type="button" id="newbar">New bar</button>
+      </div>
+    </div>
+
+    <p id="status">Handle in the middle. Pump is running but the oil just goes back to the tank.</p>
+
+    <div class="stats">
+      <div class="stat"><small>Force on the steel</small><b id="sF">0 tons</b></div>
+      <div class="stat"><small>Ram speed</small><b id="sV">0.00 in/s</b></div>
+      <div class="stat"><small>Bar length</small><b id="sLen">8.00 in</b></div>
+    </div>
+
+    <h2 style="margin:4px 0 0">Between the dies</h2>
+    <div class="stats">
+      <div class="stat"><small>Force available</small><b id="dAv">0 tons</b></div>
+      <div class="stat"><small>Force to keep moving</small><b id="dNeed">–</b></div>
+      <div class="stat"><small>Contact area</small><b id="dA">–</b></div>
+      <div class="stat"><small>Flow stress at this heat</small><b id="dS">4 ksi</b></div>
+      <div class="stat"><small>Heat under the dies</small><b id="sT">2100°F</b></div>
+    </div>
+
+    <div id="info"><b>Tap a part</b><span>Everything in the drawing is live. Tap the pump, the valve, the gauge or the bar to see what it is doing right now.</span></div>
+  </div>
+
+  <div class="bench math">
+    <div>
+      <h2>The only equation that matters</h2>
+      <div class="eq">Force = pressure × piston area<br>
+        <span id="eqA">Area = π × (5 ÷ 2)² = 19.63 in²</span><br>
+        <span id="eqF">19.63 in² × 3000 psi = 58,900 lb ≈ 29.4 tons</span><br>
+        <small>Change the bore or the relief setting above and the numbers follow. Bigger bore means more tons at the same pressure. More pressure means more tons from the same cylinder. The pump does not make force. The cylinder does.</small>
+      </div>
+    </div>
+    <div>
+      <h2>Why the ram slows down on steel</h2>
+      <div class="eq"><span id="eqSpeed">Stage 1: 11 gpm ÷ 19.63 in² = 2.2 in/s<br>Stage 2: 2.5 gpm ÷ 19.63 in² = 0.5 in/s</span><br>
+        <small>A two-stage pump is two pumps on one shaft. The big one moves a lot of oil at low pressure so the ram closes fast. The moment the ram meets steel and pressure climbs past the unloading point the big pump dumps to tank and only the small one keeps pushing. Less oil per second means a slower ram but it can push to full pressure without stalling the motor.</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="bench">
+    <h2>C frame or H frame</h2>
+    <div class="tablewrap"><table class="cmp">
+      <thead><tr><th></th><th>C frame</th><th>H frame</th></tr></thead>
+      <tbody>
+        <tr><th>Access</th><td data-col="C frame">Open from three sides. Front and both sides.</td><td data-col="H frame">Open from the front and the back.</td></tr>
+        <tr><th>Die area</th><td data-col="C frame">Dies sized for the throat. Plenty for most hand tooling.</td><td data-col="H frame">Wider die area. Room for long tooling and bigger flat dies.</td></tr>
+        <tr><th>Seeing the work</th><td data-col="C frame">Nothing in the way. You see the bar and the dies from where you stand.</td><td data-col="H frame">You look in between the columns.</td></tr>
+        <tr><th>Tooling up</th><td data-col="C frame">Easy. Set a tool on the bottom die from the side and go.</td><td data-col="H frame">Tooling slides in from the front or back.</td></tr>
+        <tr><th>Floor space</th><td data-col="C frame">Smaller footprint. Sits against a wall.</td><td data-col="H frame">Takes up more floor. Needs room front and back.</td></tr>
+        <tr><th>Who runs it</th><td data-col="C frame">Most one person shops. Andrew runs a Coal Ironworks 25 ton C frame every day.</td><td data-col="H frame">Shops with long tooling or bigger dies. Anyang and Big Blue sell this style at 25 to 40 tons.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="bench notes">
+    <h2>Why smiths like a press</h2>
+    <p><strong>It moves the middle.</strong> A hammer blow is fast and the energy dies near the surface on thick stock. A press squeezes slowly and the whole cross section flows. That is why a press is the tool for drawing down big billets and for forge welding stacks.</p>
+    <p><strong>It is controllable.</strong> You can creep the ram down a sixteenth at a time with the handle. Tooling like fullers, drifts and spring swages sits still on the die instead of bouncing.</p>
+    <p><strong>It is quiet.</strong> No ring. Neighbors do not hear it. Your ears thank you.</p>
+    <p><strong>It stalls on wide stock.</strong> Force is fixed. As the bar spreads the contact area grows and the pressure needed climbs until it hits the relief setting. Watch the gauge peg and the ram stop. The fix is smaller dies or a smaller bite, not a bigger motor.</p>
+    <p><strong>Where the sim cheats.</strong> The bar is a row of 56 slices and each slice only gets thinner, wider or longer in straight lines. Die friction and the extra squeeze it takes to spread a wide thin section are folded into one factor on the flow stress. There is no bulging of the bar sides and no steel moving between slices except by stretching. Good enough for the idea.</p>
+  </div>
+  <p class="cfgnote" style="font-size:.8rem">© 2026 Portland Ironworks. All rights reserved. First published October 17, 2026. Part of the Portland Ironworks forge interactives.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const PX=20;                       // px per inch in the drawing
+const CX=180;                      // die center, x
+const DIE_Y=360;                   // top of the lower die
+const STROKE_MAX=4.25;             // in, ram die bottom at 276 px with the ram up, lower die top at 360 px
+const STAGE_SWITCH=650;            // psi where the high-flow stage unloads
+let GPM1=11, GPM2=2.5;
+let ROD_AREA=Math.PI*1.25*1.25;    // 2.5 in rod
+
+// Press configurations.
+const CONFIGS={
+  coal25:{name:'Coal Ironworks 25t C frame',sub:'open throat · 5 in bore',frame:'C',bore:5,relief:2550,rated:25,gpm1:11,gpm2:2.5,rod:2.5,
+    note:'Cylinder sits on top of the C. The ram comes down through the open throat so you reach the dies from the front and both sides with nothing in the way. This is the press most one person shops run.'},
+  hframe:{name:'H frame 25 to 40t',sub:'twin column · cross head · 6 in bore',frame:'H',bore:6,relief:2850,rated:40,gpm1:14,gpm2:3,rod:3,
+    note:'Cylinder centered between two uprights. The cross head rides on the columns and carries the top die. Work passes front to back. This is the style Anyang and Big Blue also sell in the 25 to 40 ton range. Slide the relief down to about 1800 psi to see it running as a 25 ton machine. Shown side on here so you can watch the bar profile.'}
+};
+let CFG=CONFIGS.coal25;
+
+const S={handle:'hold', lever:0, stroke:0, bore:5, relief:2550, P:0, v:0, stalled:false, onStop:false, last:performance.now()};
+
+// ---------- bar model, shared with the power hammer page: a length of stock as segments. inches, pounds, degrees F ----------
+// each segment: L along the bar, w across it, h between the dies, vol fixed, T its own heat.
+const NSEG=56, DIE_STOP=0.125;
+function roundEdge(half,edge,x){ const a=Math.abs(x); if(a>half) return Infinity; const f=half-edge; if(a<=f) return 0; const u=a-f; return edge-Math.sqrt(Math.max(0,edge*edge-u*u)); }
+// z(x): how far above the die's lowest point the die face sits at x inches from die center. spread: share of displaced steel that goes to width. k: extra force factor.
+const DIES={
+  flat:{name:'Flat dies',half:1.25,edge:0.2,spread:0.5,k:1.0, z(x){ return roundEdge(this.half,this.edge,x); },
+        info:'Hardened flat blocks 2 1/2 in along the bar. They touch the bar across its whole width so the contact area is big and it takes a lot of tons to keep moving. Steel spreads every way. Best for squaring up and flattening.'},
+  draw:{name:'Drawing dies',half:0.75,edge:0,spread:0.15,k:1.0, z(x){ const a=Math.abs(x); if(a>=this.half) return Infinity; return this.half-Math.sqrt(this.half*this.half-a*a); },
+        info:'A round crown 1 1/2 in across. Only the top of the crown touches so the contact area stays small, the press bites deep and most of the steel goes along the bar instead of out the sides. The fastest way to draw stock out on a press.'},
+  vee:{name:'V block pair',half:1.0,edge:0.15,spread:0,k:1.3,vee:true, z(x){ return roundEdge(this.half,this.edge,x); },
+        info:'Matching V blocks, top and bottom. They squeeze from four sides at once so the bar cannot spread. Everything it loses in height goes into length and the corners get pulled in, which is how you take square to round or octagon. The confinement costs about a third more force.'}
+};
+const SIG=[[2100,4000],[1900,6000],[1700,9000],[1500,15000],[1300,25000],[1100,45000],[950,120000],[70,400000]];
+function sigma(T){
+  if(T>=2100) return 4000;
+  for(let i=0;i<SIG.length-1;i++){ const [t1,s1]=SIG[i],[t2,s2]=SIG[i+1]; if(T<=t1&&T>=t2){ const f=(t1-T)/(t1-t2); return Math.exp(Math.log(s1)+(Math.log(s2)-Math.log(s1))*f);} }
+  return 400000;
+}
+// press calibration: forging pressure = PK x flow stress x (1 + CR x width/height). chill: degrees lost per unit of relative squish under the dies.
+const PK=2.3, CR=0.41, CHILL=60;
+function makeBar(size,len){
+  const seg=[]; for(let i=0;i<NSEG;i++) seg.push({L:len/NSEG,w:size,h:size,vol:len/NSEG*size*size,T:2100});
+  return {seg,size,tongX:-len+1.0};   // tongX: tong end, inches from die center. free end starts 1 in past the dies
+}
+function layout(bar){ let x=bar.tongX; const c=[]; for(const s of bar.seg){ c.push(x+s.L/2); x+=s.L; } return c; }
+function totalLength(bar){ return bar.seg.reduce((a,s)=>a+s.L,0); }
+// force to push the die's lowest point down to `gap` above the lower die, and what is touching
+function needed(bar,die,gap){
+  const c=layout(bar); let A=0, sw=0, hw=0, ww=0, Tw=0;
+  for(let i=0;i<bar.seg.length;i++){ const z=die.z(c[i]); if(z===Infinity) continue; const s=bar.seg[i];
+    if(s.h>gap+z-1e-6){ const a=s.L*s.w; A+=a; sw+=a*sigma(s.T); hw+=a*s.h; ww+=a*s.w; Tw+=a*s.T; } }
+  if(A<=0) return {A:0,F:0,sg:0,h:0,w:0,T:0};
+  const sg=sw/A, h=hw/A, w=ww/A;
+  return {A,F:PK*sg*A*(1+CR*w/h)*die.k,sg,h,w,T:Tw/A};
+}
+// the dies have closed to `gap`: every slice taller than the die face above it gets squished down to it
+function squish(bar,die,gap){
+  const c=layout(bar); let moved=0;
+  for(let i=0;i<bar.seg.length;i++){ const z=die.z(c[i]); if(z===Infinity) continue; const s=bar.seg[i]; const target=Math.max(DIE_STOP,gap+z); if(s.h<=target) continue;
+    const dh=s.h-target, V=s.L*s.w*dh; const hn=target; let wn=s.w+die.spread*V/(hn*s.L); if(die.vee) wn=Math.max(hn,s.w-0.5*dh);
+    s.h=hn; s.w=wn; s.L=s.vol/(wn*hn); s.T=Math.max(70,s.T-CHILL*dh/s.h); moved+=V; }
+  return moved;
+}
+function coolBar(bar,dt){ for(const s of bar.seg){ const pa=2*(s.w+s.h)/(s.w*s.h); const f=(s.T-70)/2030; s.T=Math.max(70,s.T-dt*12*(pa/4)*f*f); } }
+function barReach(bar,die){ const c=layout(bar); let H=-1; for(let i=0;i<bar.seg.length;i++){ const z=die.z(c[i]); if(z===Infinity) continue; H=Math.max(H,bar.seg[i].h-z); } return H<0?null:H; }
+function underDie(bar,die){ const c=layout(bar); let best=null, bz=Infinity; for(let i=0;i<bar.seg.length;i++){ const z=die.z(c[i]); if(z===Infinity) continue; if(z<bz||(z===bz&&best&&bar.seg[i].h>best.h)){ bz=z; best=bar.seg[i]; } } return bz===Infinity?null:best; }
+
+let bar=makeBar(1,8), turnAnim=0, turnFrom=null, lastNeed=null;
+function die(){ return DIES[$('die').value]; }
+function clampBar(){ const L=totalLength(bar); bar.tongX=Math.max(-L-2, Math.min(2.5, bar.tongX)); }
+function syncFeed(){ $('feed').value=(bar.tongX+totalLength(bar)).toFixed(2); }
+function setFreeEnd(v){ bar.tongX=v-totalLength(bar); clampBar(); }
+function newBar(){ bar=makeBar(+$('stock').value,8); turnAnim=0; turnFrom=null; lastNeed=null; syncFeed(); }
+
+function drawFrame(){
+  const g=$('frameG'), u=$('upperFrame');
+  let f='', up='';
+  if(CFG.frame==='H'){
+    f+='<rect x="56" y="40" width="20" height="420" fill="#2a2d33"/><rect x="284" y="40" width="20" height="420" fill="#2a2d33"/>';
+    f+='<rect x="56" y="380" width="248" height="30" fill="#33373e"/><rect x="40" y="450" width="280" height="12" fill="#22252a"/>';
+    f+='<text class="lbl" x="60" y="440">H frame</text><text class="lbl" x="60" y="456">columns</text>';
+    // top plate sits on the columns above the cylinder
+    up+='<rect x="56" y="40" width="248" height="30" fill="#33373e"/>';
+    f+='<rect class="hit" x="52" y="36" width="256" height="378" rx="4"/>';
+  } else {
+    // C frame with the back of the C on the right and the throat open to the left, where the bar comes in
+    f+='<rect x="260" y="40" width="40" height="420" fill="#2a2d33"/>';                    // back of the C
+    f+='<rect x="90" y="380" width="210" height="30" fill="#33373e"/>';                    // bottom arm with bolster
+    f+='<rect x="20" y="450" width="300" height="12" fill="#22252a"/>';
+    f+='<text class="lbl" x="200" y="440" text-anchor="end">C frame</text><text class="lbl" x="200" y="456" text-anchor="end">← open throat</text>';
+    f+='<rect class="hit" x="86" y="36" width="218" height="378" rx="4"/>';
+    up+='<path d="M300 40 L100 40 L100 70 L260 70 L260 120 L300 120 Z" fill="#33373e"/>';   // top arm
+  }
+  g.innerHTML=f; u.innerHTML=up;
+}
+function drawDies(){
+  const d=die(), w=d.half*2*PX;
+  let top='', bot='';
+  if(d.edge===0){
+    const r=d.half*PX;
+    top='<path d="M'+(CX-w/2)+' 256 L'+(CX-w/2)+' 262 A'+r+' '+r+' 0 0 0 '+(CX+w/2)+' 262 L'+(CX+w/2)+' 256 Z" fill="#9aa0ab"/>';
+    bot='<rect x="'+(CX-w/2)+'" y="'+DIE_Y+'" width="'+w+'" height="20" fill="#9aa0ab"/><path d="M'+(CX-w/2)+' '+DIE_Y+' Q'+CX+' '+(DIE_Y-4)+' '+(CX+w/2)+' '+DIE_Y+'" fill="#b8bec8"/>';
+  } else if(d.vee){
+    top='<path d="M'+(CX-w/2)+' 256 L'+(CX+w/2)+' 256 L'+(CX+w/2)+' 270 L'+(CX+w/2-8)+' 276 L'+(CX-w/2+8)+' 276 L'+(CX-w/2)+' 270 Z" fill="#9aa0ab"/><path d="M'+(CX-w/2+8)+' 276 L'+(CX+w/2-8)+' 276" stroke="#5c6168" stroke-width="2"/>';
+    bot='<path d="M'+(CX-w/2)+' '+(DIE_Y+20)+' L'+(CX+w/2)+' '+(DIE_Y+20)+' L'+(CX+w/2)+' '+(DIE_Y+6)+' L'+(CX+w/2-8)+' '+DIE_Y+' L'+(CX-w/2+8)+' '+DIE_Y+' L'+(CX-w/2)+' '+(DIE_Y+6)+' Z" fill="#9aa0ab"/>';
+  } else {
+    top='<path d="M'+(CX-w/2)+' 256 L'+(CX+w/2)+' 256 L'+(CX+w/2)+' 272 Q'+(CX+w/2)+' 276 '+(CX+w/2-4)+' 276 L'+(CX-w/2+4)+' 276 Q'+(CX-w/2)+' 276 '+(CX-w/2)+' 272 Z" fill="#9aa0ab"/>';
+    bot='<rect x="'+(CX-w/2)+'" y="'+DIE_Y+'" width="'+w+'" height="20" fill="#9aa0ab"/>';
+  }
+  $('topDieG').innerHTML=top; $('botDieG').innerHTML=bot;
+}
+function applyConfig(key){
+  CFG=CONFIGS[key];
+  GPM1=CFG.gpm1; GPM2=CFG.gpm2; ROD_AREA=Math.PI*CFG.rod*CFG.rod/4;
+  S.bore=CFG.bore; S.relief=CFG.relief;
+  $('bore').value=String(CFG.bore); $('relief').value=CFG.relief;
+  $('cfgNote').textContent=CFG.note;
+  document.querySelectorAll('#picker button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.key===key));
+  PARTS.frame[1]=CFG.frame==='H'
+    ? 'Two columns with a top plate and a cross head. The cylinder pushes down on the ram and pulls up on the top plate. The cross head rides the columns and keeps the dies lined up. Work feeds in from the front or the back between the uprights.'
+    : 'One heavy upright with a top arm and a bottom arm. The cylinder sits on the top arm and the ram drops through the open throat. Nothing stands between you and the dies so you can see the work and get tongs in from the front and both sides.';
+  drawFrame(); updateMath();
+  newBar(); S.stroke=0; setHandle('hold');
+}
+
+const PARTS={
+  frame:['Frame','Welded frame. Everything the cylinder pushes down the frame has to pull back up.'],
+  cylinder:['Cylinder','A tube with a piston in it. Oil pushed into the cap end (top) drives the piston down. Oil pushed into the rod end (bottom) pulls it back up. Force is pressure times piston area, so bore size is what sets the tonnage.'],
+  piston:['Piston and rod','The piston seals against the bore. The rod carries the push out to the ram. On the up stroke the rod takes up some of the area so the ram rises faster but with less force.'],
+  ram:['Ram and top die','The moving platen. It rides in guides on the frame and carries the top die. Most smiths run flat dies for drawing and swap in combo or drawing dies for faster work.'],
+  bar:['The bar','A length of stock held in tongs. Drag it through the dies. Its volume never changes, so every slice the dies squeeze thinner gets wider or longer. The press only works on what is under the dies. As the slices under the dies spread the contact area grows and the tons it takes to keep moving climbs until the relief opens and the ram stalls. Feed fresh bar in, turn it a quarter turn to keep it square, and reheat when it goes dull.'],
+  dies:['Dies','Flat dies touch the whole width and need the most tons. Drawing dies touch a narrow crown, bite deep and push steel along the bar. V blocks squeeze from four sides and pull square stock toward round. Swap them with the Dies picker.'],
+  motor:['Electric motor','Turns the pump. Typically 5 to 10 hp on a shop press. The motor does not know or care how many tons you are making. It only sees oil flow and pressure.'],
+  pump:['Two-stage pump','Two gear pumps on one shaft. The big one moves lots of oil at low pressure for a fast approach. Past the unloading pressure it dumps to tank and the small one does the pushing. That is why the ram is quick in air and slow on steel.'],
+  tank:['Tank','Oil reservoir. Oil leaves through the pump suction and comes back from the valve and the relief. It also sheds heat. Press a lot and the tank gets warm.'],
+  relief:['Relief valve','A spring loaded poppet on the pressure line. When pressure reaches the set point it cracks open and dumps oil to tank. It caps the tonnage and protects the hoses, the cylinder and the frame. This is the adjustment that sets your max tons.'],
+  valve:['Directional control valve','The handle moves a sliding spool. Pull it and pump oil goes to the cap end while the rod end drains to tank. Push it and that reverses. In the middle the pump oil goes straight back to tank so the ram holds still and nothing builds pressure. The spool opens a little at a time so a small pull means a slow ram.'],
+  gauge:['Pressure gauge','Reads the pressure line. Pressure only builds when something resists the ram. In air it reads near zero. On steel it climbs until the steel gives way or the relief opens.']
+};
+
+function area(){ return Math.PI*S.bore*S.bore/4; }
+function heatColor(T){
+  if(T>=2000) return '#fff2a8'; if(T>=1800) return '#ffc83d'; if(T>=1600) return '#ff8a1f';
+  if(T>=1400) return '#f24a1a'; if(T>=1200) return '#b3261a'; if(T>=1000) return '#6e1a14'; return '#4a4448';
+}
+function heatName(T){
+  if(T>=2000) return 'yellow'; if(T>=1800) return 'bright orange'; if(T>=1600) return 'orange';
+  if(T>=1400) return 'cherry red'; if(T>=1200) return 'dull red'; if(T>=1000) return 'black heat'; return 'cold';
+}
+function tonsFmt(lb){ return (lb/2000).toFixed(1)+' tons'; }
+
+function step(now){
+  const dt=Math.min(0.05,(now-S.last)/1000); S.last=now;
+  const A=area(), d=die();
+  coolBar(bar,dt);
+  if(turnAnim>0){ turnAnim=Math.max(0,turnAnim-dt*5.5); if(turnAnim===0) turnFrom=null; }
+  let gpm=0, P=0, v=0; S.stalled=false; S.onStop=false; S.touching=false;
+  tickSpring(now);
+  const open=Math.abs(S.lever);                        // how far the spool is shifted, 0..1
+  const dead=2/SWING;                                  // two degrees of play either side of center
+  S.handle = S.lever>dead?'down' : S.lever<-dead?'up' : 'hold';
+  const gap=STROKE_MAX-S.stroke;                       // die's lowest point above the lower die
+  if(S.handle==='down'){
+    const reach=barReach(bar,d);
+    const touching = reach!=null && gap<=reach+1e-4;
+    S.touching=touching;
+    if(touching){
+      const n=needed(bar,d,gap); lastNeed=n;
+      P=n.F/A;
+      if(P>=S.relief){ P=S.relief; S.stalled=true; v=0; }
+      else { gpm=(P>STAGE_SWITCH?GPM2:GPM1)*open; v=gpm*231/60/A; }
+      if(gap<=DIE_STOP+1e-4){ v=0; S.onStop=true; }
+    } else {
+      if(gap<=DIE_STOP+1e-4){ v=0; S.onStop=true; P=S.relief*0.15; }
+      else { P=120*open; gpm=GPM1*open; v=gpm*231/60/A; }
+    }
+    S.stroke=Math.min(STROKE_MAX-DIE_STOP,S.stroke+v*dt);
+    if(v>0) squish(bar,d,STROKE_MAX-S.stroke);
+  } else if(S.handle==='up'){
+    P=100*open; gpm=GPM1*open; v=-gpm*231/60/(A-ROD_AREA);
+    S.stroke=Math.max(0,S.stroke+v*dt);
+    if(S.stroke===0) v=0;
+  }
+  S.P=P; S.v=v;
+  render(gpm);
+  requestAnimationFrame(step);
+}
+
+// bar in the side view: height profile of every slice in its own heat color, tongs on the tong end
+function drawBar(){
+  const c=layout(bar), seg=bar.seg, tp=turnAnim>0?1-turnAnim:1, ease=tp*tp*(3-2*tp);
+  let s='', minX=Infinity, maxX=-Infinity, maxH=0, pts='';
+  for(let i=0;i<seg.length;i++){
+    const sg=seg[i]; const x=CX+(c[i]-sg.L/2)*PX, wpx=sg.L*PX+0.6;
+    let h=sg.h; if(turnFrom) h=turnFrom.h[i]*(1-ease)+sg.h*ease;
+    const hp=h*PX;
+    if(x+wpx<0||x>760) continue;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+(DIE_Y-hp).toFixed(1)+'" width="'+wpx.toFixed(1)+'" height="'+hp.toFixed(1)+'" fill="'+heatColor(sg.T)+'"/>';
+    pts+=(pts?'L':'M')+x.toFixed(1)+' '+(DIE_Y-hp).toFixed(1)+' L'+(x+wpx).toFixed(1)+' '+(DIE_Y-hp).toFixed(1)+' ';
+    minX=Math.min(minX,x); maxX=Math.max(maxX,x+wpx); maxH=Math.max(maxH,hp);
+  }
+  if(pts) s+='<path d="'+pts+'" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.2"/>';
+  // tongs on the tong end
+  const tx=CX+bar.tongX*PX, th=seg[0].h*PX;
+  s+='<path d="M'+(tx+2)+' '+(DIE_Y-th-3)+' L'+(tx-16)+' '+(DIE_Y-th-5)+' L'+(tx-60)+' '+(DIE_Y-th/2-30)+' M'+(tx+2)+' '+(DIE_Y+3)+' L'+(tx-16)+' '+(DIE_Y+5)+' L'+(tx-60)+' '+(DIE_Y-th/2+30)+'" fill="none" stroke="#8a7c70" stroke-width="5" stroke-linecap="round"/>';
+  s+='<circle cx="'+(tx-24)+'" cy="'+(DIE_Y-th/2)+'" r="4" fill="#8a7c70"/>';
+  if(phone) s+='<rect class="hit" x="40" y="'+(DIE_Y-58)+'" width="260" height="70" rx="4"/>';
+  else if(minX<Infinity) s+='<rect class="hit" x="'+(Math.max(0,minX)-6)+'" y="'+(DIE_Y-Math.max(maxH,bar.size*PX)-16)+'" width="'+(Math.min(760,maxX)-Math.max(0,minX)+12)+'" height="'+(Math.max(maxH,bar.size*PX)+20)+'" rx="4"/>';
+  s+='<text class="lbl" x="'+(phone?46:8)+'" y="300">◀ Drag the bar ▶</text>';
+  if(turnAnim>0) s+='<text class="val" x="'+(CX+70)+'" y="'+(DIE_Y-maxH-8)+'" fill="#ffb347">turning</text>';
+  $('barG').innerHTML=s;
+}
+// top view strip: width profile on the same x scale
+const tv=$('topv'), gt=tv.getContext('2d');
+// phone layout: the drawing is cropped to the press and the hydraulic circuit is moved underneath it, so both read at full width
+let phone=false;
+function layoutMode(){
+  const ph=window.innerWidth<=640;
+  if(ph===phone && $('mainSvg').dataset.mode) return;
+  phone=ph; $('mainSvg').dataset.mode=ph?'phone':'desk';
+  if(ph){
+    // forging first: crop to the dies zone so the bar fills the width. The circuit stays in the DOM and shows in the hydraulics panel through <use>.
+    $('mainSvg').setAttribute('viewBox','40 36 260 428');
+    tv.width=260; tv.height=56;
+  } else {
+    $('mainSvg').setAttribute('viewBox','0 30 760 450');
+    tv.width=760; tv.height=64;
+  }
+}
+window.addEventListener('resize',layoutMode);
+function drawTop(){
+  const TH=tv.height;
+  gt.setTransform(1,0,0,1,0,0); gt.fillStyle='#0f0d0b'; gt.fillRect(0,0,tv.width,TH);
+  if(phone) gt.setTransform(1,0,0,1,-40,0);
+  const d=die(); gt.fillStyle='rgba(239,230,218,.08)'; gt.fillRect(CX-d.half*PX,0,d.half*2*PX,TH);
+  const c=layout(bar), mid=TH/2, sc=PX*0.9, tp=turnAnim>0?1-turnAnim:1, ease=tp*tp*(3-2*tp);
+  for(let i=0;i<bar.seg.length;i++){ const s=bar.seg[i]; const x=CX+(c[i]-s.L/2)*PX; let w=s.w; if(turnFrom) w=turnFrom.w[i]*(1-ease)+s.w*ease; if(x+s.L*PX<0||x>760) continue; gt.fillStyle=heatColor(s.T); gt.fillRect(x,mid-w*sc/2,s.L*PX+0.7,w*sc); }
+  gt.strokeStyle='rgba(0,0,0,.6)'; gt.lineWidth=1; gt.beginPath();
+  for(let i=0;i<bar.seg.length;i++){ const s=bar.seg[i]; const x=CX+(c[i]-s.L/2)*PX; const y=mid-s.w*sc/2; if(i===0) gt.moveTo(x,y); else gt.lineTo(x,y); gt.lineTo(x+s.L*PX,y); }
+  for(let i=bar.seg.length-1;i>=0;i--){ const s=bar.seg[i]; const x=CX+(c[i]-s.L/2)*PX; const y=mid+s.w*sc/2; gt.lineTo(x+s.L*PX,y); gt.lineTo(x,y); }
+  gt.closePath(); gt.stroke();
+  gt.font='11px Barlow, sans-serif'; gt.lineWidth=3; gt.lineJoin='round'; gt.strokeStyle='#0f0d0b'; gt.fillStyle='#a3958a';
+  const cap=(t,x,y)=>{ gt.strokeText(t,x,y); gt.fillText(t,x,y); };
+  if(phone){ gt.textAlign='right'; cap('Top view. Width spreads here.',296,11); gt.textAlign='left'; cap('dies',CX-d.half*PX+3,TH-4); }
+  else { cap('Top view. Width spreads here. Drag the bar here too.',8,13); cap('dies',CX-d.half*PX+3,TH-6); }
+}
+
+let infoOn=null;
+function render(gpm){
+  const A=area(), d=die();
+  const sPx=S.stroke*PX;
+  $('ramG').setAttribute('transform','translate(0 '+sPx+')');
+  $('rod').setAttribute('height',130+sPx);
+  $('piston').setAttribute('y',92+sPx);
+  $('capOil').setAttribute('height',10+sPx);
+  $('rodOil').setAttribute('y',106+sPx); $('rodOil').setAttribute('height',Math.max(0,110-sPx));
+  $('capOil').setAttribute('fill', S.P>500?'#5aa9ff':'#2b5a8c');
+  drawBar(); drawTop();
+  // gauge: 0..3500 psi over 270°
+  const ang=-135+Math.min(1,S.P/3500)*270;
+  $('needle').setAttribute('transform','rotate('+(ang+135)+' 700 100)');
+  $('gaugeTxt').textContent=Math.round(S.P)+' psi';
+  // valve spool and handle
+  $('spool').setAttribute('transform','translate('+(-40*S.lever).toFixed(1)+' 0)');
+  $('leverArm').setAttribute('transform','rotate('+leverAngle.toFixed(1)+' 684 265)');
+  $('lever').setAttribute('aria-valuenow',S.lever.toFixed(2));
+  $('zUp').dataset.on=S.handle==='up'?'1':'0'; $('zHold').dataset.on=S.handle==='hold'?'1':'0'; $('zDown').dataset.on=S.handle==='down'?'1':'0';
+  $('sHandle').textContent=S.handle.toUpperCase(); $('sHandle').style.color=S.handle==='hold'?'':'var(--accent)';
+  const ra=$('ramArrow'); if(Math.abs(S.v)<0.001) ra.setAttribute('hidden',''); else ra.removeAttribute('hidden');
+  ra.setAttribute('transform','translate(100 254)'+(S.v<0?' rotate(180)':''));
+  // flows
+  const on=(id,active,dir)=>{ const e=$(id); e.classList.toggle('on',active); e.classList.toggle('fwd',dir>0); e.classList.toggle('back',dir<0); };
+  on('fP',true,1);
+  on('fT',S.handle!=='down'||S.stalled,1);
+  on('fA',S.handle!=='hold' && !S.stalled, S.handle==='down'?-1:1);
+  on('fB',S.handle!=='hold' && !S.stalled, S.handle==='up'?-1:1);
+  on('fR',S.stalled,1);
+  $('spring').setAttribute('stroke', S.stalled?'#f26522':'#8a8f99');
+  $('fan').setAttribute('transform','translate(445 430) rotate('+((performance.now()/4)%360)+')');
+  const stage2=S.handle==='down' && S.P>STAGE_SWITCH;
+  $('stage').textContent = stage2 ? 'Stage 2 · high pressure' : 'Stage 1 · high flow';
+  $('stage').setAttribute('fill', stage2 ? '#ffb347' : '#efe6da');
+  // stats
+  const u=underDie(bar,d);
+  $('sP').textContent=Math.round(S.P)+' psi';
+  $('sF').textContent=tonsFmt(S.P*A);
+  $('sV').textContent=Math.abs(S.v).toFixed(2)+' in/s';
+  $('sBar').textContent=u?u.h.toFixed(2)+' × '+u.w.toFixed(2)+' in':'nothing';
+  $('sSquish').textContent=u?Math.max(0,bar.size-u.h).toFixed(2)+' in':'–';
+  $('tknob').style.transform='translateY('+(leverAngle/SWING*70).toFixed(1)+'px)';
+  $('track').dataset.zone=S.handle;
+  $('tknob').setAttribute('aria-valuenow',S.lever.toFixed(2));
+  $('sLen').textContent=totalLength(bar).toFixed(2)+' in';
+  // between the dies
+  const Fav=S.relief*A;
+  const n=S.touching&&lastNeed?lastNeed:needed(bar,d,STROKE_MAX-S.stroke);
+  const live=n.A>0?n:null;
+  $('dAv').textContent=tonsFmt(Fav);
+  $('dNeed').textContent=live?tonsFmt(live.F):'–';
+  $('dNeed').style.color=live&&live.F>=Fav?'var(--accent)':'';
+  $('dA').textContent=live?live.A.toFixed(2)+' sq in':'–';
+  const Tu=u?u.T:(live?live.T:0);
+  $('dS').textContent=u?(sigma(u.T)/1000).toFixed(sigma(u.T)<10000?1:0)+' ksi':'–';
+  $('sT').textContent=u?Math.round(u.T)+'°F '+heatName(u.T):'–';
+  $('dRam').textContent=S.stalled?'stalled':S.onStop?'on the die stop':(S.handle==='down'&&S.touching?'squeezing':S.handle==='down'?'closing':S.handle==='up'?'opening':'holding');
+  $('dRam').style.color=S.stalled?'var(--accent)':'';
+  // status line
+  let msg;
+  if(S.handle==='hold') msg='Handle in the middle. Pump is running but the oil just goes back to the tank.';
+  else if(S.handle==='up') msg='Oil to the rod end. Ram rising fast because the rod takes up some of the area.';
+  else if(S.stalled) msg='Stalled. The steel under the dies needs '+tonsFmt(live?live.F:0)+' and the press has '+tonsFmt(Fav)+'. Relief is dumping to tank. Feed fresh bar in, swap to drawing dies or reheat.';
+  else if(S.onStop) msg=S.touching?'Down on the die stop. That is as thin as the dies go. Feed the bar in.':'Dies met on the stop. Nothing under them. Feed the bar in.';
+  else if(S.touching && Tu<1200) msg='That steel is at a '+heatName(Tu)+'. It barely moves. Reheat it.';
+  else if(S.touching) msg='Squeezing. '+(live?live.A.toFixed(1)+' sq in of contact needing '+tonsFmt(live.F):'')+'. '+(S.P>STAGE_SWITCH?'Small pump only now, so the ram creeps.':'Still on the big pump.');
+  else if(Math.abs(S.lever)<0.4) msg='Feathering the handle. Spool barely open so the ram creeps. Pull further for speed.';
+  else msg='Closing fast in air. Big pump at '+GPM1+' gpm, almost no pressure.';
+  if(S.msgUntil && performance.now()<S.msgUntil && S.handle==='hold') msg=$('status').textContent;
+  if($('status').textContent!==msg) $('status').textContent=msg;
+  if(infoOn==='pump'||infoOn==='gauge'||infoOn==='relief'||infoOn==='bar'||infoOn==='dies') showInfo(infoOn,true);
+}
+
+function showInfo(id,quiet){
+  const p=PARTS[id]; if(!p) return; infoOn=id;
+  let live='';
+  const A=area();
+  if(id==='gauge') live=' Right now: '+Math.round(S.P)+' psi, which on a '+S.bore+' in bore is '+tonsFmt(S.P*A)+'.';
+  if(id==='pump') live=' Right now: '+(S.handle==='down'&&S.P>STAGE_SWITCH?'stage 2, small pump only.':'stage 1, both pumps.');
+  if(id==='relief') live=' Set to '+S.relief+' psi, so the most this press can make is '+tonsFmt(S.relief*A)+'.';
+  if(id==='bar'){ const u=underDie(bar,die()); live=u?' Under the dies right now: '+u.h.toFixed(2)+' in tall, '+u.w.toFixed(2)+' in wide, '+Math.round(u.T)+'°F.':' Nothing under the dies right now.'; }
+  if(id==='dies') live=' On now: '+die().name+'. '+die().info;
+  const txt=p[1]+live;
+  if(!quiet || $('info').dataset.id!==id){ $('info').innerHTML='<b></b><span></span>'; $('info').dataset.id=id; }
+  $('info').querySelector('b').textContent=p[0];
+  const sp=$('info').querySelector('span'); if(sp.textContent!==txt) sp.textContent=txt;
+  document.querySelectorAll('.part').forEach(g=>g.dataset.on=g.dataset.part===id?'1':'0');
+}
+document.querySelectorAll('.part').forEach(g=>{
+  g.addEventListener('click',()=>showInfo(g.dataset.part));
+  g.addEventListener('mouseenter',()=>showInfo(g.dataset.part));
+});
+
+// handle: a rod out of the valve body, horizontal at rest. Swing the knob down to close the dies, up to open.
+// S.lever is what the physics reads (-1..1, set to 0 the instant the knob is released). leverAngle is only what is drawn.
+const SWING=35, LEVER_LEN=58, PIV={x:684,y:265};
+let leverAngle=0, springFrom=0, springT0=0, springing=false;
+function setHandle(h){ S.lever = h==='down'?1 : h==='up'?-1 : 0; S.handle=h; leverAngle=S.lever*SWING; springing=false; }
+function setLever(v){ S.lever=Math.max(-1,Math.min(1,v)); leverAngle=S.lever*SWING; springing=false; }
+function releaseLever(){ if(S.lever===0 && !springing) return; S.lever=0; springFrom=leverAngle; springT0=performance.now(); springing=true; }
+function tickSpring(now){
+  if(!springing) return;
+  const k=Math.min(1,(now-springT0)/120);
+  leverAngle=springFrom*(1-k)*(1-k);
+  if(k>=1){ leverAngle=0; springing=false; }
+}
+const knob=$('knobHit');
+let dragging=false;
+// pointer position in the user units of whichever svg the element lives in (the strip svg or the main drawing)
+function svgPt(e,el){ const svg=el?(el.ownerSVGElement||el):$('mainSvg'); const m=svg.getScreenCTM(); if(!m) return {x:0,y:0}; const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse()); return {x:p.x,y:p.y}; }
+function angleFrom(e){ const p=svgPt(e,knob); const a=Math.atan2(p.y-PIV.y, LEVER_LEN)*180/Math.PI; return Math.max(-SWING,Math.min(SWING,a)); }
+function firstGrab(){ $('knobRing').setAttribute('hidden',''); $('callout').setAttribute('hidden',''); }
+knob.addEventListener('pointerdown',e=>{ e.preventDefault(); dragging=true; firstGrab(); knob.setPointerCapture(e.pointerId); setLever(angleFrom(e)/SWING); });
+knob.addEventListener('pointermove',e=>{ if(!dragging) return; setLever(angleFrom(e)/SWING); });
+const release=()=>{ if(!dragging) return; dragging=false; releaseLever(); };
+knob.addEventListener('pointerup',release); knob.addEventListener('pointercancel',release); knob.addEventListener('lostpointercapture',release);
+
+// phone track: drag the big knob up or down from center. Distance from center sets the spool opening. Let go and it springs back.
+const tknob=$('tknob'); let tdrag=false, tcenter=0;
+tknob.addEventListener('pointerdown',e=>{ e.preventDefault(); tdrag=true; firstGrab(); const r=tknob.parentElement.getBoundingClientRect(); tcenter=r.top+r.height/2; tknob.setPointerCapture(e.pointerId); setLever((e.clientY-tcenter)/70); });
+tknob.addEventListener('pointermove',e=>{ if(!tdrag) return; setLever((e.clientY-tcenter)/70); });
+const trel=()=>{ if(!tdrag) return; tdrag=false; releaseLever(); };
+tknob.addEventListener('pointerup',trel); tknob.addEventListener('pointercancel',trel); tknob.addEventListener('lostpointercapture',trel);
+// feed buttons: a quarter inch per tap, hold to keep feeding
+function feedBtn(id,dir){
+  const b=$(id); let t1=null,t2=null;
+  const stop=()=>{ clearTimeout(t1); clearInterval(t2); t1=t2=null; };
+  b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.setPointerCapture(e.pointerId); bar.tongX+=dir*0.25; clampBar(); syncFeed(); stop(); t1=setTimeout(()=>{ t2=setInterval(()=>{ bar.tongX+=dir*0.08; clampBar(); syncFeed(); },60); },350); });
+  b.addEventListener('pointerup',stop); b.addEventListener('pointercancel',stop); b.addEventListener('lostpointercapture',stop);
+}
+feedBtn('feedL',-1); feedBtn('feedR',1);
+$('hydBtn').addEventListener('click',()=>{ const w=$('hydWrap'); const open=w.hasAttribute('hidden'); if(open) w.removeAttribute('hidden'); else w.setAttribute('hidden',''); $('hydBtn').textContent=open?'Hide hydraulics':'Show hydraulics'; $('hydBtn').setAttribute('aria-expanded',open); });
+
+// bar feed: drag the bar in the side view or the top strip, arrow keys a quarter inch at a time, or the feed slider
+let dragBar=null;
+const barG=$('barG');
+barG.addEventListener('pointerdown',e=>{ e.preventDefault(); const p=svgPt(e,barG); dragBar={x:p.x,tong:bar.tongX}; barG.setPointerCapture(e.pointerId); });
+barG.addEventListener('pointermove',e=>{ if(!dragBar) return; const p=svgPt(e,barG); bar.tongX=dragBar.tong+(p.x-dragBar.x)/PX; clampBar(); syncFeed(); });
+const barUp=()=>{ dragBar=null; };
+barG.addEventListener('pointerup',barUp); barG.addEventListener('pointercancel',barUp); barG.addEventListener('lostpointercapture',barUp);
+function topPt(e){ const r=tv.getBoundingClientRect(); return (e.clientX-r.left)*tv.width/r.width+(phone?40:0); }
+tv.addEventListener('pointerdown',e=>{ e.preventDefault(); dragBar={x:topPt(e),tong:bar.tongX}; tv.setPointerCapture(e.pointerId); });
+tv.addEventListener('pointermove',e=>{ if(!dragBar) return; bar.tongX=dragBar.tong+(topPt(e)-dragBar.x)/PX; clampBar(); syncFeed(); });
+tv.addEventListener('pointerup',barUp); tv.addEventListener('pointercancel',barUp);
+$('feed').addEventListener('input',()=>setFreeEnd(+$('feed').value));
+
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='BUTTON') return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); firstGrab(); setLever(1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); firstGrab(); setLever(-1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); bar.tongX-=0.25; clampBar(); syncFeed(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); bar.tongX+=0.25; clampBar(); syncFeed(); }
+  else if(e.key==='t'||e.key==='T') turnBar();
+});
+window.addEventListener('keyup',e=>{ if(e.key==='ArrowDown'||e.key==='ArrowUp') releaseLever(); });
+
+function updateMath(){
+  const A=area();
+  $('eqA').textContent='Area = π × ('+S.bore+' ÷ 2)² = '+A.toFixed(2)+' in²';
+  $('eqF').textContent=A.toFixed(2)+' in² × '+S.relief+' psi = '+Math.round(A*S.relief).toLocaleString()+' lb ≈ '+(A*S.relief/2000).toFixed(1)+' tons (rated '+CFG.rated+')';
+  $('boreLbl').textContent=S.bore+' in bore';
+  $('eqSpeed').innerHTML='Stage 1: '+GPM1+' gpm ÷ '+A.toFixed(2)+' in² = '+(GPM1*231/60/A).toFixed(1)+' in/s<br>Stage 2: '+GPM2+' gpm ÷ '+A.toFixed(2)+' in² = '+(GPM2*231/60/A).toFixed(1)+' in/s';
+  $('reliefLbl').textContent=S.relief+' psi'; $('reliefV').textContent=S.relief;
+}
+function say(m){ S.msgUntil=performance.now()+2500; $('status').textContent=m; }
+$('bore').addEventListener('change',()=>{ S.bore=+$('bore').value; updateMath(); });
+$('relief').addEventListener('input',()=>{ S.relief=+$('relief').value; updateMath(); });
+$('reheat').addEventListener('click',()=>{ for(const s of bar.seg) s.T=2100; say('Whole bar back to a yellow heat. Flow stress drops to 4 ksi again.'); });
+$('newbar').addEventListener('click',()=>{ newBar(); S.stroke=0; setHandle('hold'); say('Fresh '+$('stock').options[$('stock').selectedIndex].text+' bar at a yellow heat. Drag it under the '+die().name.toLowerCase()+'.'); });
+$('stock').addEventListener('change',()=>{ newBar(); S.stroke=0; setHandle('hold'); });
+$('die').addEventListener('change',()=>{ drawDies(); S.stroke=Math.min(S.stroke,Math.max(0,STROKE_MAX-(barReach(bar,die())||0)-0.05)); say(die().name+' on. '+die().info); });
+// quarter turn: swap width and height on every slice. Heat, length and volume stay. The ram lifts clear if the turned bar is taller.
+function turnBar(){
+  if(turnAnim>0) return;
+  turnFrom={h:bar.seg.map(s=>s.h),w:bar.seg.map(s=>s.w)};
+  for(const s of bar.seg){ const t=s.w; s.w=s.h; s.h=t; }
+  turnAnim=1;
+  const r=barReach(bar,die()); if(r!=null) S.stroke=Math.min(S.stroke,Math.max(0,STROKE_MAX-r-0.05));
+  say('Quarter turn. What was width is now height. Squeeze it again to keep it square.');
+}
+$('turn').addEventListener('click',turnBar);
+$('tTurn').addEventListener('click',turnBar);
+$('tHeat').addEventListener('click',()=>$('reheat').click());
+$('tNew').addEventListener('click',()=>$('newbar').click());
+
+for(const k in CONFIGS){
+  const b=document.createElement('button'); b.type='button'; b.dataset.key=k;
+  b.innerHTML='<b>'+CONFIGS[k].name+'</b><span>'+CONFIGS[k].sub+'</span>';
+  b.addEventListener('click',()=>applyConfig(k));
+  $('picker').appendChild(b);
+}
+layoutMode();
+drawDies();
+applyConfig('coal25');
+requestAnimationFrame(step);
+})();
+</script>
+
+</body></html>
