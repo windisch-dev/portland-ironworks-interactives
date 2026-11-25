@@ -1,0 +1,474 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Steel Colors</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap">
+<style>
+/* Layout: one column. Heat colors first, temper colors second, then the draw-the-temper game. Canvases size from data-h times devicePixelRatio. */
+:root{
+  --bg:#15120f; --panel:#1f1a16; --line:#3a312a; --fg:#efe6da; --muted:#a3958a;
+  --accent:#f26522; --accent-2:#ffb347; --water:#3b6ea5; --good:#7fc47a; --bad:#e2584a;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;padding-block:14px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto;display:grid;gap:14px}
+header{display:grid;gap:6px}
+h1{font-family:var(--display);font-weight:700;font-size:2.4rem;letter-spacing:.02em;margin:0;text-transform:uppercase;line-height:1}
+header p{margin:0;color:var(--muted);max-width:60ch;line-height:1.45}
+h2{font-family:var(--display);font-weight:700;font-size:1.7rem;letter-spacing:.03em;margin:0;text-transform:uppercase;line-height:1.05}
+h3{font-family:var(--display);font-weight:700;font-size:1.2rem;letter-spacing:.05em;margin:0;text-transform:uppercase}
+.warn{border-left:3px solid var(--accent);background:var(--panel);padding:10px 12px;border-radius:0 6px 6px 0;line-height:1.45}
+.warn b{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--accent-2);font-weight:700}
+section.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 12px;display:grid;gap:12px;min-width:0}
+.lede{margin:0;color:var(--muted);line-height:1.45}
+canvas{width:100%;display:block;background:#0f0d0b;border:1px solid var(--line);border-radius:6px}
+.lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.9rem;color:var(--muted);display:block;margin-bottom:6px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{background:#2a231d;border:1px solid var(--line);color:var(--fg);border-radius:6px;min-height:44px;font-family:var(--display);font-size:1.05rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;padding:4px 6px}
+.seg button[aria-checked="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#3a2415}
+.slider{display:grid;gap:4px}
+.slider .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.slider output{font-family:var(--display);font-size:1.1rem;font-variant-numeric:tabular-nums;color:var(--fg)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:0;cursor:pointer;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:#3a312a}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:#3a312a}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:var(--accent);border:3px solid #1a0d05;margin-top:-12px}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--accent);border:3px solid #1a0d05}
+input[type=range]:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.read{display:grid;gap:4px}
+.read .name{font-family:var(--display);font-weight:700;font-size:1.9rem;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.read .temp{font-family:var(--display);font-size:1.15rem;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.read p{margin:0;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--display);text-transform:uppercase;letter-spacing:.05em;font-size:.95rem;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:#2a231d}
+.chip.on{border-color:var(--accent);color:var(--accent-2)}
+.chip.cold{border-color:#6b6f78;color:#c9cdd6}
+.swatches{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.swatches button{width:100%;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;text-align:left;background:#2a231d;border:1px solid var(--line);color:var(--fg);border-radius:6px;min-height:48px;padding:6px 10px 6px 6px;cursor:pointer;font-family:var(--body);font-size:.95rem;line-height:1.3}
+.swatches button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.swatches i{display:block;width:44px;height:34px;border-radius:4px;border:1px solid #0006}
+.swatches b{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;font-weight:700;display:block}
+.swatches small{font-family:var(--display);color:var(--muted);font-size:.95rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+ol.steps{margin:0;padding-left:1.3em;line-height:1.45;display:grid;gap:4px}
+.job{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;background:#2a231d;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.job i{display:block;width:40px;height:40px;border-radius:4px;border:1px solid #0006}
+.job div{line-height:1.3}
+.job b{font-family:var(--display);font-size:1.25rem;text-transform:uppercase;letter-spacing:.03em}
+.hud{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.95rem;color:var(--muted)}
+.hud b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{font-family:var(--display);font-size:1.35rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border:0;border-radius:8px;min-height:60px;cursor:pointer;color:#1a0d05;background:var(--accent);padding:4px 8px;line-height:1.05}
+.btn small{display:block;font-size:.72rem;letter-spacing:.08em;font-weight:500}
+.btn.water{background:var(--water);color:#eaf2ff}
+.btn.quiet{background:#3a312a;color:var(--fg)}
+.btn.wide{grid-column:1/-1}
+.btn:disabled{opacity:.35;cursor:default}
+.btn:focus-visible,.seg button:focus-visible,.swatches button:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.result{background:#0f0d0b;border:1px solid var(--line);border-radius:6px;padding:10px 12px;line-height:1.45;min-height:3em}
+.result .big{font-family:var(--display);font-size:1.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;display:block;line-height:1.1}
+.result .good{color:var(--good)} .result .bad{color:var(--bad)} .result .ok{color:var(--accent-2)}
+.notes{color:var(--muted);font-size:.95rem;line-height:1.5;max-width:70ch}
+.notes h2{font-size:1.2rem;color:var(--fg);margin:0 0 4px;letter-spacing:.06em}
+.notes p{margin:0 0 8px}
+.copy{color:var(--muted);font-size:.8rem;margin:8px 0 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>html{color-scheme:dark}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Steel Colors</h1>
+    <p>Steel tells you how hot it is. Twice. Once as it glows in the fire. Again as oxide colors creep across a bright surface when you temper. Learn to read both.</p>
+  </header>
+
+  <p class="warn"><b>Colors are a guide. Not a thermometer.</b> What you see changes with the steel, the light, the scale on the surface and your own eyes. Every number here is rough. Sources disagree by 50°F on temper colors and 100°F or more on heat colors. Use a magnet, test files and a real thermometer when it matters.</p>
+
+  <!-- ============ HEAT COLORS ============ -->
+  <section class="panel" aria-labelledby="hHeat">
+    <h2 id="hHeat">1. Heat colors</h2>
+    <p class="lede">Drag the heat slider. The bar glows and the scale shows what that heat is good for. Then flip the light. Same steel. Same heat. It reads cooler in bright light.</p>
+
+    <div>
+      <span class="lbl" id="lightLbl">Light you're looking in</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lightLbl">
+        <button role="radio" aria-checked="true" data-light="shade">Dark shade</button>
+        <button role="radio" aria-checked="false" data-light="shop">Shop light</button>
+        <button role="radio" aria-checked="false" data-light="sun">Full sun</button>
+      </div>
+    </div>
+
+    <canvas id="glow" data-h="150" aria-label="A bar of steel at the chosen heat, in the chosen light"></canvas>
+
+    <div class="read" aria-live="polite">
+      <span class="name" id="heatName">Cherry</span>
+      <span class="temp" id="heatTemp">about 1,400°F / 760°C</span>
+      <div class="chips" id="heatChips"></div>
+      <p id="heatNote"></p>
+    </div>
+
+    <div class="slider">
+      <div class="row"><label class="lbl" for="heat" style="margin:0">Heat: drag to heat or cool the bar</label><output id="heatOut" for="heat">1,400°F</output></div>
+      <input type="range" id="heat" min="800" max="2400" step="10" value="1400" aria-describedby="heatTemp">
+    </div>
+
+    <div>
+      <span class="lbl">The scale and what each heat is for</span>
+      <canvas id="scale" data-h="204" aria-label="Heat color scale from black heat to dazzling white with working bands"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ TEMPER COLORS ============ -->
+  <section class="panel" aria-labelledby="hTemper">
+    <h2 id="hTemper">2. Temper colors</h2>
+    <p class="lede">Harden a tool and it's glass-hard and brittle. Tempering gives back toughness. Polish a spot bright, heat it gently and an oxide film grows. Thicker film, different color. The color tells you roughly how far you've drawn it.</p>
+
+    <canvas id="bright" data-h="110" aria-label="A polished steel bar showing the chosen temper color"></canvas>
+
+    <div class="read" aria-live="polite">
+      <span class="name" id="tName">Straw</span>
+      <span class="temp" id="tTemp">about 445°F / 230°C</span>
+      <p id="tUse"></p>
+    </div>
+
+    <div class="slider">
+      <div class="row"><label class="lbl" for="temper" style="margin:0">Temper heat: drag to change the color</label><output id="tOut" for="temper">445°F</output></div>
+      <input type="range" id="temper" min="370" max="680" step="5" value="445" aria-describedby="tTemp">
+    </div>
+
+    <div>
+      <span class="lbl">Tap a color to jump to it</span>
+      <ul class="swatches" id="swatches"></ul>
+    </div>
+  </section>
+
+  <!-- ============ DRAW A TEMPER ============ -->
+  <section class="panel" aria-labelledby="hDraw">
+    <h2 id="hDraw">3. Draw a temper from the back</h2>
+    <p class="lede">Old trick. No oven needed. You heat the thick part and let the heat run down to the edge.</p>
+    <ol class="steps">
+      <li>Harden the tool. Polish a strip bright so you can see color.</li>
+      <li>Heat the back or the thick part. Not the edge.</li>
+      <li>Watch the colors run toward the edge. Straw first, then bronze, purple, blue.</li>
+      <li>When the edge hits the color you want, quench it. Done.</li>
+    </ol>
+
+    <div class="job" id="job"><i id="jobSw"></i><div><span class="lbl" style="margin:0">Your job</span><b id="jobName">Axe bit</b><br><span id="jobWant">Quench when the edge hits bronze</span></div></div>
+
+    <div class="hud"><span>Job <b id="hJob">1</b></span><span>Last <b id="hLast">-</b></span><span>Average <b id="hAvg">-</b></span><span>Best <b id="hBest">-</b></span></div>
+
+    <canvas id="draw" data-h="150" aria-label="Side view of a hardened tool. The back is on the left, the edge on the right."></canvas>
+
+    <div class="btns">
+      <button class="btn" id="go">Heat the back<small>start the colors running</small></button>
+      <button class="btn water" id="quench" disabled>Quench<small>stop it right now</small></button>
+      <button class="btn quiet wide" id="next">Next job<small>new tool, new color</small></button>
+    </div>
+
+    <div class="result" id="result" aria-live="polite">Tap Heat the back. The color band travels toward the edge in a few seconds. Tap Quench when the edge shows your color.</div>
+  </section>
+
+  <section class="notes">
+    <h2>Why the colors lie a little</h2>
+    <p>Bright light washes out glow. Smiths used to heat treat in dark corners for a reason. Outside in the sun a low red can look like plain black steel and still burn you.</p>
+    <p>Scale and flux change the look. So does the steel. A high alloy steel throws different temper colors than plain carbon steel. Time matters too. Hold steel hot longer and the oxide keeps growing, so you get a deeper color at a lower heat.</p>
+    <p>For hardening, a magnet beats your eye. Carbon steel goes non-magnetic around 1,414°F. Heat just past that and quench. For tempering, an oven and a test file beat colors. Colors are still fast, free and good enough for a lot of shop tools.</p>
+  </section>
+
+  <p class="copy">&copy; 2026 Portland Ironworks. All rights reserved. First published November 25, 2026. Part of the Portland Ironworks forge interactives.</p>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const toC=f=>(f-32)*5/9;
+const r5=n=>Math.round(n/5)*5;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const hex=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const mix=(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t)];
+const css=(c,a=1)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+function ramp(stops,T){ // stops: [[temp,'#hex'],...]
+  if(T<=stops[0][0]) return hex(stops[0][1]);
+  for(let i=1;i<stops.length;i++){ if(T<=stops[i][0]){ const [t0,c0]=stops[i-1],[t1,c1]=stops[i]; return mix(hex(c0),hex(c1),(T-t0)/(t1-t0)); } }
+  return hex(stops[stops.length-1][1]);
+}
+// canvas sizing: CSS height comes from data-h, stored once. never read the height attribute per frame.
+function fit(c){
+  const H=+c.dataset.h; if(!c.style.height) c.style.height=H+'px';
+  const r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  const w=Math.round(r.width*dpr), h=Math.round(H*dpr);
+  if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
+  const g=c.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); return {g,W:r.width,H};
+}
+
+// ================= HEAT COLORS =================
+// emitted color on a dark background, by °F (hand-picked, roughly after the Navy AM chart)
+const GLOW=[[800,'#2a2321'],[900,'#4a1408'],[1050,'#741a0b'],[1250,'#a3200d'],[1375,'#c4280f'],[1550,'#e4401a'],[1650,'#f25c26'],[1725,'#ff7a1c'],[1825,'#ffa22e'],[1975,'#ffcc5a'],[2200,'#fff0b4'],[2400,'#fffff0']];
+const NAMES=[[0,'Black heat'],[900,'Faint red'],[1000,'Blood red'],[1150,'Dark cherry'],[1300,'Cherry'],[1450,'Bright red'],[1600,'Salmon'],[1700,'Orange'],[1800,'Lemon yellow'],[1925,'Light yellow'],[2100,'White'],[2300,'Dazzling white']];
+const nameAt=T=>{ let n=NAMES[0][1]; for(const [t,s] of NAMES) if(T>=t) n=s; return n; };
+const LIGHTS={
+  shade:{bg:'#0e0c0b',steel:'#2c2827',seen:900,shift:0,  label:'dark shade'},
+  shop: {bg:'#3a3530',steel:'#5a534d',seen:1050,shift:120,label:'shop light'},
+  sun:  {bg:'#bdb6aa',steel:'#7d776f',seen:1400,shift:320,label:'full sun'}
+};
+// working bands, °F
+const BANDS=[
+  {k:'cold', a:800, b:1200,txt:'Too cold. Stop hammering', short:'Too cold, stop', col:'#6b6f78'},
+  {k:'forge',a:1200,b:2000,txt:'Forging range', short:'Forging range', col:'#f26522'},
+  {k:'hard', a:1425,b:1500,txt:'Hardening, just past non-magnetic', short:'Harden', col:'#d9d2c4'},
+  {k:'norm', a:1550,b:1650,txt:'Normalizing', short:'Normalize', col:'#9bb7d4'},
+  {k:'weld', a:2200,b:2400,txt:'Forge welding', short:'Weld', col:'#ffe08a'}
+];
+const NOTES={
+  cold:'Below dull red the steel fights back. Hammering it here cracks it and stresses it. Put it back in the fire.',
+  forge:'Move metal here. Orange to yellow does the heavy work. Finish passes down to dull red. Alloy steels like it a bit cooler than mild steel.',
+  hard:'Carbon steel goes non-magnetic around 1,414°F. For simple steels like 1084, heat just past that and quench. No hotter.',
+  norm:'Heat a bit past hardening and let it cool in still air. Do it a few times after forging. It evens out the grain.',
+  weld:'Bright yellow into white. Clean, fluxed and hot. Low carbon steel welds up here. Watch for sparks. That means it\'s burning.',
+  hot:'Hot for carbon steel. Fine for mild steel. Go easy on tool steel up here.'
+};
+let light='shade', heatT=1400;
+
+document.querySelectorAll('[data-light]').forEach(b=>b.addEventListener('click',()=>{
+  light=b.dataset.light;
+  document.querySelectorAll('[data-light]').forEach(x=>x.setAttribute('aria-checked',x===b?'true':'false'));
+  drawHeat();
+}));
+$('heat').addEventListener('input',e=>{ heatT=+e.target.value; drawHeat(); });
+
+function seenColor(T,L){
+  const glow=ramp(GLOW,T-L.shift);
+  const I=clamp((T-L.seen)/350,0,1);           // how much glow beats the room light
+  return mix(hex(L.steel),glow,I*I*(3-2*I));
+}
+function drawHeat(){
+  const L=LIGHTS[light];
+  // glowing bar
+  { const {g,W,H}=fit($('glow'));
+    g.fillStyle=L.bg; g.fillRect(0,0,W,H);
+    // anvil face hint
+    g.fillStyle=light==='sun'?'#56514b':'#1d1a18'; g.fillRect(0,H-34,W,34);
+    const c=seenColor(heatT,L), I=clamp((heatT-L.seen)/350,0,1);
+    const x0=W*0.08, x1=W*0.92, h=34, y=H-34-h+4;
+    // cooler tail toward the tongs on the left
+    const grad=g.createLinearGradient(x0,0,x1,0);
+    grad.addColorStop(0,css(seenColor(heatT-260,L))); grad.addColorStop(.35,css(c)); grad.addColorStop(1,css(c));
+    g.save(); g.shadowColor=css(c,.9); g.shadowBlur=light==='shade'?28*I:light==='shop'?12*I:0;
+    g.fillStyle=grad; g.beginPath(); g.roundRect?g.roundRect(x0,y,x1-x0,h,4):g.rect(x0,y,x1-x0,h); g.fill(); g.restore();
+    // a little scale texture
+    g.fillStyle='rgba(0,0,0,.18)';
+    for(let i=0;i<26;i++){ const sx=x0+((i*97)%100)/100*(x1-x0), sy=y+((i*53)%100)/100*h; g.fillRect(sx,sy,6+(i%4)*3,2); }
+    g.fillStyle=light==='sun'?'#1a1714':'#a3958a'; g.font='600 12px Barlow, sans-serif'; g.textBaseline='top';
+    g.fillText('In '+L.label, 10, 8);
+  }
+  // readout
+  const shown=heatT-L.shift, nm=(heatT<L.seen)?'No glow you can see':nameAt(shown);
+  $('heatName').textContent=nm;
+  $('heatName').style.color=heatT<L.seen?'#c9cdd6':css(ramp(GLOW,Math.max(1050,shown)));
+  $('heatTemp').textContent='about '+fmt(Math.round(heatT/10)*10)+'°F / '+fmt(Math.round(toC(heatT)/5)*5)+'°C' + (light!=='shade'?' · in shade it reads '+nameAt(heatT).toLowerCase():'');
+  $('heatOut').textContent=fmt(heatT)+'°F';
+  const on=BANDS.filter(b=>heatT>=b.a&&heatT<=b.b);
+  const chips=on.map(b=>`<span class="chip ${b.k==='cold'?'cold':'on'}">${b.txt}</span>`);
+  chips.push(`<span class="chip">${heatT>=1414?'Non-magnetic':'Magnetic'}</span>`);
+  $('heatChips').innerHTML=chips.join('');
+  let note='';
+  const pri=['weld','hard','norm','cold','forge'];
+  for(const k of pri){ if(on.some(b=>b.k===k)){ note=NOTES[k]; break; } }
+  if(!on.length) note=NOTES.hot;
+  if(heatT<L.seen && heatT>=900) note='It\'s hot. Way hot. The room light just drowns out the glow. Don\'t grab it.';
+  $('heatNote').textContent=note;
+  drawScale();
+}
+function drawScale(){
+  const L=LIGHTS[light];
+  const {g,W,H}=fit($('scale'));
+  g.fillStyle='#0f0d0b'; g.fillRect(0,0,W,H);
+  const pad=10, x=t=>pad+(t-800)/(1600)*(W-pad*2);
+  const sy=8, sh=34;
+  for(let px=0;px<W-pad*2;px++){ const T=800+px/(W-pad*2)*1600; g.fillStyle=css(seenColor(T,L)); g.fillRect(pad+px,sy,1.5,sh); }
+  g.strokeStyle='#3a312a'; g.strokeRect(pad+.5,sy+.5,W-pad*2-1,sh-1);
+  // ticks
+  g.fillStyle='#a3958a'; g.font='500 12px "Barlow Condensed", sans-serif'; g.textBaseline='top'; g.textAlign='center';
+  for(let t=1000;t<=2200;t+=400){ g.fillRect(x(t),sy+sh,1,5); g.fillText(fmt(t)+'°F',x(t),sy+sh+6); }
+  for(let t=1200;t<=2400;t+=400){ if(t<2400){ g.fillRect(x(t),sy+sh,1,3);} }
+  // bands
+  const top=sy+sh+26, rh=26;
+  // magnet line, drawn under the band labels
+  g.setLineDash([3,3]); g.strokeStyle='#efe6da66'; g.beginPath(); g.moveTo(x(1414)+.5,top); g.lineTo(x(1414)+.5,H-2); g.stroke(); g.setLineDash([]);
+  g.textBaseline='middle';
+  BANDS.forEach((b,i)=>{
+    const y=top+i*rh, xa=x(b.a), xb=x(b.b), on=heatT>=b.a&&heatT<=b.b;
+    g.fillStyle=on?b.col:css(hex(b.col),.45); g.fillRect(xa,y+3,Math.max(3,xb-xa),rh-10);
+    g.font=(on?'700':'500')+' 14px "Barlow Condensed", sans-serif';
+    const tw=g.measureText(b.short.toUpperCase()).width;
+    let tx, ta;
+    if(xb-xa>tw+12){ tx=xa+6; ta='left'; g.fillStyle=b.k==='forge'?'#1a0d05':'#15120f'; if(!on) g.fillStyle='#efe6da'; }
+    else if(xb+6+tw<W-4){ tx=xb+6; ta='left'; g.fillStyle=on?'#efe6da':'#a3958a'; }
+    else { tx=xa-6; ta='right'; g.fillStyle=on?'#efe6da':'#a3958a'; }
+    if(!(xb-xa>tw+12)){ const save=g.fillStyle; g.fillStyle='#0f0d0b'; g.fillRect(ta==='left'?tx-3:tx-tw-3,y+3,tw+6,rh-8); g.fillStyle=save; }
+    g.textAlign=ta; g.fillText(b.short.toUpperCase(),tx,y+rh/2-1);
+  });
+  // marker
+  const mx=x(heatT);
+  g.fillStyle='#ffffff'; g.fillRect(mx-1.5,2,3,H-4);
+  g.beginPath(); g.moveTo(mx-7,0); g.lineTo(mx+7,0); g.lineTo(mx,8); g.closePath(); g.fill();
+}
+
+// ================= TEMPER COLORS =================
+// oxide color on bright steel, by °F (hand-picked after Anvilfire, Navy and supplier charts)
+const OX=[[370,'#cfd3d7'],[395,'#d8d6c8'],[415,'#e6d8a2'],[445,'#dcbd66'],[465,'#c8983e'],[490,'#a46a2f'],[505,'#844737'],[530,'#6a3878'],[560,'#2d3f8e'],[600,'#5a85b8'],[630,'#8099a6'],[660,'#8a8f93'],[700,'#7b7f83'],[900,'#55585b'],[1000,'#5a3a30'],[1100,'#7a2a14']];
+const TEMPERS=[
+  {n:'Bright steel',  t:380, rng:'under 400°F',  u:'No color yet. Fresh from the quench it\'s full hard and brittle. Don\'t use it like this.'},
+  {n:'Pale straw',    t:420, rng:'~400–430°F',   u:'Cutting edges and hammer faces. Knives, razors, edge tools. Hardest temper you\'d want on a working tool.'},
+  {n:'Straw',         t:445, rng:'~440–450°F',   u:'Lathe tools, milling cutters, reamers. Still very hard.'},
+  {n:'Dark straw',    t:465, rng:'~460–470°F',   u:'Punches, dies, drill bits. Hard with a bit more give.'},
+  {n:'Bronze',        t:490, rng:'~480–500°F',   u:'Axes, wood chisels, drifts. Takes a hit and keeps an edge.'},
+  {n:'Brown-purple',  t:505, rng:'~500–510°F',   u:'The handoff from bronze to purple. Tougher axes and wood chisels.'},
+  {n:'Purple',        t:530, rng:'~520–540°F',   u:'Cold chisels and center punches. Tough enough to be hit all day.'},
+  {n:'Dark blue',     t:560, rng:'~550–570°F',   u:'Springs and screwdrivers. Flexes and comes back.'},
+  {n:'Light blue',    t:600, rng:'~590–610°F',   u:'Scrapers, spokeshaves, springs that need more flex.'},
+  {n:'Grey',          t:650, rng:'~630–650°F +', u:'Past most tool tempers. Mostly soft now. Start over if you didn\'t mean it.'}
+];
+let temperT=445;
+const tempAt=T=>{ let best=TEMPERS[0]; for(const x of TEMPERS) if(Math.abs(x.t-T)<Math.abs(best.t-T)) best=x; return best; };
+$('swatches').innerHTML=TEMPERS.map((x,i)=>`<li><button data-i="${i}" aria-pressed="false" aria-label="Show ${x.n}, ${x.rng}"><i style="background:${css(ramp(OX,x.t))}"></i><span><b>${x.n}</b>${x.u.split('.')[0]}.</span><small>${x.rng}</small></button></li>`).join('');
+$('swatches').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; temperT=TEMPERS[+b.dataset.i].t; $('temper').value=temperT; drawTemper(); });
+$('temper').addEventListener('input',e=>{ temperT=+e.target.value; drawTemper(); });
+
+function polished(g,x,y,w,h,colorAt){ // colorAt(frac 0..1) -> rgb
+  for(let i=0;i<w;i++){ g.fillStyle=css(colorAt(i/w)); g.fillRect(x+i,y,1.5,h); }
+  const sh=g.createLinearGradient(0,y,0,y+h);
+  sh.addColorStop(0,'rgba(255,255,255,.10)'); sh.addColorStop(.22,'rgba(255,255,255,.38)'); sh.addColorStop(.34,'rgba(255,255,255,.06)');
+  sh.addColorStop(.7,'rgba(0,0,0,.05)'); sh.addColorStop(1,'rgba(0,0,0,.35)');
+  g.fillStyle=sh; g.fillRect(x,y,w,h);
+}
+function drawTemper(){
+  const {g,W,H}=fit($('bright'));
+  g.fillStyle='#0f0d0b'; g.fillRect(0,0,W,H);
+  const x0=12, w=W-24, y=20, h=H-40;
+  polished(g,x0,y,w,h,()=>ramp(OX,temperT));
+  g.strokeStyle='#00000066'; g.strokeRect(x0+.5,y+.5,w-1,h-1);
+  const t=tempAt(temperT);
+  $('tName').textContent=t.n; $('tName').style.color=css(mix(ramp(OX,temperT),[255,255,255],.15));
+  $('tTemp').textContent='about '+fmt(temperT)+'°F / '+fmt(r5(toC(temperT)))+'°C · chart says '+t.rng;
+  $('tUse').textContent=t.u;
+  $('tOut').textContent=fmt(temperT)+'°F';
+  document.querySelectorAll('#swatches button').forEach(b=>b.setAttribute('aria-pressed',TEMPERS[+b.dataset.i]===t?'true':'false'));
+}
+
+// ================= DRAW A TEMPER GAME =================
+const JOBS=[
+  {name:'Axe bit',       want:'Bronze',     t:490},
+  {name:'Cold chisel',   want:'Purple',     t:530},
+  {name:'Hammer face',   want:'Pale straw', t:420},
+  {name:'Flat spring',   want:'Dark blue',  t:560},
+  {name:'Wood chisel',   want:'Bronze',     t:490},
+  {name:'Center punch',  want:'Purple',     t:530},
+  {name:'Drift punch',   want:'Dark straw', t:465},
+  {name:'Scraper',       want:'Light blue', t:600},
+  {name:'Knife edge',    want:'Straw',      t:445}
+];
+let order=[], jobI=0, job=null, run=null, edgeT=70, scores=[], best=null;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+// edge temp over time: quick. about 2 s to bronze, 3.5 s to blue, under 5 s to grey.
+const edgeAt=s=>70+ (s<0.35? s/0.35*290 : 290+ 58*(s-0.35)+7*(s-0.35)*(s-0.35));
+const tAlong=(E,x)=>E+300*Math.pow(1-x,1.4);   // back (x=0) runs hotter than the edge (x=1)
+function newJob(){
+  if(!order.length||jobI>=order.length){ order=shuffle(JOBS.slice()); jobI=0; }
+  job=order[jobI++]; edgeT=70; run=null;
+  $('jobName').textContent=job.name; $('jobWant').textContent='Quench when the edge hits '+job.want.toLowerCase()+' (~'+job.t+'°F)';
+  $('jobSw').style.background=css(ramp(OX,job.t));
+  $('hJob').textContent=scores.length+1;
+  $('go').disabled=false; $('quench').disabled=true;
+  $('result').innerHTML='Tap <b>Heat the back</b>. Colors run toward the edge in a few seconds. Tap <b>Quench</b> when the edge shows '+job.want.toLowerCase()+'.';
+  drawGame();
+}
+function start(){
+  if(run) return;
+  run={t0:performance.now()}; $('go').disabled=true; $('quench').disabled=false; $('quench').focus({preventScroll:true});
+  $('result').textContent='Heating the back. Watch the edge.';
+  requestAnimationFrame(tick);
+}
+function tick(now){
+  if(!run) return;
+  const s=(now-run.t0)/1000; edgeT=edgeAt(s); drawGame();
+  if(edgeT>=700){ finish(true); return; }
+  requestAnimationFrame(tick);
+}
+function finish(late){
+  if(!run) return; run=null;
+  $('go').disabled=true; $('quench').disabled=true;
+  const got=tempAt(edgeT), diff=Math.round(edgeT-job.t), off=Math.abs(diff);
+  const sc=late?0:Math.max(0,Math.round(100-off*2));
+  scores.push(sc); best=best==null?sc:Math.max(best,sc);
+  $('hLast').textContent=sc; $('hBest').textContent=best; $('hAvg').textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  let head, cls;
+  if(late){ head='Too late. It went grey'; cls='bad'; }
+  else if(off<=8){ head='Dead on. Nice'; cls='good'; }
+  else if(off<=20){ head='Close enough to use'; cls='good'; }
+  else if(off<=40){ head=diff>0?'A bit soft':'A bit hard'; cls='ok'; }
+  else { head=diff>0?'Way too soft':'Way too hard. It\'ll chip'; cls='bad'; }
+  $('result').innerHTML=`<span class="big ${cls}">${head}</span><b>Score ${sc}/100.</b> Edge hit <b>${late?'grey':got.n.toLowerCase()}</b>, about ${fmt(edgeT)}°F. You wanted ${job.want.toLowerCase()}, about ${job.t}°F. ${late?'Past the color you wanted. Re-harden and try again.':'Off by '+off+'°F'+(diff>0?' on the soft side.':diff<0?' on the hard side.':'.')}`;
+  drawGame(true);
+}
+$('go').addEventListener('click',start);
+$('quench').addEventListener('click',()=>finish(false));
+$('next').addEventListener('click',()=>{ run=null; newJob(); });
+window.addEventListener('keydown',e=>{
+  if(e.target.closest&&e.target.closest('input,button')&&e.key!==' ') return;
+  if(e.key===' '||e.key==='q'||e.key==='Q'){ const sec=$('hDraw').getBoundingClientRect(); if(sec.top>innerHeight||!run&&$('go').disabled) return; e.preventDefault(); if(run) finish(false); else start(); }
+});
+
+function drawGame(quenched){
+  const {g,W,H}=fit($('draw'));
+  g.fillStyle='#0f0d0b'; g.fillRect(0,0,W,H);
+  const x0=34, x1=W-76, cy=H/2-6, back=58, edge=10, w=x1-x0;
+  // tool profile: thick back tapering to an edge
+  const prof=f=>lerp(back,edge,Math.pow(f,1.15))/2;
+  g.save(); g.beginPath();
+  g.moveTo(x0,cy-back/2); for(let i=0;i<=40;i++){ const f=i/40; g.lineTo(x0+f*w,cy-prof(f)); }
+  for(let i=40;i>=0;i--){ const f=i/40; g.lineTo(x0+f*w,cy+prof(f)); } g.closePath(); g.clip();
+  const hot=run||edgeT>70;
+  polished(g,x0,cy-back/2,w,back,f=>hot?ramp(OX,tAlong(edgeT,f)):ramp(OX,70));
+  g.restore();
+  g.strokeStyle='#00000088'; g.lineWidth=1; g.beginPath();
+  g.moveTo(x0,cy-back/2); for(let i=0;i<=40;i++){ const f=i/40; g.lineTo(x0+f*w,cy-prof(f)); }
+  for(let i=40;i>=0;i--){ const f=i/40; g.lineTo(x0+f*w,cy+prof(f)); } g.closePath(); g.stroke();
+  // torch at the back while running
+  if(run){ const fl=g.createRadialGradient(x0-6,cy,2,x0-6,cy,34); fl.addColorStop(0,'rgba(140,190,255,.95)'); fl.addColorStop(.35,'rgba(255,150,60,.6)'); fl.addColorStop(1,'rgba(255,90,20,0)'); g.fillStyle=fl; g.fillRect(0,cy-40,x0+30,80); }
+  // edge lens: a bigger look at the color right at the edge
+  const ec=hot?ramp(OX,tAlong(edgeT,1)):ramp(OX,70), lx=W-38, ly=cy, lr=26;
+  g.strokeStyle='#a3958a'; g.setLineDash([2,3]); g.beginPath(); g.moveTo(x1,cy); g.lineTo(lx-lr,ly); g.stroke(); g.setLineDash([]);
+  g.fillStyle=css(ec); g.beginPath(); g.arc(lx,ly,lr,0,Math.PI*2); g.fill();
+  const hl=g.createLinearGradient(0,ly-lr,0,ly+lr); hl.addColorStop(0,'rgba(255,255,255,.35)'); hl.addColorStop(.45,'rgba(255,255,255,0)'); hl.addColorStop(1,'rgba(0,0,0,.3)');
+  g.fillStyle=hl; g.fill(); g.lineWidth=2; g.strokeStyle=quenched?'#3b6ea5':'#efe6da'; g.stroke(); g.lineWidth=1;
+  g.font='600 13px "Barlow Condensed", sans-serif'; g.textBaseline='bottom'; g.fillStyle='#a3958a';
+  g.textAlign='center'; g.fillText(quenched?'QUENCHED':'EDGE',lx,ly-lr-4);
+  g.textAlign='left'; g.fillText(run?'BACK · HEAT HERE':'BACK',x0,H-4);
+  g.textAlign='right'; g.fillText('EDGE · WATCH THE CIRCLE',W-10,H-4);
+}
+
+// ================= boot =================
+function all(){ drawHeat(); drawTemper(); drawGame(); }
+let rz=0; window.addEventListener('resize',()=>{ cancelAnimationFrame(rz); rz=requestAnimationFrame(all); });
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(all);
+newJob(); all();
+window.__steelColors={get heatT(){return heatT},get temperT(){return temperT},get edgeT(){return edgeT},start,finish,edgeAt};
+})();
+</script>
+</body>
+</html>
+
+</body></html>
