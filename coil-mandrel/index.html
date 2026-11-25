@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coil Mandrel Maker · Portland Ironworks</title>
+<style>
+  :root{--bg:#15161a;--panel:#1e2026;--line:#2e3139;--text:#e8e6e0;--muted:#9a9890;--accent:#e2a23b;--accent2:#5dcaa5;--bad:#e24b4a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{margin:0;font-size:18px;font-weight:600}
+  header span{color:var(--muted);font-size:13px}
+  main{display:grid;grid-template-columns:340px 1fr 260px;min-height:calc(100vh - 50px)}
+  @media(max-width:1100px){main{grid-template-columns:340px 1fr}#lib{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}}
+  @media(max-width:800px){main{grid-template-columns:1fr}}
+  aside{border-right:1px solid var(--line);padding:14px;overflow-y:auto}
+  #lib{border-left:1px solid var(--line);border-right:0;padding:14px}
+  section{padding:14px;display:grid;grid-template-rows:auto 1fr auto auto auto auto;gap:12px;min-width:0}
+  #xsec svg,#elev svg{width:100%;height:auto;display:block}
+  fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px 10px;margin:0 0 12px}
+  legend{color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:0 6px;cursor:pointer;user-select:none}
+  aside legend::before{content:'▾ ';font-size:10px}
+  aside fieldset.closed legend::before{content:'▸ '}
+  aside fieldset.closed > *:not(legend){display:none !important}
+  aside fieldset{padding-bottom:10px}
+  aside fieldset.closed{padding-bottom:4px}
+  aside legend:hover{color:var(--text)}
+  .row{display:grid;grid-template-columns:1fr 92px;align-items:center;gap:8px;margin:5px 0}
+  .row small{color:var(--muted);display:block;font-size:11px;line-height:1.2}
+  input[type=number],select,input[type=text]{width:100%;background:#111216;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}
+  input:focus,select:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+  .seg{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 8px}
+  .seg button{flex:1;min-width:56px;background:#111216;border:1px solid var(--line);color:var(--muted);padding:6px 4px;border-radius:6px;cursor:pointer;font:inherit;font-size:13px}
+  .seg button.on{background:var(--accent);border-color:var(--accent);color:#1a1200;font-weight:600}
+  .btn{background:var(--accent);color:#1a1200;border:0;border-radius:8px;padding:9px 12px;font:inherit;font-weight:600;cursor:pointer}
+  .btn.alt{background:#2a2d35;color:var(--text)}
+  .btn.sm{padding:5px 8px;font-size:12px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  #view{position:relative;background:#101115;border:1px solid var(--line);border-radius:10px;min-height:360px;overflow:hidden}
+  #view canvas{display:block;width:100%;height:100%}
+  #hint{position:absolute;left:10px;bottom:8px;color:var(--muted);font-size:11px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+  .card h3{margin:0 0 4px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .card .big{font-size:18px;font-weight:600}
+  .card .sub{color:var(--muted);font-size:12px}
+  .card .math{color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;margin-top:4px}
+  .ok{color:var(--accent2)}.bad{color:var(--bad)}
+  svg text{font:11px system-ui,sans-serif;fill:var(--muted)}
+  #msg{color:var(--accent2);font-size:12px;min-height:16px}
+  textarea{width:100%;height:160px;background:#111216;color:var(--text);border:1px solid var(--line);border-radius:6px;font:12px ui-monospace,Menlo,monospace;padding:8px}
+  details summary{cursor:pointer;color:var(--muted)}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .presets button{background:#111216;border:1px solid var(--line);color:var(--text);padding:3px 8px;border-radius:6px;cursor:pointer;font:12px inherit}
+  .presets button:hover{border-color:var(--accent)}
+  .item{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;display:flex;justify-content:space-between;gap:6px;align-items:center}
+  .item .nm{font-size:13px;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .nm small{display:block;color:var(--muted);font-size:11px}
+  .item button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px}
+  .item button:hover{color:var(--text)}
+  .note{color:var(--muted);font-size:12px;margin:4px 0 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Coil Mandrel Maker <span style="color:#9a9890;font-weight:400;font-size:14px">· Portland Ironworks</span></h1>
+  <span>Winding forms and bending tools for induction coils. Preview, check, export STL.</span>
+</header>
+<main>
+<aside>
+  <fieldset>
+    <legend>Type</legend>
+    <div class="seg" id="type">
+      <button data-t="mandrel" class="on">Mandrel</button>
+      <button data-t="pancake">Pancake jig</button>
+      <button data-t="taco">Taco set</button>
+      <button data-t="cup">Cup coil</button>
+      <button data-t="die">Bend die</button>
+      <button data-t="gauge">Gauge</button>
+    </div>
+    <div class="seg" id="units">
+      <button data-u="in" class="on">inches</button>
+      <button data-u="mm">mm</button>
+    </div>
+    <div class="note" id="typeNote"></div>
+  </fieldset>
+
+  <div id="pane-mandrel">
+    <fieldset>
+      <legend>Cross-section</legend>
+      <div class="seg" id="shapeA"><button data-s="round">Round</button><button data-s="pill" class="on">Pill</button><button data-s="box">Box</button><button data-s="oval">Oval</button><button data-s="teardrop">Teardrop</button></div>
+      <div class="presets" id="presetsA"></div>
+      <div class="row"><label id="wA_label">Width<small>long dimension = coil ID</small></label><input type="number" id="wA" step="0.0625" value="3"></div>
+      <div class="row" id="tA_row"><label id="tA_label">Thickness</label><input type="number" id="tA" step="0.0625" value="0.75"></div>
+      <div class="row" id="rA_row"><label id="rA_label">Corner radius</label><input type="number" id="rA" step="0.03125" value="0.125"></div>
+      <div class="row"><label>Length</label><input type="number" id="LA" step="0.25" value="3"></div>
+    </fieldset>
+    <fieldset id="secB">
+      <legend>Second section</legend>
+      <div class="seg" id="shapeB"><button data-s="round" class="on">Round</button><button data-s="pill">Pill</button><button data-s="box">Box</button><button data-s="oval">Oval</button></div>
+      <div class="presets" id="presetsB"></div>
+      <div class="row"><label>Width</label><input type="number" id="wB" step="0.0625" value="1.25"></div>
+      <div class="row" id="tB_row"><label>Thickness</label><input type="number" id="tB" step="0.0625" value="1.25"></div>
+      <div class="row" id="rB_row"><label>Corner radius</label><input type="number" id="rB" step="0.03125" value="0.125"></div>
+      <div class="row"><label>Length</label><input type="number" id="LB" step="0.25" value="3"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Features</legend>
+      <div class="row" id="taper_row"><label>Taper per side<small>0 = straight</small></label><input type="number" id="taper" step="0.015625" value="0"></div>
+      <div class="row"><label>Center hole dia<small>0 = solid. 0.257 clears 1/4 bolt</small></label><input type="number" id="hole" step="0.0625" value="0"></div>
+      <div class="row"><label>End chamfer</label><input type="number" id="chamfer" step="0.03125" value="0"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Clamp block</legend>
+      <div class="seg" id="clampEnds"><button data-c="none" class="on">None</button><button data-c="bottom">One end</button><button data-c="both">Both ends</button></div>
+      <div class="row"><label>Block width</label><input type="number" id="clampW" step="0.125" value="1"></div>
+      <div class="row"><label>Block thickness<small>0 = match mandrel, prints flat</small></label><input type="number" id="clampT" step="0.125" value="0"></div>
+      <div class="row"><label>Block length</label><input type="number" id="clampL" step="0.25" value="1.5"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Raceway</legend>
+      <div class="row"><label>Helical rib between turns<small>coil ID stays the same, ribs bed the tube</small></label><input type="checkbox" id="raceOn" style="justify-self:end;width:18px;height:18px"></div>
+      <div class="row"><label>Rib height<small>fraction of tube OD</small></label><input type="number" id="raceH" step="0.1" value="0.5"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Stamp</legend>
+      <div class="row"><label>Engrave size on the end<small>shape, size, length. Cut in, print that end down</small></label><input type="checkbox" id="stampOn" checked style="justify-self:end;width:18px;height:18px"></div>
+      <div class="row"><label>Add PortlandIronworks.com</label><input type="checkbox" id="stampUrl" checked style="justify-self:end;width:18px;height:18px"></div>
+    </fieldset>
+    <fieldset id="splitBox">
+      <legend>Removable center</legend>
+      <div class="row"><label>Split into 3 pieces<small>center slab + two shells</small></label><input type="checkbox" id="split" style="justify-self:end;width:18px;height:18px"></div>
+      <div class="row"><label>Slab width</label><input type="number" id="slabW" step="0.125" value="1"></div>
+      <div class="row"><label>Slab taper per side<small>wider at the free end, taps out from the clamp end</small></label><input type="number" id="slabTaper" step="0.015625" value="0.03125"></div>
+    </fieldset>
+  </div>
+
+  <div id="pane-pancake" style="display:none">
+    <fieldset>
+      <legend>Pancake</legend>
+      <div class="seg" id="pkStyle"><button data-p="channel" class="on">Spiral channel</button><button data-p="post">Post only</button></div>
+      <div class="row"><label>Inner opening<small>post diameter, where the spiral starts</small></label><input type="number" id="pkID" step="0.125" value="1"></div>
+      <div class="row" id="pkAng_row"><label>Cone angle<small>degrees from flat, 0 to 45. Floor slopes down from the post</small></label><input type="number" id="pkAng" step="5" value="30" min="0" max="45"></div>
+      <div class="row" id="pkBend_row"><label>Lead bend radius<small>centerline, how gently the inner lead rises out</small></label><input type="number" id="pkBend" step="0.125" value="0.75"></div>
+      <div class="row" id="pkWall_row"><label>Shell wall<small>hollows the underside. 0 = solid</small></label><input type="number" id="pkWall" step="0.0625" value="0.125"></div>
+      <div class="row" id="pkClr_row"><label>Channel clearance<small>extra width over tube OD</small></label><input type="number" id="pkClr" step="0.01" value="0.02"></div>
+      <div class="row" id="pkRibH_row"><label>Rib height<small>fraction of tube OD</small></label><input type="number" id="pkRibH" step="0.1" value="0.6"></div>
+      <div class="row"><label>Base thickness</label><input type="number" id="pkBase" step="0.0625" value="0.25"></div>
+      <div class="row"><label>Base margin<small>beyond the outer turn</small></label><input type="number" id="pkMargin" step="0.125" value="0.25"></div>
+    </fieldset>
+  </div>
+
+  <div id="pane-taco" style="display:none">
+    <fieldset>
+      <legend>Taco</legend>
+      <div class="row"><label>Taco size<small>fold gap for the stock</small></label><input type="number" id="tcSize" step="0.125" value="1"></div>
+      <div class="row"><label>Straight length<small>how long a blade it covers</small></label><input type="number" id="tcStraight" step="0.25" value="2"></div>
+      <div class="row"><label>Base thickness</label><input type="number" id="tcBase" step="0.0625" value="0.25"></div>
+      <div class="row"><label>Fold bar length</label><input type="number" id="tcBarL" step="0.5" value="5"></div>
+      <div class="row"><label>Cone angle<small>degrees from flat, 0 to 45</small></label><input type="number" id="tcAng" step="5" value="30" min="0" max="45"></div>
+      <div class="row"><label>Lead bend radius</label><input type="number" id="tcBend" step="0.125" value="0.75"></div>
+      <div class="row"><label>Channel clearance</label><input type="number" id="tcClr" step="0.01" value="0.02"></div>
+      <div class="row"><label>Underside void, rim wall<small>0 = solid. Void walls are 45°</small></label><input type="number" id="tcWall" step="0.0625" value="0"></div>
+      <div class="row"><label>Floor meat<small>minimum material between void and channel floor</small></label><input type="number" id="tcMeat" step="0.0625" value="0.1875"></div>
+    </fieldset>
+  </div>
+
+  <div id="pane-cup" style="display:none">
+    <fieldset>
+      <legend>Cup coil</legend>
+      <div class="row"><label>Cup ID<small>inside of the side turns. Hammer head plus 5 mm a side</small></label><input type="number" id="cupID" step="0.125" value="2.5"></div>
+      <div class="row"><label>Side turns<small>wrap the sides of the head</small></label><input type="number" id="cupS" step="1" value="2"></div>
+      <div class="row"><label>End turns<small>flat spiral across the bottom, heats the face</small></label><input type="number" id="cupE" step="1" value="2"></div>
+      <div class="row"><label>Mandrel length</label><input type="number" id="cupL" step="0.25" value="2"></div>
+      <div class="row"><label>Rib height<small>fraction of tube OD</small></label><input type="number" id="cupRibH" step="0.1" value="0.6"></div>
+      <div class="row"><label>Channel clearance<small>extra width over tube OD</small></label><input type="number" id="cupClr" step="0.01" value="0.02"></div>
+      <div class="row"><label>Lead bend radius<small>inner lead rising out of the end</small></label><input type="number" id="cupBend" step="0.125" value="0.5"></div>
+    </fieldset>
+  </div>
+
+  <div id="pane-gauge" style="display:none">
+    <fieldset>
+      <legend>Feeler gauge</legend>
+      <div class="row"><label>Thickness<small>stock to coil clearance, 5 mm is the rule</small></label><input type="number" id="ggT" step="0.5" value="5"></div>
+      <div class="row"><label>Blade width</label><input type="number" id="ggW" step="1" value="20"></div>
+      <div class="row"><label>Blade length</label><input type="number" id="ggL" step="5" value="80"></div>
+      <div class="row"><label>Hang hole dia<small>0 = none</small></label><input type="number" id="ggHole" step="0.5" value="6.5"></div>
+      <div class="row"><label>Stepped<small>3 / 4 / 5 / 6 mm steps on one blade</small></label><input type="checkbox" id="ggStep" style="justify-self:end;width:18px;height:18px"></div>
+    </fieldset>
+  </div>
+  <div id="pane-die" style="display:none">
+    <fieldset>
+      <legend>Bend die</legend>
+      <div class="row"><label>Bend radius (CLR)<small>to tube centerline. 3/4 is about the limit for 1/4 soft copper unfilled</small></label><input type="number" id="dieCLR" step="0.125" value="0.75"></div>
+      <div class="row"><label>Bolt hole dia</label><input type="number" id="dieHole" step="0.0625" value="0.375"></div>
+      <div class="row"><label>Flange each side</label><input type="number" id="dieFlange" step="0.0625" value="0.1875"></div>
+      <div class="seg" id="dieMode"><button data-d="single" class="on">Single die</button><button data-d="stack">Stacked dies</button></div>
+      <div class="row" id="dieStack_row" style="display:none;grid-template-columns:1fr"><label>Bend radii to stack<small>comma separated, biggest goes on the bottom</small></label><input type="text" id="dieStack" value="1.5, 1, 0.75, 0.5"></div>
+      <div class="row"><label>Add tube lock<small>two posts + keeper bar, 1/4 bolts</small></label><input type="checkbox" id="lockOn" style="justify-self:end;width:18px;height:18px"></div>
+      <div class="row"><label>Add swing arm + roller</label><input type="checkbox" id="armOn" style="justify-self:end;width:18px;height:18px"></div>
+      <div class="row" id="rollD_row"><label>Roller dia</label><input type="number" id="rollD" step="0.125" value="1"></div>
+      <div class="row" id="pinD_row"><label>Small bolt dia<small>roller pin and lock posts</small></label><input type="number" id="pinD" step="0.0625" value="0.25"></div>
+      <div class="row" id="handleL_row"><label>Handle length<small>beyond the roller</small></label><input type="number" id="handleL" step="1" value="6"></div>
+    </fieldset>
+  </div>
+
+  <fieldset>
+    <legend>Coil estimate</legend>
+    <div class="row"><label>Tube OD</label><input type="number" id="tube" step="0.0625" value="0.25"></div>
+    <div class="row" id="turns_row"><label id="turnsLabel">Turns</label><input type="number" id="turns" step="1" value="4"></div>
+    <div class="row" id="turnsB_row" style="display:none"><label>Turns, second section</label><input type="number" id="turnsB" step="1" value="3"></div>
+    <div class="row"><label>Gap between turns</label><input type="number" id="gap" step="0.0625" value="0.125"></div>
+    <div class="row"><label>Lead length, each</label><input type="number" id="lead" step="0.5" value="3"></div>
+  </fieldset>
+
+  <fieldset id="machineBox">
+    <legend>Machine match</legend>
+    <div class="row"><label>Your go-to coil, ID<small>a round coil you know runs well</small></label><input type="number" id="refD" step="0.125" value="1.5"></div>
+    <div class="row"><label>Its turns</label><input type="number" id="refN" step="1" value="4"></div>
+    <div class="row"><label>It runs at, kHz<small>read it off the machine's display</small></label><input type="number" id="fRef" step="1" value="45"></div>
+    <div class="row"><label>Window, low kHz</label><input type="number" id="fMin" step="5" value="30"></div>
+    <div class="row"><label>Window, high kHz</label><input type="number" id="fMax" step="5" value="80"></div>
+    <div class="row"><label>Another section in series<small>its diameter, 0 = none. For combos wound from one tube</small></label><input type="number" id="serD" step="0.125" value="0"></div>
+    <div class="row"><label>Its turns</label><input type="number" id="serN" step="1" value="4"></div>
+  </fieldset>
+
+  <fieldset id="heatBox">
+    <legend>Heat map</legend>
+    <div class="seg" id="hmTemp"><button data-h="hot" class="on">Hot steel</button><button data-h="cold">Cold steel</button></div>
+    <div class="row"><label>Stock diameter<small>0 = auto, 5 mm clearance</small></label><input type="number" id="hmD" step="0.125" value="0"></div>
+    <div class="row"><label>Face gap<small>steel face to the end turns. For a bar: end past the first turn</small></label><input type="number" id="hmGap" step="0.0625" value="0.1875"></div>
+    <div class="row"><label>Face crown radius<small>0 = flat. Rounding hammer, try 3 to 4"</small></label><input type="number" id="hmCrown" step="0.25" value="0"></div>
+    <div class="row" id="hmThrough_row"><label>Bar runs all the way through</label><input type="checkbox" id="hmThrough" checked style="justify-self:end;width:18px;height:18px"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Export</legend>
+    <div class="row"><label>Show tube in preview</label><input type="checkbox" id="showTube" checked style="justify-self:end;width:18px;height:18px"></div>
+    <div class="row" id="flat_row"><label>Lay flat for printing<small>wide face down</small></label><input type="checkbox" id="flat" checked style="justify-self:end;width:18px;height:18px"></div>
+    <div class="row"><label>Resolution<small>segments per quarter arc</small></label><input type="number" id="res" step="4" value="24"></div>
+    <div class="actions" style="margin-top:8px">
+      <button class="btn" id="dlStlOnly">Download STL</button>
+      <button class="btn alt" id="dlStl">Zip (STL + spec sheet)</button>
+      <button class="btn alt" id="viewSheet">Spec sheet (PDF)</button>
+      <button class="btn alt" id="dlScad">SCAD (.txt)</button>
+      <button class="btn alt" id="cpScad">Copy SCAD</button>
+    </div>
+    <div id="msg"></div>
+  </fieldset>
+</aside>
+
+<section>
+  <div class="cards" style="grid-template-columns:1fr 1fr"><div class="card"><h3 id="xsecTitle">Cross-section</h3><div id="xsec"></div></div><div class="card"><h3 id="elevTitle">Elevation</h3><div id="elev"></div></div></div>
+  <div id="view"><div id="hint">drag to orbit, scroll to zoom</div></div>
+  <div class="cards" id="cards"></div>
+  <div class="card" id="heatCard" style="margin-top:10px"><h3>Where it heats</h3><canvas id="heat" style="display:block;border-radius:8px;max-width:100%"></canvas><canvas id="heatProf" style="display:block;margin-top:6px;max-width:100%"></canvas><div class="sub" id="heatNote" style="margin-top:6px"></div></div>
+  <div class="card"><h3>Mesh check</h3><div id="verify"></div></div>
+  <details><summary>OpenSCAD source</summary><textarea id="scadOut" readonly></textarea></details>
+  <div class="card" id="refCard"><h3>How the finished coil goes together</h3><div id="refBody" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start"></div></div>
+</section>
+
+<div id="lib">
+  <fieldset>
+    <legend>Library</legend>
+    <div class="row" style="grid-template-columns:1fr auto"><input type="text" id="libName" placeholder="name (optional)"><button class="btn sm" id="libAdd">Add current</button></div>
+    <div id="libList"></div>
+    <div class="actions" style="margin-top:8px"><button class="btn alt sm" id="libAll">Download all STL (zip)</button><button class="btn alt sm" id="libClear">Clear</button></div>
+    <div class="note">Saved in this browser only.</div>
+  </fieldset>
+</div>
+</main>
+<div id="sheetOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;overflow:auto;padding:24px">
+  <div style="max-width:900px;margin:0 auto">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px"><button class="btn" id="sheetPdf">Download PDF</button><button class="btn alt" id="sheetPng">Download PNG</button><button class="btn alt" id="sheetDl">Download zip</button><button class="btn alt" id="sheetClose">Close</button></div>
+    <div id="sheetWrap" style="background:#fff;border-radius:6px;overflow:hidden"></div>
+  </div>
+</div>
+<style>#sheetWrap svg{width:100%;height:auto;display:block}</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Pure geometry for Coil Mandrel Maker. No DOM, no three.js. Units: mm.
+// Section d = {shape:'round'|'pill'|'box'|'oval', w, t, r, L, taper, hole, chamfer, chamferBottom, chamferTop}
+
+function profile(d, inset, n, raw) {
+  // CCW outline of the section shrunk by `inset` on every side, ordered by increasing angle from 0
+  const w = d.w - 2 * inset, t = d.t - 2 * inset;
+  if (w <= 0.05 || t <= 0.05) return null;
+  const pts = [];
+  if (d.shape === 'oval') {
+    const N = n * 4;
+    for (let i = 0; i < N; i++) { const a = 2 * Math.PI * i / N; pts.push([w / 2 * Math.cos(a), t / 2 * Math.sin(a)]); }
+    return pts;
+  }
+  if (d.shape === 'teardrop') {
+    // hull of a big circle (radius t/2, at -x) and a small circle (radius d.r1, at +x); d.w is overall length
+    const R = t / 2, r1 = Math.max(d.r1 - inset, 0.05); const c = d.w - t / 2 - d.r1; if (c < R - r1 + 0.05) return null;
+    const xb = -d.w / 2 + t / 2, xs = d.w / 2 - d.r1; // centers (unchanged by inset)
+    const phi = Math.acos((R - r1) / c);
+    const arc = (cx, r, a0, a1, N) => { for (let i = 0; i <= N; i++) { const a = a0 + (a1 - a0) * i / N; pts.push([cx + r * Math.cos(a), r * Math.sin(a)]); } };
+    arc(xs, r1, -phi, phi, n);                // small end
+    arc(xb, R, phi, 2 * Math.PI - phi, 2 * n); // big end
+    if (raw) return pts;
+    const maxLen = Math.max((d.w + d.t) / n, 0.5); const out = [];
+    for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; const len = Math.hypot(b[0] - a[0], b[1] - a[1]); const k = Math.max(1, Math.ceil(len / maxLen)); for (let q = 0; q < k; q++) out.push([a[0] + (b[0] - a[0]) * q / k, a[1] + (b[1] - a[1]) * q / k]); }
+    return out;
+  }
+  let r = Math.max(Math.min(d.r - inset, Math.min(w, t) / 2), 0);
+  const cx = w / 2 - r, cy = t / 2 - r;
+  // start at angle -90deg corner so points run CCW from the bottom-right
+  const corners = [[cx, -cy, -Math.PI / 2], [cx, cy, 0], [-cx, cy, Math.PI / 2], [-cx, -cy, Math.PI]];
+  for (const [x, y, a0] of corners) {
+    if (r < 1e-6) { pts.push([x, y]); continue; }
+    for (let i = 0; i < n; i++) { const a = a0 + Math.PI / 2 * i / n; pts.push([x + r * Math.cos(a), y + r * Math.sin(a)]); }
+  }
+  if (raw) return pts;
+  // subdivide straight runs so point spacing stays even around the outline (hole ring and caps depend on it).
+  // Based on the un-inset size so every ring of a section gets the same point count.
+  const maxLen = Math.max((d.w + d.t) / n, 0.5);
+  const out = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]); const k = Math.max(1, Math.ceil(len / maxLen));
+    for (let s = 0; s < k; s++) out.push([a[0] + (b[0] - a[0]) * s / k, a[1] + (b[1] - a[1]) * s / k]);
+  }
+  return out;
+}
+function perimeter(pts) { let p = 0; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; p += Math.hypot(b[0] - a[0], b[1] - a[1]); } return p; }
+function area(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } return Math.abs(a) / 2; }
+
+function clipX(pts, c, keepLess) {
+  // Sutherland-Hodgman against the vertical line x=c. Keeps x<=c (keepLess) or x>=c. Result stays CCW.
+  const inside = p => keepLess ? p[0] <= c + 1e-9 : p[0] >= c - 1e-9;
+  const out = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length], ia = inside(a), ib = inside(b);
+    if (ia) out.push(a);
+    if (ia !== ib) { const t = (c - a[0]) / (b[0] - a[0]); out.push([c, a[1] + (b[1] - a[1]) * t]); }
+  }
+  // drop near-duplicate consecutive points
+  return out.filter((p, i) => { const q = out[(i + 1) % out.length]; return Math.hypot(p[0] - q[0], p[1] - q[1]) > 1e-6; });
+}
+function resample(pts, N) {
+  // rotate so the ring starts at its lowest-then-leftmost point, then place N points evenly by arc length
+  let s = 0; for (let i = 1; i < pts.length; i++) if (pts[i][1] < pts[s][1] - 1e-9 || (Math.abs(pts[i][1] - pts[s][1]) < 1e-9 && pts[i][0] < pts[s][0])) s = i;
+  const p = pts.slice(s).concat(pts.slice(0, s));
+  const seg = []; let total = 0;
+  for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]); seg.push(l); total += l; }
+  const out = []; let i = 0, acc = 0;
+  for (let k = 0; k < N; k++) {
+    const target = total * k / N;
+    while (acc + seg[i] < target - 1e-9) { acc += seg[i]; i = (i + 1) % p.length; }
+    const a = p[i], b = p[(i + 1) % p.length], t = seg[i] > 1e-12 ? (target - acc) / seg[i] : 0;
+    out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+  }
+  return out;
+}
+function subdivideEdges(pts, k) { const out = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; for (let s = 0; s < k; s++) out.push([a[0] + (b[0] - a[0]) * s / k, a[1] + (b[1] - a[1]) * s / k]); } return out; }
+function centroid(pts) { let x = 0, y = 0; for (const p of pts) { x += p[0]; y += p[1]; } return [x / pts.length, y / pts.length]; }
+
+function buildSection(d, n, z0) {
+  // returns flat Float32-able array of triangles for one section, bottom at z0. Closed, outward normals.
+  // d.split = {side:-1|0|1, w0, w1}: keep x<=-half (side -1), |x|<=half (0) or x>=half (1), half = (w0 + (w1-w0)*z/L)/2
+  z0 = z0 || 0;
+  const c = Math.min(d.chamfer || 0, d.t / 2 - 0.05, d.L / 2 - 0.05);
+  const cb = c > 0.01 && d.chamferBottom !== false, ct = c > 0.01 && d.chamferTop !== false;
+  const zs = [0]; if (cb) zs.push(c); if (ct) zs.push(d.L - c); zs.push(d.L);
+  if (d.split && zs.length === 2) zs.splice(1, 0, d.L / 2); // extra ring keeps the slanted cut faces planar-ish for long tapers
+  const rings = [];
+  for (const z of zs) {
+    let inset = (d.taper || 0) * (z / d.L);
+    if (z === 0 && cb) inset += c;
+    if (z === d.L && ct) inset += c;
+    let p = profile(d, inset, n, !!d.split); if (!p) return null;
+    if (d.split) {
+      const half = (d.split.w0 + (d.split.w1 - d.split.w0) * z / d.L) / 2;
+      if (d.split.side === 0) p = clipX(clipX(p, half, true), -half, false);
+      else if (d.split.side < 0) p = clipX(p, -half, true);
+      else p = clipX(p, half, false);
+      if (p.length < 3) return null;
+      p = subdivideEdges(p, Math.max(2, Math.round(n / 2)));
+    }
+    rings.push({ z: z + z0, p });
+  }
+  // rings must share a point count. They do by construction unless a split cut crosses an arc; then fall back to resampling.
+  const mCount = Math.max(...rings.map(r => r.p.length));
+  for (const r of rings) if (r.p.length !== mCount) r.p = resample(r.p, mCount);
+  if (d.split && d.split.side !== 0) d = Object.assign({}, d, { hole: 0 });
+  const hr = (d.hole || 0) / 2;
+  const m = rings[0].p.length;
+  // hole ring matched point-for-point to outer ring by angle (outlines are convex & centered)
+  const holeFor = ring => ring.map(([x, y]) => { const a = Math.atan2(y, x); return [hr * Math.cos(a), hr * Math.sin(a)]; });
+  const T = [];
+  const push = (a, b, cc) => T.push(a[0], a[1], a[2], b[0], b[1], b[2], cc[0], cc[1], cc[2]);
+  for (let k = 0; k < rings.length - 1; k++) {
+    const A = rings[k], B = rings[k + 1];
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % m;
+      const a0 = [A.p[i][0], A.p[i][1], A.z], a1 = [A.p[j][0], A.p[j][1], A.z], b0 = [B.p[i][0], B.p[i][1], B.z], b1 = [B.p[j][0], B.p[j][1], B.z];
+      push(a0, a1, b1); push(a0, b1, b0);
+    }
+  }
+  const bot = rings[0], top = rings[rings.length - 1];
+  if (hr > 0.05) {
+    const hb = holeFor(bot.p), ht = holeFor(top.p);
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % m;
+      // hole wall, normals inward toward axis (outward from solid)
+      const a0 = [hb[i][0], hb[i][1], bot.z], a1 = [hb[j][0], hb[j][1], bot.z], b0 = [ht[i][0], ht[i][1], top.z], b1 = [ht[j][0], ht[j][1], top.z];
+      push(a0, b1, a1); push(a0, b0, b1);
+      // bottom annulus (normal -z)
+      const o0 = [bot.p[i][0], bot.p[i][1], bot.z], o1 = [bot.p[j][0], bot.p[j][1], bot.z];
+      push(o0, a1, o1); push(o0, a0, a1);
+      // top annulus (normal +z)
+      const u0 = [top.p[i][0], top.p[i][1], top.z], u1 = [top.p[j][0], top.p[j][1], top.z];
+      push(u0, u1, b1); push(u0, b1, b0);
+    }
+  } else {
+    const cb0 = centroid(bot.p), ct0 = centroid(top.p);
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % m;
+      push([cb0[0], cb0[1], bot.z], [bot.p[j][0], bot.p[j][1], bot.z], [bot.p[i][0], bot.p[i][1], bot.z]);
+    }
+    if (!d.engrave || !engraveCap(top.p, top.z, d.engrave, T))
+      for (let i = 0; i < m; i++) { const j = (i + 1) % m; push([ct0[0], ct0[1], top.z], [top.p[i][0], top.p[i][1], top.z], [top.p[j][0], top.p[j][1], top.z]); }
+  }
+  return T;
+}
+
+function buildModel(sections, n, zStart) {
+  // sections stacked along +Z, each a closed shell; overlap 0.2 mm so slicers union them cleanly
+  let z = zStart || 0; const all = [];
+  for (let i = 0; i < sections.length; i++) {
+    const s = Object.assign({}, sections[i]);
+    s.chamferBottom = i === 0; s.chamferTop = i === sections.length - 1;
+    const ov = i > 0 ? 0.2 : 0;
+    const T = buildSection(Object.assign({}, s, { L: s.L + ov }), n, z - ov);
+    if (!T) return null;
+    for (const v of T) all.push(v);
+    z += s.L;
+  }
+  return new Float32Array(all);
+}
+
+function layFlat(tris, liftZ) {
+  // rotate so Y (thickness) becomes Z, lift so bottom sits at z=0. Reflection, so reverse winding.
+  const out = new Float32Array(tris.length);
+  for (let i = 0; i < tris.length; i += 3) { out[i] = tris[i]; out[i + 1] = tris[i + 2]; out[i + 2] = tris[i + 1] + liftZ; }
+  for (let i = 0; i < out.length; i += 9) for (let k = 0; k < 3; k++) { const t = out[i + 3 + k]; out[i + 3 + k] = out[i + 6 + k]; out[i + 6 + k] = t; }
+  return out;
+}
+
+function toSTL(tris, name) {
+  const n = tris.length / 9; const buf = new ArrayBuffer(84 + 50 * n); const dv = new DataView(buf);
+  const hdr = new TextEncoder().encode(name.slice(0, 79)); new Uint8Array(buf, 0, 80).set(hdr);
+  dv.setUint32(80, n, true); let o = 84;
+  for (let i = 0; i < tris.length; i += 9) {
+    const ax = tris[i], ay = tris[i + 1], az = tris[i + 2], bx = tris[i + 3], by = tris[i + 4], bz = tris[i + 5], cx = tris[i + 6], cy = tris[i + 7], cz = tris[i + 8];
+    const ux = bx - ax, uy = by - ay, uz = bz - az, vx = cx - ax, vy = cy - ay, vz = cz - az;
+    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx; const l = Math.hypot(nx, ny, nz) || 1;
+    dv.setFloat32(o, nx / l, true); dv.setFloat32(o + 4, ny / l, true); dv.setFloat32(o + 8, nz / l, true); o += 12;
+    for (let k = 0; k < 9; k++) { dv.setFloat32(o, tris[i + k], true); o += 4; }
+    dv.setUint16(o, 0, true); o += 2;
+  }
+  return buf;
+}
+
+// mesh checks, used by the test harness and shown in the tool's "verify" card
+function meshStats(tris) {
+  const key = v => v[0].toFixed(4) + ',' + v[1].toFixed(4) + ',' + v[2].toFixed(4);
+  const edges = new Map(); let vol = 0;
+  for (let i = 0; i < tris.length; i += 9) {
+    const a = [tris[i], tris[i + 1], tris[i + 2]], b = [tris[i + 3], tris[i + 4], tris[i + 5]], c = [tris[i + 6], tris[i + 7], tris[i + 8]];
+    vol += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6;
+    for (const [p, q] of [[a, b], [b, c], [c, a]]) { const k = key(p) + '|' + key(q); edges.set(k, (edges.get(k) || 0) + 1); }
+  }
+  let bad = 0;
+  for (const [k, cnt] of edges) { const [p, q] = k.split('|'); const rev = edges.get(q + '|' + p) || 0; if (cnt !== 1 || rev !== 1) bad++; }
+  return { triangles: tris.length / 9, volume_mm3: vol, openEdges: bad };
+}
+
+function toSCAD(sections) {
+  const f = v => (v / 25.4).toFixed(4);
+  let out = `// Coil mandrel, generated by Coil Mandrel Maker. Units mm; edit the inch values.\n$fn = 128;\nin = 25.4;\n\n`;
+  out += `module prof(shape, W, T, R, ins=0) {\n    if (shape == "oval") scale([(W-2*ins)/2, (T-2*ins)/2]) circle(r=1);\n    else if (shape == "teardrop") hull() { translate([-W/2+T/2,0]) circle(r=T/2-ins); translate([W/2-R,0]) circle(r=max(R-ins,0.01)); }\n    else { r = max(min(R-ins, min(W-2*ins, T-2*ins)/2), 0.001);\n        hull() for (sx=[-1,1], sy=[-1,1]) translate([sx*((W-2*ins)/2 - r), sy*((T-2*ins)/2 - r)]) circle(r=r); }\n}\n`;
+  out += `module section(shape, W, T, R, L, taper=0, c0=0, c1=0) {\n    hull() {\n        linear_extrude(0.01) prof(shape, W, T, R, c0);\n        if (c0 > 0) translate([0,0,c0]) linear_extrude(0.01) prof(shape, W, T, R, 0);\n        if (c1 > 0) translate([0,0,L-c1]) linear_extrude(0.01) prof(shape, W, T, R, taper);\n        translate([0,0,L-0.01]) linear_extrude(0.01) prof(shape, W, T, R, taper + c1);\n    }\n}\n\n`;
+  let z = 0; const hole = sections[0].hole || 0; let body = '';
+  sections.forEach((s, i) => {
+    const c = s.chamfer || 0;
+    body += `    translate([0,0,${f(z)}*in]) section("${s.shape}", ${f(s.w)}*in, ${f(s.t)}*in, ${f(s.shape==='teardrop'?s.r1:s.r)}*in, ${f(s.L)}*in, ${f(s.taper || 0)}*in, ${i === 0 ? f(c) : 0}*in, ${i === sections.length - 1 ? f(c) : 0}*in); // ${s.shape} ${f(s.w)} x ${f(s.t)} x ${f(s.L)} in\n`;
+    z += s.L;
+  });
+  out += `difference() {\n    union() {\n${body}    }\n    if (${f(hole)} > 0) translate([0,0,-1]) cylinder(d=${f(hole)}*in, h=${f(z)}*in + 2);\n}\n`;
+  return out;
+}
+
+// ---- surface of revolution (bend die, washers) ----
+function revolve(poly, N) {
+  // poly: closed CCW polygon of [r,z] with r>0 everywhere. Revolved about Z into a closed shell.
+  const T = [];
+  const push = (a, b, c) => T.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+  const P = (r, z, k) => { const a = 2 * Math.PI * (k % N) / N; return [r * Math.cos(a), r * Math.sin(a), z]; };
+  const m = poly.length;
+  for (let k = 0; k < N; k++) {
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % m;
+      const a0 = P(poly[i][0], poly[i][1], k), a1 = P(poly[j][0], poly[j][1], k), b0 = P(poly[i][0], poly[i][1], k + 1), b1 = P(poly[j][0], poly[j][1], k + 1);
+      // CCW polygon in (r,z) with r to the right: outward normal of edge i->j points to the right of travel in the r-z plane.
+      push(a0, b0, b1); push(a0, b1, a1);
+    }
+  }
+  return new Float32Array(T);
+}
+function bendDiePoly(clr, od, hole, flange) {
+  // clr: tube centerline bend radius, od: tube OD, hole: center bolt hole dia, flange: material above/below groove
+  const g = od / 2 * 1.04, h = hole / 2, H = 2 * g + 2 * flange;
+  const pts = [[h, 0], [clr, 0], [clr, H / 2 - g]];
+  const n = 16;
+  for (let i = 1; i < n; i++) { const a = -Math.PI / 2 + Math.PI * i / n; pts.push([clr - g * Math.cos(a), H / 2 + g * Math.sin(a)]); }
+  pts.push([clr, H / 2 + g], [clr, H], [h, H]);
+  return { poly: pts, H };
+}
+function extrudeRibbon(outer, inner, z0, z1) {
+  // closed ribbon between two same-length polylines (outer traversed forward, inner backward), extruded z0..z1.
+  // z0/z1 may be numbers or functions of an [x,y] point (sloped floor, e.g. a cone).
+  // Loop orientation must be CCW in XY for outward normals; caller guarantees (spiral grows CCW).
+  const f0 = typeof z0 === 'function' ? z0 : () => z0, f1 = typeof z1 === 'function' ? z1 : () => z1;
+  const N = outer.length; const loop = outer.concat(inner.slice().reverse()); const m = loop.length;
+  const T = []; const push = (a, b, c) => T.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+  const lo = p => [p[0], p[1], f0(p)], hi = p => [p[0], p[1], f1(p)];
+  for (let i = 0; i < m; i++) {
+    const j = (i + 1) % m; const a0 = lo(loop[i]), a1 = lo(loop[j]), b0 = hi(loop[i]), b1 = hi(loop[j]);
+    push(a0, a1, b1); push(a0, b1, b0);
+  }
+  for (let i = 0; i < N - 1; i++) {
+    const o0 = outer[i], o1 = outer[i + 1], n0 = inner[i], n1 = inner[i + 1];
+    push(hi(o0), hi(o1), hi(n1)); push(hi(o0), hi(n1), hi(n0));
+    push(lo(o0), lo(n1), lo(o1)); push(lo(o0), lo(n0), lo(n1));
+  }
+  return new Float32Array(T);
+}
+function conePoly(holeR, postR, postH, outerR, edgeT, tanA, wall) {
+  // CCW (r,z) polygon: flat bottom, vertical rim of height edgeT, cone face rising inward at tanA to the post, post of height postH, center hole.
+  // wall > 0 hollows the underside to a shell of that thickness, keeping a solid column of radius postR+wall around the hole and a full rim ring.
+  const topR = edgeT + (outerR - postR) * tanA;
+  const surface = r => edgeT + (outerR - Math.min(Math.max(r, postR), outerR)) * tanA;
+  let poly;
+  const cosA = 1 / Math.sqrt(1 + tanA * tanA);
+  const colR = postR + (wall || 0), rimR = outerR - (wall || 0);
+  if (wall > 0 && rimR > colR + 2) {
+    const zin = r => Math.max(surface(r) - wall / cosA, 0.6);
+    if (zin(rimR) >= 0.6 && zin(colR) > zin(rimR) - 1e-9 + 0) {
+      poly = [[holeR, 0], [colR, 0], [colR, zin(colR)], [rimR, zin(rimR)], [rimR, 0], [outerR, 0], [outerR, edgeT], [postR, topR], [postR, topR + postH], [holeR, topR + postH]];
+    }
+  }
+  if (!poly) poly = [[holeR, 0], [outerR, 0], [outerR, edgeT], [postR, topR], [postR, topR + postH], [holeR, topR + postH]];
+  return { poly, surface, topR, hollow: poly.length > 6 };
+}
+function spiralRib(postR, cw, pitch, turns, segPerTurn, leadIn, stepT) {
+  // Archimedean rib walls: inner radius postR+cw+pitch*t, thickness pitch-cw, t = theta/2pi from 0..turns.
+  // leadIn: extend the rib backward one turn (t from -1 to 0) with its inner edge clamped to the post face, filling the
+  // wedge between the post and the first turn. The channel stays open at full width from stepT (<=0) to 0 so the inner
+  // lead can arc up out of it; at stepT the inner edge steps in to the post face.
+  const ribT = pitch - cw; const outer = [], inner = [], tube = [];
+  const t0 = leadIn ? -1 : 0; const N = Math.round(segPerTurn * (turns - t0)) + 1;
+  stepT = leadIn ? Math.min(0, stepT || 0) : 0;
+  const pt = (r, a) => [r * Math.cos(a), r * Math.sin(a)];
+  let inserted = !leadIn;
+  for (let k = 0; k < N; k++) {
+    const t = t0 + (turns - t0) * k / (N - 1), a = 2 * Math.PI * t;
+    const riRaw = postR + cw + pitch * t; let ro = Math.max(riRaw + ribT, postR + 0.8);
+    if (leadIn && !inserted && t >= stepT) { // step: post face -> channel wall, over one sample
+      const as = 2 * Math.PI * stepT; inner.push(pt(postR + cw, as)); outer.push(pt(Math.max(postR + pitch + pitch * stepT, postR + cw + 0.8), as));
+      inserted = true; if (t === stepT) continue;
+    }
+    let ri;
+    if (t < stepT) ri = postR - 0.5;
+    else if (t < 0) { ri = postR + cw; ro = Math.max(ro, ri + 0.8); }
+    else ri = riRaw;
+    inner.push(pt(ri, a)); outer.push(pt(ro, a));
+    if (t >= 0) tube.push(pt(postR + cw / 2 + pitch * t, a));
+  }
+  let len = 0; for (let k = 1; k < tube.length; k++) len += Math.hypot(tube[k][0] - tube[k - 1][0], tube[k][1] - tube[k - 1][1]);
+  return { outer, inner, tubePath: tube, ribT, tubeLen: len, outerR: Math.hypot(outer[outer.length - 1][0], outer[outer.length - 1][1]), leadStart: tube[0], stepT };
+}
+function translateTris(tris, dx, dy, dz) { const o = new Float32Array(tris.length); for (let i = 0; i < tris.length; i += 3) { o[i] = tris[i] + dx; o[i + 1] = tris[i + 1] + dy; o[i + 2] = tris[i + 2] + dz; } return o; }
+function concatTris(list) { let n = 0; for (const t of list) n += t.length; const o = new Float32Array(n); let p = 0; for (const t of list) { o.set(t, p); p += t.length; } return o; }
+function leadClearance(Rb, ribH, od) {
+  // horizontal run from the channel start until the tube bottom (centerline arc of radius Rb) clears the rib height
+  const hNeed = ribH + od / 2; if (Rb <= hNeed) return Rb;
+  return Math.sqrt(Rb * Rb - (Rb - hNeed) * (Rb - hNeed));
+}
+
+function racetrackRib(st, d, cw, pitch, turns, segPerTurn, leadIn, stepT) {
+  // Racetrack (stadium) spiral rib around a pill post st long (straight) x d wide. Offset o from the post outline grows
+  // pitch per turn. Same lead-in / lead-out logic as spiralRib: inner edge clamped to the post for t<stepT, open channel
+  // for stepT<=t<0, spiral from t=0. Points run CCW starting at the right end (s=0 is the middle of the right arc).
+  const ribT = pitch - cw; const t0 = leadIn ? -1 : 0; stepT = leadIn ? Math.min(0, stepT || 0) : 0;
+  const N = Math.round(segPerTurn * (turns - t0)) + 1;
+  const P = (o, s) => { // point at offset o from the post outline, s in [0,1) around the turn
+    const R = d / 2 + o, f = (s % 1 + 1) % 1;
+    if (f < .25) { const a = -Math.PI / 2 + Math.PI * (f / .25); return [st / 2 + R * Math.cos(a), R * Math.sin(a)]; }
+    if (f < .5) { const u = (f - .25) / .25; return [st / 2 - st * u, R]; }
+    if (f < .75) { const a = Math.PI / 2 + Math.PI * ((f - .5) / .25); return [-st / 2 + R * Math.cos(a), R * Math.sin(a)]; }
+    const u = (f - .75) / .25; return [-st / 2 + st * u, -R];
+  };
+  // offset growth happens only through the two arcs (half a pitch each), so the straights stay parallel to the post
+  const grow = t => { const n = Math.floor(t), f = t - n; let g; if (f < .25) g = .5 * f / .25; else if (f < .5) g = .5; else if (f < .75) g = .5 + .5 * (f - .5) / .25; else g = 1; return pitch * (n + g); };
+  const outer = [], inner = [], tube = []; let inserted = !leadIn;
+  for (let k = 0; k < N; k++) {
+    const t = t0 + (turns - t0) * k / (N - 1);
+    const oiRaw = cw + grow(t); let oo = Math.max(oiRaw + ribT, 0.8);
+    if (leadIn && !inserted && t >= stepT) { inner.push(P(cw, stepT)); outer.push(P(Math.max(pitch + grow(stepT), cw + 0.8), stepT)); inserted = true; if (t === stepT) continue; }
+    let oi; if (t < stepT) oi = -0.5; else if (t < 0) { oi = cw; oo = Math.max(oo, oi + 0.8); } else oi = oiRaw;
+    inner.push(P(oi, t)); outer.push(P(oo, t));
+    if (t >= 0) tube.push(P(cw / 2 + grow(t), t));
+  }
+  let len = 0; for (let k = 1; k < tube.length; k++) len += Math.hypot(tube[k][0] - tube[k - 1][0], tube[k][1] - tube[k - 1][1]);
+  const oMax = pitch + pitch * turns; // outer edge of the rib after the last turn
+  return { outer, inner, tubePath: tube, ribT, tubeLen: len, oMax, leadStart: tube[0], stepT };
+}
+function pillOffset(p, st, d) { // signed distance from point p to the outline of a pill st long x d wide, centered
+  const x = Math.min(Math.max(p[0], -st / 2), st / 2); return Math.hypot(p[0] - x, p[1]) - d / 2;
+}
+
+function buildPillAnnulus(W, T, rings, n, z0) {
+  // Stadium shell: rings = [{z, outerInset, innerInset}] bottom to top. Outer pill W-2*oi x T-2*oi, inner pill W-2*ii x T-2*ii.
+  // Open at the top? No: closed solid between outer and inner at every ring, bottom cap is an annulus, top cap is an annulus.
+  // Used for a hollow underside: stack a normal solid section on top (overlapping) to close the void ceiling.
+  z0 = z0 || 0; const d = { shape: 'pill', w: W, t: T, r: T / 2 };
+  const R = rings.map(r => ({ z: r.z + z0, o: profile(d, r.outerInset, n, true), i: profile(d, r.innerInset, n, true) }));
+  if (R.some(r => !r.o || !r.i || r.o.length !== r.i.length)) return null;
+  const m = R[0].o.length; const Tr = [];
+  const push = (a, b, c) => Tr.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+  for (let k = 0; k < R.length - 1; k++) {
+    const A = R[k], B = R[k + 1];
+    for (let q = 0; q < m; q++) {
+      const j = (q + 1) % m;
+      // outer wall, outward normals (CCW ring)
+      push([A.o[q][0], A.o[q][1], A.z], [A.o[j][0], A.o[j][1], A.z], [B.o[j][0], B.o[j][1], B.z]); push([A.o[q][0], A.o[q][1], A.z], [B.o[j][0], B.o[j][1], B.z], [B.o[q][0], B.o[q][1], B.z]);
+      // inner wall, normals toward the void (reverse winding)
+      push([A.i[q][0], A.i[q][1], A.z], [B.i[j][0], B.i[j][1], B.z], [A.i[j][0], A.i[j][1], A.z]); push([A.i[q][0], A.i[q][1], A.z], [B.i[q][0], B.i[q][1], B.z], [B.i[j][0], B.i[j][1], B.z]);
+    }
+  }
+  const bot = R[0], top = R[R.length - 1];
+  for (let q = 0; q < m; q++) {
+    const j = (q + 1) % m;
+    // bottom annulus (-z): outer CCW seen from below is CW, so wind o[q], i[j], o[j]
+    push([bot.o[q][0], bot.o[q][1], bot.z], [bot.i[j][0], bot.i[j][1], bot.z], [bot.o[j][0], bot.o[j][1], bot.z]); push([bot.o[q][0], bot.o[q][1], bot.z], [bot.i[q][0], bot.i[q][1], bot.z], [bot.i[j][0], bot.i[j][1], bot.z]);
+    // top annulus (+z)
+    push([top.o[q][0], top.o[q][1], top.z], [top.o[j][0], top.o[j][1], top.z], [top.i[j][0], top.i[j][1], top.z]); push([top.o[q][0], top.o[q][1], top.z], [top.i[j][0], top.i[j][1], top.z], [top.i[q][0], top.i[q][1], top.z]);
+  }
+  return new Float32Array(Tr);
+}
+
+function helixRib(d, n, pitch, turns, ribT, ribH, zStart, zBase) {
+  // One continuous helical rib standing ribH proud of the section surface, ribT thick along z, following the outline.
+  // Rib centerline z = zStart + pitch*t, t in [0, turns]. Inner edge sunk 0.3 mm into the body so the shells overlap.
+  zBase = zBase || 0;
+  const per = n * 8; const N = Math.round(per * turns);
+  const T = []; const push = (a, b, c) => T.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+  const ringCache = new Map();
+  const ring = (inset) => { const k = inset.toFixed(4); if (!ringCache.has(k)) { const p = profile(d, inset, n); if (!p) return null; const m = p.length; const nx = [];
+      for (let i = 0; i < m; i++) { const a = p[(i - 1 + m) % m], b = p[(i + 1) % m]; let vx = b[0] - a[0], vy = b[1] - a[1]; const l = Math.hypot(vx, vy) || 1; nx.push([vy / l, -vx / l]); } // outward normal for CCW outline
+      ringCache.set(k, { p, nx }); } return ringCache.get(k); };
+  const sample = (r, f) => { const m = r.p.length; const x = f * m; const i = Math.floor(x) % m, j = (i + 1) % m, u = x - Math.floor(x);
+    const px = r.p[i][0] + (r.p[j][0] - r.p[i][0]) * u, py = r.p[i][1] + (r.p[j][1] - r.p[i][1]) * u, nxx = r.nx[i][0] + (r.nx[j][0] - r.nx[i][0]) * u, nyy = r.nx[i][1] + (r.nx[j][1] - r.nx[i][1]) * u; const l = Math.hypot(nxx, nyy) || 1;
+    return { p: [px, py], n: [nxx / l, nyy / l] }; };
+  const quads = [];
+  for (let k = 0; k <= N; k++) {
+    const t = k / per, f = t % 1; const zc = zStart + pitch * t;
+    const zl = zBase + zc - ribT / 2, zh = zBase + zc + ribT / 2;
+    const inset = (d.taper || 0) * (zc / d.L);
+    const r = ring(inset); if (!r) return null; const s = sample(r, f);
+    const a = [s.p[0] - s.n[0] * 0.3, s.p[1] - s.n[1] * 0.3], b = [s.p[0] + s.n[0] * ribH, s.p[1] + s.n[1] * ribH];
+    quads.push([[a[0], a[1], zl], [b[0], b[1], zl], [b[0], b[1], zh], [a[0], a[1], zh]]);
+  }
+  for (let k = 0; k < N; k++) { const A = quads[k], B = quads[k + 1];
+    for (let e = 0; e < 4; e++) { const i0 = e, i1 = (e + 1) % 4; push(A[i0], B[i0], B[i1]); push(A[i0], B[i1], A[i1]); } }
+  const F = quads[0], L = quads[N];
+  push(F[0], F[1], F[2]); push(F[0], F[2], F[3]); push(L[0], L[2], L[1]); push(L[0], L[3], L[2]);
+  return new Float32Array(T);
+}
+
+const FONT5x7 = {
+ 'A':['01110','10001','10001','11111','10001','10001','10001'],'B':['11110','10001','10001','11110','10001','10001','11110'],'C':['01111','10000','10000','10000','10000','10000','01111'],
+ 'D':['11110','10001','10001','10001','10001','10001','11110'],'E':['11111','10000','10000','11110','10000','10000','11111'],'F':['11111','10000','10000','11110','10000','10000','10000'],
+ 'G':['01111','10000','10000','10111','10001','10001','01111'],'H':['10001','10001','10001','11111','10001','10001','10001'],'I':['11111','00100','00100','00100','00100','00100','11111'],
+ 'J':['00001','00001','00001','00001','10001','10001','01110'],'K':['10001','10010','10100','11000','10100','10010','10001'],'L':['10000','10000','10000','10000','10000','10000','11111'],
+ 'M':['10001','11011','10101','10101','10001','10001','10001'],'N':['10001','11001','10101','10011','10001','10001','10001'],'O':['01110','10001','10001','10001','10001','10001','01110'],
+ 'P':['11110','10001','10001','11110','10000','10000','10000'],'Q':['01110','10001','10001','10001','10101','10010','01101'],'R':['11110','10001','10001','11110','10100','10010','10001'],
+ 'S':['01111','10000','10000','01110','00001','00001','11110'],'T':['11111','00100','00100','00100','00100','00100','00100'],'U':['10001','10001','10001','10001','10001','10001','01110'],
+ 'V':['10001','10001','10001','10001','10001','01010','00100'],'W':['10001','10001','10001','10101','10101','10101','01010'],'X':['10001','01010','00100','00100','00100','01010','10001'],
+ 'Y':['10001','01010','00100','00100','00100','00100','00100'],'Z':['11111','00001','00010','00100','01000','10000','11111'],
+ '0':['01110','10001','10011','10101','11001','10001','01110'],'1':['00100','01100','00100','00100','00100','00100','01110'],'2':['01110','10001','00001','00110','01000','10000','11111'],
+ '3':['11110','00001','00001','01110','00001','00001','11110'],'4':['00010','00110','01010','10010','11111','00010','00010'],'5':['11111','10000','11110','00001','00001','10001','01110'],
+ '6':['00110','01000','10000','11110','10001','10001','01110'],'7':['11111','00001','00010','00100','01000','01000','01000'],'8':['01110','10001','10001','01110','10001','10001','01110'],
+ '9':['01110','10001','10001','01111','00001','00010','01100'],'.':['00000','00000','00000','00000','00000','01100','01100'],'-':['00000','00000','00000','11111','00000','00000','00000'],
+ '/':['00001','00010','00010','00100','01000','01000','10000'],'"':['01010','01010','00000','00000','00000','00000','00000'],' ':['00000','00000','00000','00000','00000','00000','00000'],
+ 'x':['00000','00000','10001','01010','00100','01010','10001'],':':['00000','01100','01100','00000','01100','01100','00000']
+};
+function boxTris(x0, y0, z0, x1, y1, z1) {
+  const v = [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
+  const F = [[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[2,3,7],[2,7,6],[3,0,4],[3,4,7]];
+  const T = []; for (const f of F) for (const i of f) T.push(...v[i]); return T;
+}
+function textTris(lines, px, cx, cy, zFace, raise, mirrorX) {
+  // Raised pixel text (unused by the mandrel now, which engraves; kept for other parts).
+  // lines: array of strings; px: pixel size (mm); centered at (cx,cy) on a face at zFace, raised `raise` and sunk 0.3 into the face.
+  // mirrorX flips the text so it reads correctly when the face is viewed from -z.
+  const T = []; const rows = lines.length * 7 + (lines.length - 1) * 2; const totalH = rows * px;
+  lines.forEach((line, li) => {
+    const cols = line.length * 6 - 1; const w = cols * px; const x0 = cx - w / 2; const yTop = cy + totalH / 2 - li * 9 * px;
+    for (let r = 0; r < 7; r++) {
+      let run = -1; const y1 = yTop - r * px, y0 = y1 - px;
+      const rowBits = []; for (let ci = 0; ci < line.length; ci++) { const gl = FONT5x7[line[ci]] || FONT5x7[line[ci].toUpperCase()] || FONT5x7[' ']; for (let b = 0; b < 5; b++) rowBits.push(gl[r][b] === '1'); if (ci < line.length - 1) rowBits.push(false); }
+      for (let c = 0; c <= rowBits.length; c++) {
+        const on = c < rowBits.length && rowBits[c];
+        if (on && run < 0) run = c;
+        if (!on && run >= 0) { let xa = x0 + run * px, xb = x0 + c * px; if (mirrorX) { const ta = 2 * cx - xb, tb = 2 * cx - xa; xa = ta; xb = tb; } T.push(...boxTris(xa - 0.02, y0 - 0.02, zFace - 0.3, xb + 0.02, y1 + 0.02, zFace + raise)); run = -1; }
+      }
+    }
+  });
+  return new Float32Array(T);
+}
+const ENGRAVE_DEPTH = 0.6; // mm, three 0.2 mm layers
+function fitPad(lines, safe) { // one grid cell of margin around the text, at the size it would fit without it
+  const cols = Math.max(...lines.map(l => l.length * 6 - 1)), rows = lines.length * 7 + (lines.length - 1) * 2;
+  return Math.min(safe[0] / cols, safe[1] / rows);
+}
+function inPoly(poly, x, y) { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+function fitInPoly(lines, poly, minPx, margin) {
+  // biggest pixel size (and x offset) at which the padded text block sits inside the end face with `margin` to spare
+  const cols = Math.max(...lines.map(l => l.length * 6 - 1)) + 2, rows = lines.length * 7 + (lines.length - 1) * 2 + 2;
+  const xs = poly.map(p => p[0]), lo = Math.min(...xs), hi = Math.max(...xs);
+  const ok = (cx, px) => { const w = cols * px / 2 + margin, h = rows * px / 2 + margin; return [[cx - w, h], [cx + w, h], [cx + w, -h], [cx - w, -h]].every(([x, y]) => inPoly(poly, x, y)); };
+  let best = null;
+  for (let k = 0; k <= 40; k++) {
+    const cx = lo + (hi - lo) * k / 40; if (!ok(cx, minPx)) continue;
+    let a = minPx, b = 20; for (let it = 0; it < 30; it++) { const m = (a + b) / 2; if (ok(cx, m)) a = m; else b = m; }
+    if (!best || a > best.px + 1e-6 || (Math.abs(a - best.px) < 1e-6 && Math.abs(cx) < Math.abs(best.cx))) best = { px: a, cx };
+  }
+  return best && { lines, px: best.px, cx: best.cx };
+}
+function engraveCap(poly, z, eng, T) {
+  // Top cap with the text cut in. The text sits on a pixel grid padded by one cell; the cap outside
+  // the grid is triangulated with the grid edge as a hole, sharing every grid vertex so the shell stays closed.
+  const { lines, depth } = eng;
+  const maxCols = Math.max(...lines.map(l => l.length * 6 - 1)), rows = lines.length * 7 + (lines.length - 1) * 2;
+  const W0 = maxCols + 2, H0 = rows + 2;
+  const pix = Array.from({ length: H0 }, () => new Array(W0).fill(false));
+  lines.forEach((line, li) => {
+    const off = 1 + Math.round((maxCols - (line.length * 6 - 1)) / 2);
+    for (let r = 0; r < 7; r++) for (let ci = 0; ci < line.length; ci++) {
+      const gl = FONT5x7[line[ci]] || FONT5x7[line[ci].toUpperCase()] || FONT5x7[' '];
+      for (let b = 0; b < 5; b++) if (gl[r][b] === '1') pix[1 + li * 9 + r][off + ci * 6 + b] = true;
+    }
+  });
+  // Work on a half-pixel grid. Where two pixels touch only at a corner (the diagonals in K, N, W),
+  // fill one quarter pixel so the pocket doesn't pinch to a single edge, which slicers read as a bad mesh.
+  const W = 2 * W0, H = 2 * H0, px = eng.px / 2, X0 = (eng.cx || 0) - W * px / 2, Y0 = H * px / 2;
+  // the text block has to sit inside the end face or the cap can't be built; say so and leave the face plain
+  const inside = (x, y) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const X1 = X0 + W * px;
+  if (![[X0, Y0], [X1, Y0], [X1, -Y0], [X0, -Y0]].every(([x, y]) => inside(x, y))) { eng.skipped = true; return false; }
+  const cut = Array.from({ length: H }, (_, j) => Array.from({ length: W }, (_, i) => pix[j >> 1][i >> 1]));
+  for (let j = 1; j < H0; j++) for (let i = 1; i < W0; i++) {
+    const a = pix[j - 1][i - 1], b = pix[j - 1][i], c = pix[j][i - 1], d = pix[j][i];
+    if (a === d && b === c && a !== b) { if (a) cut[2 * j - 1][2 * i] = true; else cut[2 * j - 1][2 * i - 1] = true; }
+  }
+  const gx = i => X0 + i * px, gy = j => Y0 - j * px, zf = z - depth;
+  const tri = (a, b, c, nrm) => { // push with the winding that faces nrm
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    if (n[0] * nrm[0] + n[1] * nrm[1] + n[2] * nrm[2] < 0) T.push(...a, ...c, ...b); else T.push(...a, ...b, ...c);
+  };
+  const quad = (a, b, c, d, nrm) => { tri(a, b, c, nrm); tri(a, c, d, nrm); };
+  const UP = [0, 0, 1];
+  // cap outside the grid
+  const ring = [];
+  for (let i = 0; i < W; i++) ring.push({ x: gx(i), y: gy(0) });
+  for (let j = 0; j < H; j++) ring.push({ x: gx(W), y: gy(j) });
+  for (let i = W; i > 0; i--) ring.push({ x: gx(i), y: gy(H) });
+  for (let j = H; j > 0; j--) ring.push({ x: gx(0), y: gy(j) });
+  // Both outlines are convex around the block center, so stitch them by angle like lofting two rings.
+  // (Earcut drops triangles on long straight box edges, which left holes in the cap.)
+  const tau = 2 * Math.PI, cx0 = (X0 + X1) / 2, ang = q => (Math.atan2(q[1], q[0] - cx0) + tau) % tau;
+  const order = pts => { let a = pts.map(q => [q.x, q.y]); let ar = 0; for (let i = 0; i < a.length; i++) { const u = a[i], v = a[(i + 1) % a.length]; ar += u[0] * v[1] - v[0] * u[1]; }
+    if (ar < 0) a.reverse(); let k = 0; for (let i = 1; i < a.length; i++) if (ang(a[i]) < ang(a[k])) k = i; return a.slice(k).concat(a.slice(0, k)); };
+  const O = order(poly.map(([x, y]) => ({ x, y }))), Rg = order(ring);
+  const aO = O.map(ang), aR = Rg.map(ang);
+  // Walk both rings together. Each step adds a triangle on the outer edge or on the grid edge, whichever
+  // stays clear of the text block; the angle only breaks ties. This keeps tight fits (small teardrops) valid.
+  const area2 = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]);
+  const span = Math.max(X1 - X0, 2 * Y0), eps = 1e-9 * span * span, nO = O.length, nR = Rg.length;
+  const sees = (p, k) => area2(Rg[(k - 1 + nR) % nR], Rg[k % nR], p) < -eps || area2(Rg[k % nR], Rg[(k + 1) % nR], p) < -eps;
+  const capTris = []; let i = 0, j = 0;
+  while (i < nO || j < nR) {
+    const o = O[i % nO], o2 = O[(i + 1) % nO], r = Rg[j % nR], r2 = Rg[(j + 1) % nR];
+    const okA = i < nO && area2(o, o2, r) > eps && sees(o2, j);
+    const okB = j < nR && area2(o, r2, r) > eps;
+    if (!okA && !okB) { eng.skipped = true; return false; }
+    const angA = i + 1 < nO ? aO[i + 1] : tau + aO[0], angB = j + 1 < nR ? aR[j + 1] : tau + aR[0];
+    if (okA && (!okB || angA <= angB)) { capTris.push([o, o2, r]); i++; } else { capTris.push([o, r2, r]); j++; }
+  }
+  for (const [a, b, c] of capTris) tri([a[0], a[1], z], [b[0], b[1], z], [c[0], c[1], z], UP);
+  // grid cells: face at the top or at the floor
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const zz = cut[j][i] ? zf : z;
+    quad([gx(i), gy(j), zz], [gx(i + 1), gy(j), zz], [gx(i + 1), gy(j + 1), zz], [gx(i), gy(j + 1), zz], UP);
+  }
+  // walls where a cut cell meets an uncut one, facing into the cut
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    if (i + 1 < W && cut[j][i] !== cut[j][i + 1]) {
+      const x = gx(i + 1), nrm = cut[j][i] ? [-1, 0, 0] : [1, 0, 0];
+      quad([x, gy(j), zf], [x, gy(j + 1), zf], [x, gy(j + 1), z], [x, gy(j), z], nrm);
+    }
+    if (j + 1 < H && cut[j][i] !== cut[j + 1][i]) {
+      const y = gy(j + 1), nrm = cut[j][i] ? [0, 1, 0] : [0, -1, 0];
+      quad([gx(i), y, zf], [gx(i + 1), y, zf], [gx(i + 1), y, z], [gx(i), y, z], nrm);
+    }
+  }
+  return true;
+}
+function fitText(lines, availW, availH, minPx) {
+  // returns px that fits all lines, or drops trailing lines until something fits; null if even line 1 fails
+  for (let n = lines.length; n >= 1; n--) {
+    const ls = lines.slice(0, n); const cols = Math.max(...ls.map(l => l.length * 6 - 1)); const rows = n * 7 + (n - 1) * 2;
+    const px = Math.min(availW / cols, availH / rows); if (px >= minPx) return { lines: ls, px };
+  }
+  return null;
+}
+function spiralLength(innerD, od, gap, turns, straight) {
+  // flat spiral (pancake); straight>0 makes a racetrack spiral (taco blank). Returns {len, outerW, outerT}
+  const pitch = od + gap; let len = 0;
+  // each turn's mean diameter is at the middle of that turn (k + 0.5), matching the continuous spiral integral
+  for (let k = 0; k < turns; k++) { const D = innerD + od + 2 * (k + 0.5) * pitch; len += Math.PI * D + 2 * (straight || 0); }
+  const outer = innerD + 2 * turns * pitch;
+  return { len, outerW: outer + (straight || 0), outerT: outer };
+}
+
+if (false) module.exports = { textTris, fitText, boxTris, FONT5x7, helixRib, buildPillAnnulus, racetrackRib, pillOffset, translateTris, concatTris, leadClearance, conePoly, extrudeRibbon, spiralRib, clipX, resample, centroid, revolve, bendDiePoly, spiralLength, profile, perimeter, area, buildSection, buildModel, layFlat, toSTL, meshStats, toSCAD };
+
+</script>
+<script>
+const IN=25.4;
+// ---------- Coil physics: inductance and field of round loops (estimates, not measurements) ----------
+// Every turn is treated as a round loop on the coil axis. Non-round turns use the round loop with the same area.
+const MU0=4e-7*Math.PI;
+function ellipKE(k){ // complete elliptic integrals K(k), E(k) by the arithmetic-geometric mean
+  k=Math.min(Math.max(k,0),1-1e-12);let a=1,b=Math.sqrt(1-k*k),c=k,s=0.5*k*k,p=1;
+  for(let i=0;i<40&&Math.abs(c)>1e-15;i++){const an=(a+b)/2,bn=Math.sqrt(a*b);c=(a-b)/2;s+=p*c*c;p*=2;a=an;b=bn;}
+  const K=Math.PI/(2*a);return [K,K*(1-s)];}
+function loopMutual(a,b,d){ // mm in, henries out (Maxwell, coaxial loops)
+  const k2=4*a*b/((a+b)*(a+b)+d*d),k=Math.sqrt(k2);if(k<1e-4)return 0;const [K,E]=ellipKE(k);
+  return MU0*Math.sqrt(a*b)/1000*((2/k-k)*K-(2/k)*E);}
+function loopSelf(R,aw){return MU0*R/1000*(Math.log(8*R/aw)-2);} // high frequency, current on the tube skin
+function loopsL(loops,aw){let L=0;for(let i=0;i<loops.length;i++)for(let j=0;j<loops.length;j++)L+=i===j?loopSelf(loops[i][0],aw):loopMutual(loops[i][0],loops[j][0],Math.abs(loops[i][1]-loops[j][1]));return L;}
+function leadsL(len,aw){return len>0?MU0*len/1000/Math.PI*Math.log(25.4/aw):0;} // two parallel leads about 1" apart
+function loopB(a,z0,r,z){ // field of a 1 A loop (relative units), returns [Br,Bz]
+  const ar=Math.abs(r),zz=z-z0,q=(a+ar)*(a+ar)+zz*zz,k=Math.sqrt(4*a*ar/q),[K,E]=ellipKE(k),dd=(a-ar)*(a-ar)+zz*zz;if(dd<1e-9)return [0,0];
+  const sq=Math.sqrt(q),Bz=(K+(a*a-ar*ar-zz*zz)/dd*E)/sq;let Br=ar<1e-9?0:zz/(ar*sq)*(-K+(a*a+ar*ar+zz*zz)/dd*E);if(r<0)Br=-Br;return [Br,Bz];}
+function fieldAt(loops,r,z){let br=0,bz=0;for(const [a,z0] of loops){const [x,y]=loopB(a,z0,r,z);br+=x;bz+=y;}return [br,bz];}
+function helixLoops(D,turns,od,pitch,z0){const out=[];for(let i=0;i<turns;i++)out.push([D/2+od/2,z0+pitch*i]);return out;}
+function machineCheck(out){ // fills out.match and adds spec rows
+  if(!out.loops||!out.loops.length)return;
+  const od=mm('tube'),gap=mm('gap'),pitch=od+gap,aw=od/2,lead=mm('lead');
+  let loops=out.loops.slice();const serD=mm('serD'),serN=Math.max(0,Math.round(num('serN')));
+  if(serD>1&&serN>0){const top=Math.max(...loops.map(l=>l[1]));loops=loops.concat(helixLoops(serD,serN,od,pitch,top+25.4+pitch));}
+  const L=loopsL(loops,aw)+leadsL(lead,aw);
+  const refD=mm('refD'),refN=Math.max(1,Math.round(num('refN')));const Lref=loopsL(helixLoops(refD,refN,od,pitch,0),aw)+leadsL(lead,aw);
+  const fRef=Math.max(num('fRef'),1),fMin=num('fMin')||30,fMax=num('fMax')||80;const f=fRef*Math.sqrt(Lref/L);
+  let st='ok',msg='Inside the window. Should run.';
+  if(f<fMin){st='bad';msg='Below the window. Too much coil: expect over current or a fault. Take turns off or go smaller.';}
+  else if(f>fMax){st='bad';msg='Above the window. Too little coil: weak heat or a fault. Add a turn or go bigger.';}
+  else if(f<fMin*1.12){st='edge';msg='Near the low end. It may trip on big stock. One less turn gives margin.';}
+  else if(f>fMax*0.9){st='edge';msg='Near the high end. Heat may be weak.';}
+  out.match={L,Lref,ratio:L/Lref,f,fMin,fMax,st,msg,series:serD>1&&serN>0,loops};
+  if(out.specs)out.specs.push(['Inductance (est.)',`${(L*1e6).toFixed(2)} µH, ${(L/Lref).toFixed(1)}x your go-to coil${out.match.series?' (with the series section)':''}`],['Frequency (est.)',`about ${f.toFixed(0)} kHz, window ${fMin} to ${fMax}`]);
+}
+const S={type:'mandrel',units:'in',shapeA:'pill',shapeB:'round',clampEnds:'none',pkStyle:'channel',hmTemp:'hot',dieMode:'single'};
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id).value)||0;
+const mm=id=>id.startsWith('gg')?num(id):(S.units==='in'?num(id)*IN:num(id));
+const fmt=v=>S.units==='in'?(v/IN).toFixed(3).replace(/\.?0+$/,'')+'"':v.toFixed(1)+' mm';
+const fmtLen=v=>S.units==='in'?(v/IN/12).toFixed(1)+' ft ('+(v/IN).toFixed(1)+' in)':(v/1000).toFixed(2)+' m';
+const PRESETS={teardrop:[['3/4 R / 1/4 R, 2.5" long',2.5,1.5,.25],['1 R / 1/2 R, 3" long',3,2,.5],['2 x 1/2 R, 4" long',4,2,.5],['1.5 x 3/8 R, 3.5" long',3.5,3,.375],['1 x 3/8 R, 3" long',3,2,.375]],round:[['1"',1],['1.25"',1.25],['1.5"',1.5],['2"',2],['2.5"',2.5],['3"',3]],pill:[['2 x 3/4',2,.75],['3 x 3/4',3,.75],['1 x 2',2,1],['1 x 3',3,1]],box:[['1 x 2',2,1,.125],['1 x 3',3,1,.125]],oval:[['1 x 2',2,1],['1.5 x 3',3,1.5]]};
+const REFS={
+ gauge:[['round','Slide the gauge between the bar and the coil. The 5 mm rule is about coupling: field strength drops fast with gap, and too much gap is also what makes the machine beep on a lightly loaded coil.']],
+ mandrel:[['round','Round. Leads leave tangent off the first and last turn, same side, then jog parallel to about 1" apart for the flare nuts. Turns spaced open, about a tube width.'],['box','Box. Same lead scheme on a racetrack helix. The last-turn lead runs back across the coil length to sit beside the first.'],['blade','Blade edge. A long hairpin, not a wound coil. Bend die work, leads at one end.'],['combo','Combo. Round loop plus racetrack loop in line on one pair of leads. Two mandrels, one piece of tube, jog between.'],['crucible','Teardrop idea in one coil: slide small stock to the narrow end, big stock to the wide end. Expect the small end to couple tighter and heat faster.']],
+ pancake:[['pancake','Pancake. Both leads drop straight out of the plane, inner one through the center, then jog parallel. Note the side view: it stays arched, cone-wound and only partly flattened.']],
+ taco:[['taco','Taco. A racetrack pancake folded into a U. Fold at the bottom, both leads out the open top, stock slides in lengthwise or through the back.']],
+ die:[['adapters','1/4" flare adapters. Every coil ends in two parallel leads with flare nuts at this spacing. The tangent exit plus the jog to parallel is the bend that kinks.'],['crucible','Crucible. Tall helix with a slight taper, leads at the bottom. Same tangent-and-jog exit.']]};
+function renderRefs(){const list=REFS[S.type]||[];$('refCard').style.display=list.length?'':'none';
+  $('refBody').innerHTML=list.map(([k,cap])=>`<div style="flex:1 1 220px;max-width:340px"><div class="sub">${cap}</div></div>`).join('');}
+const NOTES={mandrel:'Coil ID equals the mandrel size, so size it at stock plus about 3/8" (5 mm a side). Add a clamp block to hold it in a vise, or split it for easy coil removal. For a combo coil, make one mandrel per section, wind each, and add the two tube lengths plus 4 to 6" for the jog between them.',
+ combo:'Two sections on one axis, wound from one piece of tube, like a round + oval combo coil. Different thicknesses export standing up.',
+ pancake:'Cone jig with the spiral channel printed in. Spacing is set in plan view, which is what survives pressing it flat. Inner lead drops through the center hole. Wind counterclockwise from the post outward, then press flat on the bench.',
+ taco:'Two parts. Racetrack channel on a stadium cone, same idea as the pancake jig. Wind the blank in the channel, press flat, fold it in half around the bar. The fold gap is the taco size.',
+ gauge:'Printed feeler to check the stock-to-coil gap. 5 mm a side is the rule of thumb the smiths use. Gauge values are always in mm.',
+ cup:'Cup coil for hammer faces: side turns around the head plus a flat spiral across the bottom, so the face and the sides heat together. Wind the end spiral on the ribbed end first, from the center out, roll over the rim, then wind the side turns. Set the face on a ceramic fiber pad on the end turns so it keeps the gap and never touches the copper.',
+ die:'Grooved die on a center bolt. Add the tube lock and the swing arm with roller if you want a full lever bender, or stack several radii into one tiered die and flip the tube to the one you need. Fill the tube with salt or sand for radii under 1".'};
+
+function sec(k){ // k = 'A' | 'B'
+  const shape=S['shape'+k];let w=mm('w'+k),t=mm('t'+k),r=mm('r'+k),r1=0;
+  if(shape==='round'){t=w;r=w/2;} if(shape==='pill'){r=t/2;} if(shape==='oval'){r=0;}
+  if(shape==='teardrop'){ // w = overall length, t = big end diameter (field holds big-end RADIUS), r field = small end radius
+    const R=Math.max(mm('t'+k),0.5);r1=Math.min(Math.max(mm('r'+k),0.5),R);t=2*R;w=Math.max(w,R+r1+(R-r1)+1);r=r1;
+    return {shape,w,t,r,r1,L:Math.max(mm('L'+k),0.5)};}
+  t=Math.max(t,0.5);w=Math.max(w,t);if(shape==='box')r=Math.min(Math.max(r,0),t/2);
+  return {shape,w,t,r,L:Math.max(mm('L'+k),0.5)};
+}
+function model(){
+  // returns {parts:[{name,tris,flatLift}], scad, dims:{}, coil:{}}
+  const n=Math.max(6,Math.round(num('res')));
+  const od=mm('tube'),gap=mm('gap'),lead=mm('lead'),turns=Math.max(1,Math.round(num('turns'))),turnsB=Math.max(1,Math.round(num('turnsB')));
+  const hole=mm('hole'),chamfer=mm('chamfer'),taper=mm('taper');
+  const out={parts:[],coil:{},dims:{}};
+  if(S.type==='mandrel'||S.type==='combo'){
+    const A=Object.assign(sec('A'),{hole,chamfer,taper:S.type==='mandrel'?taper:0});
+    const secs=[A];
+    if(S.type==='combo'){secs.push(Object.assign(sec('B'),{hole,chamfer}));}
+    // clamp blocks
+    const cw=mm('clampW'),ctIn=mm('clampT'),cl=mm('clampL');
+    const ct=ctIn>0.1?ctIn:Math.max(...secs.map(s=>s.t));
+    const mk=()=>({shape:'box',w:Math.max(cw,1),t:ct,r:0.5,L:Math.max(cl,1),hole,chamfer});
+    const before=S.clampEnds!=='none'?[mk()]:[],after=S.clampEnds==='both'?[mk()]:[];
+    const all=[...before,...secs,...after];
+    const allT=Math.max(...all.map(s=>s.t));const sameT=all.every(s=>Math.abs(s.t-allT)<0.01);
+    const base=S.type+'_'+secs.map(s=>s.shape+'_'+fn(s.w)+'x'+fn(s.t)+'x'+fn(s.L)).join('_plus_')+(before.length?'_clamp':'');
+    const zA=before.length?before[0].L:0;
+    let doSplit=S.type==='mandrel'&&$('split').checked;
+    if(doSplit&&A.w-2*A.r-0.5<od){doSplit=false;out.warn='Section has no straight run wide enough for a slab, split skipped. Use a pill, box or teardrop.';}
+    if(doSplit){
+      const sw=Math.min(Math.max(mm('slabW'),od),A.w-2*A.r-0.5);let tp=Math.max(mm('slabTaper'),0);
+      if(S.clampEnds==='both'){tp=0;out.warn='Both ends clamped: slab can\'t slide, taper set to 0. Use one clamp block for a removable center.';}
+      const w0=sw,w1=sw+2*tp; // wider at the far (free) end; clamp block is at z=0
+      const slab=buildModel([...before,Object.assign({},A,{split:{side:0,w0,w1}}),...after],n);
+      const left=buildModel([Object.assign({},A,{split:{side:-1,w0,w1},hole:0})],n,zA);
+      const right=buildModel([Object.assign({},A,{split:{side:1,w0,w1},hole:0})],n,zA);
+      if(!slab||!left||!right)return null;
+      out.parts.push({name:base+'_slab',tris:slab,flatLift:sameT?allT/2:null,sections:all,explode:0});
+      out.parts.push({name:base+'_shell_L',tris:left,flatLift:A.t/2,sections:[A],explode:-4,zBase:zA});
+      out.parts.push({name:base+'_shell_R',tris:right,flatLift:A.t/2,sections:[A],explode:4,zBase:zA});
+      out.split={sw,tp};
+    } else {
+      const extras=[];let raceInfo='none',stampInfo='none';
+      // stamp cut into the top end face of the last section (print that end face down)
+      if($('stampOn').checked){
+        const last=all[all.length-1];
+        const safe=last.shape==='round'||last.shape==='oval'?[last.w/Math.SQRT2-3,last.t/Math.SQRT2-3]:[last.w-3-0.3*last.t,last.t-3];
+        const topInset=(last.taper?last.taper:0)+(chamfer>0.01?chamfer:0);safe[0]-=2*topInset;safe[1]-=2*topInset;
+        const dimTxt=S.units==='in'?(v=>(v/IN).toFixed(3).replace(/\.?0+$/,'').replace(/^0\./,'.')):(v=>Math.round(v)+'');
+        const unit=S.units==='in'?'':'MM';
+        // teardrop: name and width on one line, radii with the length on the next
+        const td=A.shape==='teardrop';
+        const l1a=(td?`TEAR W${dimTxt(A.w)}`:A.shape==='round'?`D${dimTxt(A.w)}`:`${A.shape.toUpperCase()} ${dimTxt(A.w)}x${dimTxt(A.t)}`)+unit;
+        const l1b=(td?`R${dimTxt(A.t/2)}/R${dimTxt(A.r1)} `:'')+`L${dimTxt(A.L)}`+unit,l1=l1a+' '+l1b;
+        // try the layouts in order and keep whichever gives the biggest letters; stacking helps on small or tall faces
+        const url=$('stampUrl').checked;
+        const layouts=url?[[l1,'PORTLANDIRONWORKS.COM'],[l1a,l1b,'PORTLAND','IRONWORKS.COM'],[l1],[l1a,l1b]]:[[l1],[l1a,l1b]];
+        let fit=null;const topPoly=profile(last,(last.taper||0)+(chamfer>0.01?Math.min(chamfer,last.t/2-0.05):0),Math.max(6,n));
+        for(const ls of layouts){const f=topPoly&&fitInPoly(ls,topPoly,0.45,1.5);if(!f)continue;
+          const hasUrl=ls.includes('PORTLANDIRONWORKS.COM')||ls.includes('IRONWORKS.COM');
+          if(!fit||(hasUrl&&!fit.hasUrl)||(hasUrl===fit.hasUrl&&f.px>fit.px))fit=Object.assign(f,{hasUrl});}
+        if(hole>0.05){stampInfo='skipped, center hole is in the way';}
+        else{
+          if(!fit){stampInfo='skipped, end face too small for legible text';}
+          else{all[all.length-1]=Object.assign({},last,{engrave:{lines:fit.lines,px:fit.px,cx:fit.cx,depth:ENGRAVE_DEPTH}});
+            stampInfo=`${fit.lines.join(' / ')} at ${(7*fit.px).toFixed(1)} mm letters, cut ${ENGRAVE_DEPTH} mm deep. Print this end face down.${url&&!fit.hasUrl?' (URL dropped, no room)':''}`;}}
+      }
+      let tris=buildModel(all,n);if(!tris)return null;
+      const eng=all[all.length-1].engrave;if(eng&&eng.skipped)stampInfo='skipped, text would run off the end face';
+      // raceway: helical rib on the mandrel section
+      if($('raceOn').checked){
+        const coilLen=turns*od+(turns-1)*gap;const ribT=gap;
+        if(ribT<1.2){out.warn=(out.warn?out.warn+' ':'')+'Raceway needs at least 1.2 mm gap between turns to print a rib. Raceway skipped.';}
+        else if(coilLen+gap>A.L){out.warn=(out.warn?out.warn+' ':'')+'Coil is longer than the mandrel, raceway skipped.';}
+        else{const ribH=Math.max(od*num('raceH'),1);const zStart=(A.L-coilLen)/2-gap/2;
+          const rib=helixRib(A,n,od+gap,turns,ribT,ribH,zStart,zA);if(rib){extras.push(rib);raceInfo=`helical rib ${fmt(ribT)} thick, ${fmt(ribH)} tall, ${turns} turns at ${fmt(od+gap)} pitch`;}}
+      }
+      if(extras.length)tris=concatTris([tris,...extras]);
+      out.parts.push({name:base+($('raceOn').checked&&raceInfo!=='none'?'_raceway':''),tris,flatLift:sameT?allT/2:null,sections:all,explode:0});
+      out.raceInfo=raceInfo;out.stampInfo=stampInfo;
+    }
+    if(doSplit){out.raceInfo='not available on split mandrels';out.stampInfo='not available on split mandrels';}
+    out.zA=zA;out.mandrelSecs=secs;
+    out.scad=toSCAD(all)+(doSplit?'\n// Removable center: cut this body at x = +/-'+(out.split.sw/2/IN).toFixed(3)+' in (slab tapers '+(out.split.tp/IN).toFixed(4)+' in/side over the length)\n':'');
+    // coil
+    const per=secs.map(s=>perimeter(profile(s,-od/2,32)));
+    const tn=S.type==='combo'?[turns,turnsB]:[turns];
+    let tube=2*lead,lines=[];
+    secs.forEach((s,i)=>{tube+=per[i]*tn[i];lines.push(`${s.shape} ${fmt(s.w)} x ${fmt(s.t)}: path ${fmt(per[i])} x ${tn[i]} turns = ${fmt(per[i]*tn[i])}`);});
+    lines.push(`leads 2 x ${fmt(lead)} = ${fmt(2*lead)}`);
+    const coilLen=tn.map(k=>k*od+(k-1)*gap);
+    {let z=zA;const lp=[];secs.forEach((s,i)=>{const k=tn[i],Req=Math.sqrt(area(profile(s,-od/2,32))/Math.PI),st0=z+(s.L-coilLen[i])/2+od/2;for(let j=0;j<k;j++)lp.push([Req,st0+(od+gap)*j]);z+=s.L;});out.loops=lp;out.heatKind='bar';out.roundEq=secs.some(s=>s.shape!=='round');}
+    out.coil={tube,lines,coilLen,fits:secs.map(s=>fmt(s.w-2*4.76)+' x '+fmt(s.t-2*4.76))};
+    out.specs=[['Type',S.type==='combo'?'Combo mandrel (two sections)':'Mandrel'],
+      ...secs.map((s,i)=>[`Section ${S.type==='combo'?'AB'[i]:''}`.trim(),s.shape==='teardrop'?`teardrop, ${fmt(s.w)} long, R${fmt(s.t/2)} big end to R${fmt(s.r1)} small end, ${fmt(s.L)} long`:`${s.shape} ${fmt(s.w)} x ${fmt(s.t)}${s.shape==='box'?' R'+fmt(s.r):''}, ${fmt(s.L)} long`]),
+      ['Clamp block',S.clampEnds==='none'?'none':`${S.clampEnds==='both'?'both ends':'one end'}, ${fmt(mk().w)} x ${fmt(mk().t)} x ${fmt(mk().L)}`],
+      ['Overall length',fmt(all.reduce((a,s)=>a+s.L,0))],
+      ['Center hole',hole>0.05?fmt(hole):'none'],['End chamfer',chamfer>0.05?fmt(chamfer):'none'],['Taper',A.taper>0.01?fmt(A.taper)+' per side':'none'],
+      ['Removable center',doSplit?`slab ${fmt(out.split.sw)} wide, taper ${fmt(out.split.tp)}/side`:'no'],['Raceway',out.raceInfo],['Stamp',out.stampInfo],
+      ['Coil ID',secs.map(s=>fmt(s.w)+' x '+fmt(s.t)).join(' + ')],['Stock it fits',secs[0].shape==='teardrop'?`round stock from ${fmt(2*secs[0].r1-2*4.76)} up to ${fmt(secs[0].t-2*4.76)} dia, 5 mm clearance, slide it to where it fits`:out.coil.fits.join(' / ')+' (5 mm clearance)'],
+      ['Tube',fmt(od)+' OD'],['Turns',(S.type==='combo'?[turns,turnsB]:[turns]).join(' + ')],['Turn gap',fmt(gap)],['Coil length',out.coil.coilLen.map(fmt).join(' + ')],['Leads',fmt(lead)+' each']];
+    out.draw={kind:'mandrel',sections:all,mandrelSecs:secs,zA,split:out.split};
+    out.dims=secs;
+  } else if(S.type==='pancake'){
+    const ID=mm('pkID'),base=mm('pkBase'),margin=mm('pkMargin');
+    const leadHole=od+1.0; // inner lead drops straight down through post and base
+    if(S.pkStyle==='channel'){
+      const clr=Math.max(mm('pkClr'),0),cw=od+clr,pitch=od+gap;
+      let ribT=pitch-cw;let warn='';
+      if(ribT<1.2){warn=`Gap too small for a printed rib. Rib needs 1.2 mm, so the channel pitch was opened to ${fmt(cw+1.2)}.`;}
+      const pitchEff=Math.max(pitch,cw+1.2);
+      const ang=Math.min(Math.max(num('pkAng'),0),45)*Math.PI/180,tanA=Math.tan(ang);
+      const ribH=Math.max(mm('tube')*num('pkRibH'),2)/Math.cos(ang);
+      const Rb=Math.max(mm('pkBend'),od);const xc=leadClearance(Rb,ribH,od);const rc0=ID/2+cw/2;const stepT=-xc/(2*Math.PI*rc0);
+      const rib=spiralRib(ID/2,cw,pitchEff,turns,64,true,stepT);
+      const postH=Math.max(ribH,2*od);
+      const outerR=rib.outerR+margin;
+      const wall=Math.max(mm('pkWall'),0);
+      const cone=conePoly(leadHole/2,ID/2,postH,outerR,base,tanA,wall);
+      const body=revolve(cone.poly,Math.max(96,n*4));
+      const surf=p=>cone.surface(Math.hypot(p[0],p[1]));
+      const ribT3=extrudeRibbon(rib.outer,rib.inner,p=>surf(p)-0.3,p=>surf(p)+ribH);
+      const tris=new Float32Array(body.length+ribT3.length);tris.set(body);tris.set(ribT3,body.length);
+      const secs=[{shape:'round',w:2*outerR,t:2*outerR,r:outerR,L:cone.topR+ribH,hole:leadHole}];
+      out.parts.push({name:'pancake_cone_jig_ID'+fn(ID)+'_'+turns+'turns_'+Math.round(ang*180/Math.PI)+'deg',tris,flatLift:null,sections:secs});
+      out.warn=warn;
+      const pts=rib.inner.concat(rib.outer.slice().reverse()).map(p=>'['+(p[0]).toFixed(2)+','+(p[1]).toFixed(2)+']').join(',');
+      const cpts=cone.poly.map(p=>'['+p[0].toFixed(2)+','+p[1].toFixed(2)+']').join(',');
+      out.scad=`// Cone pancake jig, ${Math.round(ang*180/Math.PI)} deg, units mm\n$fn=128;\nrotate_extrude() polygon([${cpts}]);\n// spiral rib: a flat extrusion clipped to sit on the cone\nintersection() {\n  linear_extrude(${(cone.topR+postH).toFixed(2)}) polygon([${pts}]);\n  rotate_extrude() polygon([[0,0],[${outerR.toFixed(2)},0],[${outerR.toFixed(2)},${(base+ribH).toFixed(2)}],[${(ID/2).toFixed(2)},${(cone.topR+ribH).toFixed(2)}],[0,${(cone.topR+ribH).toFixed(2)}]]);\n}\n`;
+      out.specs=[['Type','Pancake cone jig with spiral channel'],['Cone angle',Math.round(ang*180/Math.PI)+' deg from flat'],['Inner opening (post)',fmt(ID)],['Turns',turns],['Pitch (plan)',fmt(pitchEff)],['Channel width',fmt(cw)],['Rib',rib.ribT.toFixed(1)+' mm thick, '+fmt(ribH)+' tall'],['Post height',fmt(postH)],['Lead-in','1 extra turn, open '+fmt(xc)+' for the bend'],['Lead bend radius',fmt(Rb)+' CLR'],['Outer dia of jig',fmt(2*outerR)],['Base / rim thickness',fmt(base)],['Underside',cone.hollow?'hollow, '+fmt(wall)+' shell':'solid'],['Floor drop post to rim',fmt(cone.topR-base)],['Lead hole',fmt(leadHole)],['Tube',fmt(od)+' OD'],['Turn gap',fmt(gap)],['Leads',fmt(lead)+' each'],['Finished pancake OD',fmt(2*(rib.outerR-rib.ribT)+0)]];
+      const tp=rib.tubePath;const dx=tp[1][0]-tp[0][0],dy=tp[1][1]-tp[0][1],dl=Math.hypot(dx,dy);const leadPos=[tp[0][0]-dx/dl*Rb,tp[0][1]-dy/dl*Rb];
+      out.draw={kind:'pancake',tubePath:rib.tubePath,outerR,poly:cone.poly,ID,ribOuter:rib.outer,ribInner:rib.inner,leadStart:leadPos,Rb};
+      out.leadBend={Rb,xc};
+      out.loops=Array.from({length:turns},(_,k)=>[ID/2+cw/2+pitchEff*(k+0.5),0]);out.heatKind='face';out.heatFaceZ=od/2;out.heatAutoR=ID/2+cw/2+pitchEff*turns+od/2;
+      out.coil={tube:rib.tubeLen+2*lead,lines:[`channel centerline traced in plan, ${turns} turns, pitch ${fmt(pitchEff)}`,`spiral length = ${fmt(rib.tubeLen)} (cone adds under 1%)`,`leads 2 x ${fmt(lead)} = ${fmt(2*lead)}`,`rib ${rib.ribT.toFixed(1)} mm, floor drops ${fmt(cone.topR-base)} post to rim`,`inner lead: ${fmt(Rb)} bend, quarter arc uses ${fmt(Math.PI/2*Rb)} (in the lead length)`],outer:2*outerR};
+      out.dims=secs;
+    } else {
+      const sp=spiralLength(ID,od,gap,turns,0);
+      const baseD=sp.outerT+2*margin;
+      const secs=[{shape:'round',w:baseD,t:baseD,r:baseD/2,L:base,hole:leadHole},{shape:'round',w:ID,t:ID,r:ID/2,L:od+2,hole:leadHole}];
+      const tris=buildModel(secs,n);if(!tris)return null;
+      out.parts.push({name:'pancake_post_jig_ID'+fn(ID)+'_'+turns+'turns',tris,flatLift:null,sections:secs});
+      out.specs=[['Type','Pancake jig, post only'],['Inner opening (post)',fmt(ID)],['Turns',turns],['Pitch',fmt(od+gap)],['Base dia',fmt(baseD)],['Base thickness',fmt(base)],['Lead hole',fmt(leadHole)],['Tube',fmt(od)+' OD'],['Turn gap',fmt(gap)],['Leads',fmt(lead)+' each'],['Finished pancake OD',fmt(sp.outerT)]];
+      out.draw={kind:'pancake',tubePath:null,outerR:baseD/2,poly:[[leadHole/2,0],[baseD/2,0],[baseD/2,base],[ID/2,base],[ID/2,base+od+2],[leadHole/2,base+od+2]],ID,sp};
+      out.scad=toSCAD(secs);
+      out.loops=Array.from({length:turns},(_,k)=>[(ID+od)/2+(od+gap)*(k+0.5),0]);out.heatKind='face';out.heatFaceZ=od/2;out.heatAutoR=(ID+od)/2+(od+gap)*turns+od/2;
+      out.coil={tube:sp.len+2*lead,lines:[`spiral, ${turns} turns from ${fmt(ID+od)} to ${fmt(sp.outerT-od)} centerline dia`,`sum of pi x mean D per turn = ${fmt(sp.len)}`,`leads 2 x ${fmt(lead)} = ${fmt(2*lead)}`],outer:sp.outerT};
+      out.dims=secs;
+    }
+  } else if(S.type==='taco'){
+    const d=mm('tcSize'),st=mm('tcStraight'),base=mm('tcBase'),barL=mm('tcBarL');
+    const ang=Math.min(Math.max(num('tcAng'),0),45)*Math.PI/180,tanA=Math.tan(ang);
+    const clr=Math.max(mm('tcClr'),0),cw=od+clr;let warn='';const pitch0=od+gap;const pitch=Math.max(pitch0,cw+1.2);
+    if(pitch>pitch0+1e-6)warn=`Gap too small for a printed rib. Pitch opened to ${fmt(pitch)}.`;
+    const ribH=Math.max(od*num('pkRibH'),2)/Math.cos(ang);const postH=Math.max(ribH,2*od);
+    const Rb=Math.max(mm('tcBend'),od);const xc=leadClearance(Rb,ribH,od);
+    // lead-out: the start sits mid right arc; one turn of channel at the start is ~ pi*(d+cw) + 2*st long
+    const turn0Len=Math.PI*(d+cw)+2*st;const stepT=-xc/turn0Len;
+    const rib=racetrackRib(st,d,cw,pitch,turns,96,true,stepT);
+    const margin=6.35;const oMax=rib.oMax+margin;
+    // jig body: rim slab + stadium frustum tapering to the post + post, all pills around the same centerline
+    const W=st+d+2*oMax,T=d+2*oMax;const coneH=oMax*tanA;
+    const secs=[{shape:'pill',w:W,t:T,r:T/2,L:base}];
+    if(coneH>0.05)secs.push({shape:'pill',w:W,t:T,r:T/2,L:coneH,taper:oMax});
+    secs.push({shape:'pill',w:st+d,t:d,r:d/2,L:postH});
+    const topZ=base+coneH;
+    // underside void: 45 deg walls, ceiling set so the floor keeps `meat` everywhere and the post keeps a solid block
+    const vWall=Math.max(mm('tcWall'),0),meat=Math.max(mm('tcMeat'),1);let zc=0,voidInfo='solid';
+    if(vWall>0.5){
+      const tanV=1; // 45 deg
+      const sMax=tanV>tanA?(base+vWall*tanA-meat)/(tanV-tanA):1e9; // inward run before the void wall gets within `meat` of the floor
+      zc=Math.min(sMax*tanV,topZ-Math.max(meat,6),0.45*T/2-vWall); // also keep the void narrower than the body
+      if(zc<2)zc=0;
+    }
+    let body;
+    if(zc>0){
+      const outerAt=z=>z<=base?0:(z-base)*oMax/coneH;
+      const rings=[{z:0,outerInset:0,innerInset:vWall}];if(zc>base+0.5)rings.push({z:base,outerInset:0,innerInset:vWall+base});rings.push({z:zc,outerInset:outerAt(zc),innerInset:vWall+zc});
+      const shell=buildPillAnnulus(W,T,rings,n);
+      // solid above the ceiling: remaining frustum (from zc to topZ) + post, overlapping 0.3 into the shell
+      const oi=outerAt(zc);const upper=[];const remH=topZ-zc;
+      if(remH>0.05)upper.push({shape:'pill',w:W-2*oi,t:T-2*oi,r:(T-2*oi)/2,L:remH+0.3,taper:oMax-oi});
+      upper.push({shape:'pill',w:st+d,t:d,r:d/2,L:postH});
+      const up=buildModel(upper,n,zc-0.3);if(!shell||!up)return null;
+      body=concatTris([shell,up]);
+      voidInfo=`45° walls, ${fmt(vWall)} rim wall, ceiling ${fmt(zc)} up, ${fmt(meat)} floor meat, ${fmt(topZ-zc)} under the post`;
+    } else {body=buildModel(secs,n);if(!body)return null;}
+    const surf=p=>{const o=Math.min(Math.max(pillOffset(p,st,d),0),oMax);return base+(oMax-o)*tanA;};
+    const ribT3=extrudeRibbon(rib.outer,rib.inner,p=>surf(p)-0.3,p=>surf(p)+ribH);
+    const jigTris=concatTris([body,ribT3]);
+    const bar=[{shape:'round',w:d,t:d,r:d/2,L:barL,chamfer:Math.min(chamfer,d/4)}];
+    const t2=buildModel(bar,n);if(!t2)return null;
+    out.parts.push({name:'taco_cone_jig_'+fn(d)+'_x'+fn(st)+'_'+turns+'turns',tris:jigTris,flatLift:null,sections:secs,tacoSurf:surf,tacoTop:topZ});
+    out.parts.push({name:'taco_foldbar_'+fn(d)+'_x'+fn(barL),tris:t2,flatLift:null,sections:bar});
+    out.warn=warn;
+    const tp=rib.tubePath;const dx=tp[1][0]-tp[0][0],dy=tp[1][1]-tp[0][1],dl=Math.hypot(dx,dy);const leadPos=[tp[0][0]-dx/dl*Rb,tp[0][1]-dy/dl*Rb];
+    const blankW=st+d+2*(rib.oMax-rib.ribT),blankT=d+2*(rib.oMax-rib.ribT);
+    const pts=rib.inner.concat(rib.outer.slice().reverse()).map(p=>'['+p[0].toFixed(2)+','+p[1].toFixed(2)+']').join(',');
+    out.scad='// Taco cone jig\n'+toSCAD(secs)+`\n// racetrack rib (flat extrusion; in OpenSCAD intersect with the cone body shape to seat it)\ntranslate([0,0,${(base-0.3).toFixed(2)}]) linear_extrude(${(coneH+ribH+0.3).toFixed(2)}) polygon([${pts}]);\n`+'\n// Fold bar (print separately)\n'+toSCAD(bar).replace('difference()','translate([0,'+(T+20).toFixed(1)+',0]) difference()');
+    out.specs=[['Type','Taco set (racetrack cone jig + fold bar)'],['Taco size (fold gap)',fmt(d)],['Straight length',fmt(st)],['Turns',turns],['Cone angle',Math.round(ang*180/Math.PI)+' deg'],['Pitch',fmt(pitch)],['Channel width',fmt(cw)],['Rib',rib.ribT.toFixed(1)+' mm thick, '+fmt(ribH)+' tall'],['Post',fmt(st+d)+' x '+fmt(d)+', '+fmt(postH)+' tall'],['Jig footprint',fmt(W)+' x '+fmt(T)],['Floor drop post to rim',fmt(coneH)],['Underside',voidInfo],['Lead bend radius',fmt(Rb)],['Blank when flat',fmt(blankW)+' x '+fmt(blankT)],['Fold bar',fmt(d)+' dia x '+fmt(barL)],['Tube',fmt(od)+' OD'],['Turn gap',fmt(gap)],['Leads',fmt(lead)+' each']];
+    out.draw={kind:'taco',jig:secs,bar:bar[0],d,st,ribOuter:rib.outer,ribInner:rib.inner,tubePath:rib.tubePath,leadStart:leadPos,Rb,W,T,topZ,postH,oMax,base,zc,vWall};
+    out.coil={tube:rib.tubeLen+2*lead,lines:[`racetrack channel traced, ${turns} turns, straights ${fmt(st)}`,`spiral length = ${fmt(rib.tubeLen)}`,`leads 2 x ${fmt(lead)} = ${fmt(2*lead)}`,`inner lead: ${fmt(Rb)} bend. Folded over the ${fmt(d)} bar the legs stand about ${fmt(blankT/2)} tall`],outer:blankT};
+    out.dims=secs;
+    out.tacoRib=rib;
+    out.loops=Array.from({length:turns},(_,k)=>{const o=cw/2+pitch*(k+0.5);return [Math.sqrt((st*(d+2*o)+Math.PI*(d/2+o)*(d/2+o))/Math.PI),0];});
+  } else if(S.type==='cup'){
+    // Cup coil former: side turns wrap the cylinder, end turns spiral in across the ribbed end face.
+    // Prints ribbed end up. In use that end is the bottom of the cup and the hammer face sits over it.
+    const ID=mm('cupID'),Sn=Math.max(1,Math.round(num('cupS'))),E=Math.max(0,Math.round(num('cupE')));
+    const clr=Math.max(mm('cupClr'),0),cw=od+clr,pitch0=od+gap,pitch=Math.max(pitch0,cw+1.2);let warn='';
+    if(pitch>pitch0+1e-6&&E>0)warn=`Gap too small for a printed rib. End spiral pitch opened to ${fmt(pitch)}.`;
+    const Lc=Math.max(mm('cupL'),Sn*pitch0+od);if(mm('cupL')<Sn*pitch0+od-0.01)warn+=(warn?' ':'')+`Mandrel lengthened to ${fmt(Lc)} to fit ${Sn} side turns.`;
+    const Rm=ID/2,Rc=Rm+od/2;
+    let Ee=E;while(Ee>0&&Rc-Ee*pitch-cw/2<od)Ee--;if(Ee<E)warn+=(warn?' ':'')+`Only ${Ee} end turns fit inside a ${fmt(ID)} cup at this pitch.`;
+    const rIn=Rc-Ee*pitch;const Rb=Math.max(mm('cupBend'),od);
+    const body=buildModel([{shape:'round',w:ID,t:ID,r:Rm,L:Lc}],n);if(!body)return null;
+    const pieces=[body];let rib=null,ribH=0,xc=0,postR=0;
+    if(Ee>0){
+      ribH=Math.max(od*num('cupRibH'),2);xc=leadClearance(Rb,ribH,od);postR=rIn-cw/2;
+      rib=spiralRib(postR,cw,pitch,Math.max(Ee-1,0),64,true,-xc/(2*Math.PI*rIn));
+      pieces.push(extrudeRibbon(rib.outer,rib.inner,Lc-0.3,Lc+ribH));
+      if(postR>2){const post=buildModel([{shape:'round',w:2*postR,t:2*postR,r:postR,L:ribH+0.3}],n,Lc-0.3);if(post)pieces.push(post);}
+    }
+    const tris=concatTris(pieces);
+    const name='cup_coil_mandrel_ID'+fn(ID)+'_'+Sn+'side_'+Ee+'end';
+    out.parts.push({name,tris,flatLift:null,sections:[{shape:'round',w:ID,t:ID,r:Rm,L:Lc}]});
+    out.warn=warn;
+    // tube path in print coordinates: end spiral on the ribbed face, over the rim, helix down the side
+    const path=[];const NT=48;
+    for(let k=0;k<=Ee*NT;k++){const t=k/NT,a=2*Math.PI*t,r=rIn+pitch*t;path.push([r*Math.cos(a),r*Math.sin(a),Lc+od/2]);}
+    const a0=2*Math.PI*Ee;
+    for(let k=1;k<=Sn*NT;k++){const t=k/NT,a=a0+2*Math.PI*t;path.push([Rc*Math.cos(a),Rc*Math.sin(a),Lc-od/2-pitch*t]);}
+    let endLen=0;for(let k=0;k<Ee;k++)endLen+=2*Math.PI*(rIn+pitch*(k+0.5));
+    const sideLen=Sn*2*Math.PI*Rc;
+    out.cupPath=path;
+    // turns in use orientation: end turns at z = -od/2 under the hammer face (z = 0 is the mandrel end face), side turns rising
+    out.loops=[...Array.from({length:Ee},(_,k)=>[rIn+pitch*(k+0.5),-od/2]),...Array.from({length:Sn},(_,i)=>[Rc,od/2+pitch*i])];
+    out.heatKind='face';out.heatFaceZ=0;out.heatAutoR=Rm-4.76;
+    const opening=2*(rIn-od/2);
+    out.specs=[['Type','Cup coil mandrel (side turns + flat end spiral)'],['Cup ID',fmt(ID)],['Side turns',Sn],['End turns',Ee],['End spiral pitch',fmt(pitch)],['Opening in the middle of the end',Ee?fmt(Math.max(opening,0)):'open end'],['Mandrel length',fmt(Lc)],
+      ['Rib',Ee?rib.ribT.toFixed(1)+' mm thick, '+fmt(ribH)+' tall':'none'],['Lead bend radius',fmt(Rb)],['Finished cup OD',fmt(ID+2*od)],['Side turns cover',fmt(Sn*pitch0)],['Tube',fmt(od)+' OD'],['Turn gap',fmt(gap)],['Leads',fmt(lead)+' each']];
+    out.draw={kind:'cup',ID,Lc,Rm,Rc,rIn,Sn,Ee,pitch,ribH,postR,ribOuter:rib&&rib.outer,ribInner:rib&&rib.inner,path};
+    out.coil={tube:endLen+sideLen+2*lead,lines:[`end spiral, ${Ee} turns from ${fmt(2*rIn)} out to ${fmt(2*Rc)} centerline dia = ${fmt(endLen)}`,`side, ${Sn} turns at ${fmt(2*Rc)} centerline dia = ${fmt(sideLen)}`,`leads 2 x ${fmt(lead)} = ${fmt(2*lead)}`,`wind the end spiral first from the center out, roll over the rim, then wind the side turns`,`inner lead leaves the bottom away from the hammer, runs out under the end turns, then up the outside to meet the other lead`],outer:ID+2*od};
+    out.scad=`// Cup coil mandrel, mm\n$fn=128;\ncylinder(d=${ID.toFixed(2)},h=${Lc.toFixed(2)});\n`+(Ee&&rib?`translate([0,0,${(Lc-0.3).toFixed(2)}]) linear_extrude(${(ribH+0.3).toFixed(2)}) polygon([${rib.inner.concat(rib.outer.slice().reverse()).map(p=>'['+p[0].toFixed(2)+','+p[1].toFixed(2)+']').join(',')}]);\n`+(postR>2?`translate([0,0,${(Lc-0.3).toFixed(2)}]) cylinder(r=${postR.toFixed(2)},h=${(ribH+0.3).toFixed(2)});\n`:''):'');
+    out.dims=[{w:ID,t:ID}];
+  } else if(S.type==='gauge'){
+    const gt=Math.max(mm('ggT'),0.6),gw=Math.max(mm('ggW'),6),gl=Math.max(mm('ggL'),20),gh=mm('ggHole'),stepped=$('ggStep').checked;
+    let tris,specs,steps=[gt];
+    if(stepped){
+      steps=[gt-2,gt-1,gt,gt+1].map(v=>Math.max(v,0.6));const segL=gl/steps.length;const parts=[];
+      steps.forEach((th,i)=>{const b=buildModel([{shape:'box',w:segL+1,t:gw,r:1,L:th}],n);parts.push(translateTris(b,-gl/2+segL*(i+0.5),0,0));});
+      // handle tab with hole at the thin end
+      const tab=buildModel([{shape:'box',w:gw,t:gw,r:3,L:steps[0],hole:gh>0.5?gh:0}],n);parts.push(translateTris(tab,-gl/2-gw/2+1,0,0));
+      tris=concatTris(parts);
+      specs=[['Type','Stepped feeler gauge'],['Steps',steps.map(v=>v.toFixed(1)+' mm').join(' / ')],['Step length',fmt(segL)],['Blade width',fmt(gw)],['Overall length',fmt(gl+gw)],['Hang hole',gh>0.5?fmt(gh):'none']];
+    } else {
+      const blade=buildModel([{shape:'box',w:gl,t:gw,r:1,L:gt}],n);
+      const tab=buildModel([{shape:'box',w:gw,t:gw,r:3,L:gt,hole:gh>0.5?gh:0}],n);
+      tris=concatTris([translateTris(blade,gw/2-1,0,0),translateTris(tab,-gl/2+gw/2-1 - (gw/2) + gw/2 - gw/2 + 0,0,0)]);
+      // simpler: blade centered at +gw/2, tab centered at -gl/2
+      tris=concatTris([translateTris(blade,gw/2,0,0),translateTris(tab,-gl/2+1,0,0)]);
+      specs=[['Type','Feeler gauge'],['Thickness',gt.toFixed(2)+' mm ('+(gt/IN).toFixed(3)+'")'],['Blade width',fmt(gw)],['Blade length',fmt(gl)],['Overall length',fmt(gl+gw)],['Hang hole',gh>0.5?fmt(gh):'none']];
+    }
+    out.parts.push({name:(stepped?'feeler_gauge_stepped_':'feeler_gauge_')+gt.toFixed(1).replace('.','p')+'mm',tris,flatLift:null,sections:[{shape:'box',w:gl,t:gw,r:1,L:gt}]});
+    out.specs=specs.concat([['Use','slide between stock and coil ID, it should just fit on every side']]);
+    out.draw={kind:'gauge',gt,gw,gl,gh,steps,stepped};
+    out.scad=`// Feeler gauge, mm\n$fn=64;\ndifference(){ union(){ translate([${(gw/2-gl/2).toFixed(1)},${(-gw/2).toFixed(1)},0]) cube([${gl.toFixed(1)},${gw.toFixed(1)},${gt.toFixed(2)}]); translate([${(-gl/2+1).toFixed(1)},0,0]) cylinder(d=${gw.toFixed(1)},h=${gt.toFixed(2)}); } translate([${(-gl/2+1).toFixed(1)},0,-1]) cylinder(d=${gh.toFixed(1)},h=${(gt+2).toFixed(2)}); }\n`;
+    out.coil={tube:0,lines:[`${gt.toFixed(1)} mm clearance a side means coil ID = stock + ${(2*gt).toFixed(1)} mm (${(2*gt/IN).toFixed(3)}")`,`print it flat, 100% infill, measure with calipers after printing and sand if it's over`]};
+    out.dims=[{w:gl,t:gw}];
+  } else if(S.type==='die'){
+    const clr=mm('dieCLR'),dh=mm('dieHole'),fl=mm('dieFlange'),rollD=mm('rollD'),pin=mm('pinD'),handle=mm('handleL');
+    const pinC=pin+0.6,dhC=dh+0.6; // clearance holes
+    const {poly,H}=bendDiePoly(clr,od,dhC,fl);const g=od/2*1.04;
+    let die=revolve(poly,Math.max(64,n*4));
+    let lockOn=$('lockOn').checked,armOn=$('armOn').checked;
+    let stackInfo='';let tiers=[clr];
+    if(S.dieMode==='stack'){
+      const vals=$('dieStack').value.split(/[,\s]+/).map(v=>parseFloat(v)).filter(v=>v>0).map(v=>S.units==='in'?v*IN:v);
+      tiers=[...new Set(vals)].sort((a,b)=>b-a);
+      if(tiers.length<2){out.warn='Give at least two radii to stack.';}
+      else{
+        // each tier must step in by at least the groove depth so the tube below clears the tier above
+        const minStep=g+1;let okStack=true;for(let i=1;i<tiers.length;i++)if(tiers[i-1]-tiers[i]<minStep){okStack=false;}
+        if(!okStack)out.warn=`Adjacent radii need at least ${fmt(minStep)} between them so the tube clears the tier above.`;
+        const parts=tiers.map((r,i)=>translateTris(revolve(bendDiePoly(r,od,dhC,fl).poly,Math.max(64,n*4)),0,0,i*(H-0.2)));
+        die=concatTris(parts);
+        stackInfo=tiers.map(r=>fmt(r)).join(' / ')+' CLR, '+fmt(tiers.length*H)+' tall';
+        if(armOn){armOn=false;out.warn=(out.warn?out.warn+' ':'')+'Arm and roller only work with a single die (roller height). Build it as a separate single die.';}
+      }
+    }
+    const postW=10,postGap=od+2*(pinC/2+1.5); // posts flank the tube
+    let lockInfo='none';
+    if(lockOn){
+      // plate under the straight tube at the tangent point (x=clr), running toward -y; overlaps the die lower flange
+      const plateT=Math.max(fl-0.3,2),plateLen=34,plateW=postGap+postW+6;
+      const clrL=tiers[0];
+      const plate=translateTris(buildModel([{shape:'box',w:plateW,t:plateLen,r:1,L:plateT}],n),clrL,-plateLen/2+4,0);
+      const postH=H/2+g+3;
+      const post=(x)=>translateTris(buildModel([{shape:'box',w:postW,t:postW,r:1.5,L:postH,hole:pinC}],n),x,-20,0);
+      die=concatTris([die,plate,post(clrL-postGap/2-postW/2),post(clrL+postGap/2+postW/2)]);
+      const keeper=buildModel([{shape:'box',w:postGap+2*postW,t:postW,r:1.5,L:6}],n);
+      // keeper needs two holes: build as two boxes with holes, overlapping in the middle
+      const kw=postGap/2+postW/2;
+      const k1=translateTris(buildModel([{shape:'box',w:kw+postW/2+2,t:postW,r:1.5,L:6,hole:pinC}],n),-kw,0,0);
+      const k2=translateTris(buildModel([{shape:'box',w:kw+postW/2+2,t:postW,r:1.5,L:6,hole:pinC}],n),kw,0,0);
+      out.parts.push({name:'bender_keeper_'+fn(pin)+'bolts',tris:concatTris([k1,k2]),flatLift:null});
+      lockInfo=`2 posts, ${fmt(postGap)} gap, keeper bar`;
+    }
+    out.parts.unshift({name:(S.dieMode==='stack'&&tiers.length>1?'bend_die_stack_'+tiers.map(r=>fn(r)).join('_'):'bend_die_CLR'+fn(clr))+'_tube'+fn(od),tris:die,flatLift:null,die:{clr:tiers[0],od,H:H*(S.dieMode==='stack'?tiers.length:1),dh,tiers}});
+    let D=0,Rr=rollD/2;
+    if(armOn){
+      D=clr+od/2+(Rr-g)+0.3; // roller axis distance so its groove bottom just clears the tube outside
+      const roll=revolve(bendDiePoly(Rr,od,pinC,fl).poly,Math.max(64,n*4));
+      out.parts.push({name:'bender_roller_'+fn(rollD),tris:roll,flatLift:null});
+      const aT=8,aW=22,hub=44;
+      const hubBox=buildModel([{shape:'box',w:hub,t:hub,r:4,L:aT,hole:dhC}],n);
+      const b1Len=2*(D-hub/2+2);const b1=translateTris(buildModel([{shape:'box',w:b1Len,t:aW,r:3,L:aT,hole:pinC}],n),D,0,0);
+      const b2Start=2*D-hub/2-6,b2End=D+handle;const b2=b2End>b2Start+5?translateTris(buildModel([{shape:'box',w:b2End-b2Start,t:aW,r:3,L:aT}],n),(b2Start+b2End)/2,0,0):null;
+      out.parts.push({name:'bender_arm_'+fn(D)+'_to_roller',tris:concatTris(b2?[hubBox,b1,b2]:[hubBox,b1]),flatLift:null,arm:{D,aT,H}});
+    }
+    const arc90=Math.PI/2*clr;
+    out.specs=[['Type',S.dieMode==='stack'&&tiers.length>1?'Stacked bend dies, one bolt':'Bend die'],S.dieMode==='stack'&&tiers.length>1?['Tiers (CLR)',stackInfo]:['Centerline radius (CLR)',fmt(clr)],['Die OD',fmt(2*tiers[0])],['Inside bend radius',S.dieMode==='stack'&&tiers.length>1?tiers.map(r=>fmt(r-od/2)).join(' / '):fmt(clr-od/2)],['Die thickness',fmt(H)+(S.dieMode==='stack'&&tiers.length>1?' per tier':'')],['Groove',fmt(2*g)+' for '+fmt(od)+' tube'],['Center bolt',fmt(dh)+' (hole '+fmt(dhC)+')'],['Tube lock',lockOn?lockInfo:'none'],['Arm + roller',armOn?fmt(rollD)+' roller, '+fmt(D+handle)+' arm':'none'],['Hardware',`1 x ${fmt(dh)} bolt to the bench${(armOn||lockOn)?', '+((armOn?1:0)+(lockOn?2:0))+' x '+fmt(pin)+' bolts + nuts':''}`]];
+    let drawPoly=poly;
+    if(S.dieMode==='stack'&&tiers.length>1){drawPoly=[];tiers.forEach((r,i)=>{const p=bendDiePoly(r,od,dhC,fl).poly.map(q=>[q[0],q[1]+i*H]);if(i===0)drawPoly.push(...p.slice(0,p.length-2));else{drawPoly.push(...p.slice(1,p.length-2));}});drawPoly.push([dhC/2,tiers.length*H]);drawPoly.unshift();}
+    out.draw={kind:'die',poly:drawPoly,clr:tiers[0],H:H*(S.dieMode==='stack'?tiers.length:1),D,Rr,lockOn,armOn};
+    out.coil={tube:0,lines:[`90 deg bend uses ${fmt(arc90)} of tube`,`180 deg (hairpin) uses ${fmt(2*arc90)}`,`inside radius of the bend = ${fmt(clr-od/2)}`,`bolt it down, hold the tube against the groove with a gloved hand or a block, pull around`]};
+    out.dims=[{w:2*clr,t:H}];
+  }
+  machineCheck(out);
+  return out;
+}
+function fn(v){return S.units==='in'?(v/IN).toFixed(3).replace(/\.?0+$/,'').replace('.','p'):Math.round(v)+'mm';}
+
+// ---------- three.js ----------
+const view=$('view');
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(devicePixelRatio);view.appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x101115);
+const camera=new THREE.PerspectiveCamera(40,1,1,5000);
+scene.add(new THREE.HemisphereLight(0xffffff,0x333344,0.9));
+const key=new THREE.DirectionalLight(0xffffff,0.8);key.position.set(100,150,200);scene.add(key);
+const grid=new THREE.GridHelper(400,40,0x2e3139,0x22242a);grid.rotation.x=Math.PI/2;scene.add(grid);
+const group=new THREE.Group();scene.add(group);
+const orbit={th:0.9,ph:1.05,dist:300,tz:40,fit:true};
+function cam(){camera.position.set(orbit.dist*Math.sin(orbit.ph)*Math.cos(orbit.th),orbit.dist*Math.sin(orbit.ph)*Math.sin(orbit.th),orbit.tz+orbit.dist*Math.cos(orbit.ph));camera.up.set(0,0,1);camera.lookAt(0,0,orbit.tz);}
+let drag=null;
+view.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};view.setPointerCapture(e.pointerId);});
+view.addEventListener('pointermove',e=>{if(!drag)return;orbit.th-=(e.clientX-drag.x)*0.01;orbit.ph=Math.min(Math.max(orbit.ph-(e.clientY-drag.y)*0.01,0.05),Math.PI-0.05);drag={x:e.clientX,y:e.clientY};});
+view.addEventListener('pointerup',()=>drag=null);
+view.addEventListener('wheel',e=>{e.preventDefault();orbit.fit=false;orbit.dist=Math.min(Math.max(orbit.dist*(1+e.deltaY*0.001),30),3000);},{passive:false});
+let heatT=null;window.addEventListener('resize',()=>{clearTimeout(heatT);heatT=setTimeout(()=>{if(M)renderHeat();},150);});
+function resize(){const w=view.clientWidth,h=view.clientHeight||360;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(view);
+(function loop(){requestAnimationFrame(loop);cam();renderer.render(scene,camera);})();
+
+function coilGhost(secs,od,gap,turnsArr,zBase){
+  const meshes=[];let z=zBase;
+  secs.forEach((s,i)=>{const turns=turnsArr[i]||0;if(!turns)return;const pitch=od+gap;const outline=profile(s,-od/2,16);const total=outline.length;
+    const start=z+(s.L-(turns*od+(turns-1)*gap))/2+od/2;const pts=[];
+    for(let k=0;k<turns*total;k++){const p=outline[k%total];pts.push(new THREE.Vector3(p[0],p[1],start+pitch*k/total));}
+    const geo=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),turns*total,od/2,8,false);
+    meshes.push(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55})));z+=s.L;});
+  return meshes;
+}
+function spiralGhost(innerD,od,gap,turns,straight,z){
+  const pitch=od+gap;const pts=[];const N=48;
+  for(let k=0;k<turns*N;k++){const f=k/N;const a=2*Math.PI*f;const r=(innerD+od)/2+pitch*f;
+    // racetrack: stretch x by straight/2 on each side
+    const sx=straight?Math.sign(Math.cos(a))*straight/2:0;pts.push(new THREE.Vector3(r*Math.cos(a)+sx,r*Math.sin(a),z+od/2));}
+  const geo=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),turns*N,od/2,8,false);
+  return new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55}));
+}
+
+function xsecSVG(parts){
+  const p=parts[0];if(!p.sections)return '';
+  const d=M&&M.mandrelSecs?M.mandrelSecs[M.mandrelSecs.length-1]:p.sections[p.sections.length-1];
+  const W=320,H=140,pad=40;const sc=Math.min((W-2*pad)/d.w,(H-2*pad)/d.t);
+  const pts=profile(d,0,24).map(([x,y])=>[(W/2+x*sc).toFixed(1),(H/2-y*sc).toFixed(1)]);
+  const path='M'+pts.map(q=>q.join(',')).join('L')+'Z';
+  const hole=d.hole>0.05?`<circle cx="${W/2}" cy="${H/2}" r="${(d.hole/2*sc).toFixed(1)}" fill="#101115" stroke="#e2a23b"/>`:'';
+  const x0=W/2-d.w/2*sc,x1=W/2+d.w/2*sc,y0=H/2-d.t/2*sc,y1=H/2+d.t/2*sc;
+  const rlab=d.shape==='oval'||d.shape==='round'?'':d.shape==='teardrop'?`<text x="${(x0+6).toFixed(1)}" y="${(y0-6).toFixed(1)}">R ${fmt(d.t/2)}</text><text x="${(x1-6).toFixed(1)}" y="${(y0-6).toFixed(1)}" text-anchor="end">R ${fmt(d.r1)}</text>`:`<text x="${(x1-6).toFixed(1)}" y="${(y0-6).toFixed(1)}" text-anchor="end">R ${fmt(d.r)}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:380px;display:block">
+  <path d="${path}" fill="#1d3b33" stroke="#5dcaa5" stroke-width="1.2"/>${hole}
+  <line x1="${x0}" y1="${y1+12}" x2="${x1}" y2="${y1+12}" stroke="#9a9890"/><text x="${W/2}" y="${y1+26}" text-anchor="middle">${fmt(d.w)}</text>
+  <line x1="${x1+10}" y1="${y0}" x2="${x1+10}" y2="${y1}" stroke="#9a9890"/><text x="${x1+14}" y="${H/2+4}">${fmt(d.t)}</text>${rlab}</svg>`;
+}
+
+function elevSVG(){
+  const W=360,H=170;const d=M.draw;if(!d)return '';
+  const dim=(x1,x2,y,t)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#9a9890" stroke-width=".8"/><line x1="${x1}" y1="${y-4}" x2="${x1}" y2="${y+4}" stroke="#9a9890" stroke-width=".8"/><line x1="${x2}" y1="${y-4}" x2="${x2}" y2="${y+4}" stroke="#9a9890" stroke-width=".8"/><text x="${(x1+x2)/2}" y="${y+12}" text-anchor="middle">${t}</text>`;
+  const dimV=(x,y1,y2,t)=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#9a9890" stroke-width=".8"/><line x1="${x-4}" y1="${y1}" x2="${x+4}" y2="${y1}" stroke="#9a9890" stroke-width=".8"/><line x1="${x-4}" y1="${y2}" x2="${x+4}" y2="${y2}" stroke="#9a9890" stroke-width=".8"/><text x="${x+5}" y="${(y1+y2)/2+4}">${t}</text>`;
+  const poly=(pts,fill)=>`<path d="M${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')}Z" fill="${fill||'#1d3b33'}" stroke="#5dcaa5" stroke-width="1"/>`;
+  let g='',title='Elevation';
+  if(d.kind==='mandrel'){
+    const secs=d.sections;const totL=secs.reduce((a,s)=>a+s.L,0),maxT=Math.max(...secs.map(s=>s.t));const sc=Math.min((W-70)/totL,(H-70)/maxT);let x=30;const cy=H/2-10;title='Side view';
+    secs.forEach(s=>{g+=`<rect x="${x}" y="${cy-s.t/2*sc}" width="${s.L*sc}" height="${s.t*sc}" fill="#1d3b33" stroke="#5dcaa5"/>`;g+=dim(x,x+s.L*sc,cy+maxT/2*sc+10,fmt(s.L));x+=s.L*sc;});
+    g+=dimV(x+8,cy-maxT/2*sc,cy+maxT/2*sc,fmt(maxT));if(secs.length>1)g+=dim(30,x,cy+maxT/2*sc+28,'overall '+fmt(totL));
+    if(d.split){const zA=30+d.zA*sc;g+=`<line x1="${zA}" y1="${cy-maxT/2*sc-6}" x2="${zA}" y2="${cy+maxT/2*sc+6}" stroke="#e2a23b" stroke-dasharray="4 3"/>`;}
+    if(secs.some(s=>s.taper>0.01)){/* taper not shown in rect, note it */g+=`<text x="30" y="${H-4}" fill="#9a9890">taper ${fmt(secs[0].taper)}/side not drawn to scale</text>`;}
+  } else if(d.kind==='pancake'){
+    const P=d.poly;const maxR=Math.max(...P.map(p=>p[0])),maxZ=Math.max(...P.map(p=>p[1]));const sc=Math.min((W-80)/(2*maxR),(H-60)/maxZ);const sx=W/2,sy=H-40;title='Section through center';
+    g+=poly(P.map(p=>[sx+p[0]*sc,sy-p[1]*sc]));g+=poly(P.map(p=>[sx-p[0]*sc,sy-p[1]*sc]).reverse());
+    g+=dim(sx-maxR*sc,sx+maxR*sc,sy+12,fmt(2*maxR));g+=dimV(sx+maxR*sc+8,sy-maxZ*sc,sy,fmt(maxZ));
+  } else if(d.kind==='taco'){
+    const half=d.zc>0?[[0,d.zc],[d.T/2-d.vWall-d.zc,d.zc],[d.T/2-d.vWall,0],[d.T/2,0],[d.T/2,d.base],[d.d/2,d.topZ],[d.d/2,d.topZ+d.postH],[0,d.topZ+d.postH]]:[[0,0],[d.T/2,0],[d.T/2,d.base],[d.d/2,d.topZ],[d.d/2,d.topZ+d.postH],[0,d.topZ+d.postH]];
+    const sc=Math.min((W-80)/d.T,(H-60)/(d.topZ+d.postH));const sx=W/2,sy=H-40;title='Section across the short axis';
+    g+=poly(half.map(p=>[sx+p[0]*sc,sy-p[1]*sc]));g+=poly(half.map(p=>[sx-p[0]*sc,sy-p[1]*sc]).reverse());
+    g+=dim(sx-d.T/2*sc,sx+d.T/2*sc,sy+12,fmt(d.T));g+=dimV(sx+d.T/2*sc+8,sy-(d.topZ+d.postH)*sc,sy,fmt(d.topZ+d.postH));
+  } else if(d.kind==='cup'){
+    const od=mm('tube'),top=d.Lc+d.ribH+od;const sc=Math.min((W-110)/(2*d.Rc+2*od),(H-50)/top);const sx=W/2,sy=H-30;title='Section, print orientation (end turns on top)';
+    g+=`<rect x="${sx-d.Rm*sc}" y="${sy-d.Lc*sc}" width="${2*d.Rm*sc}" height="${d.Lc*sc}" fill="#1d3b33" stroke="#5dcaa5"/>`;
+    const rr=Math.max(od/2*sc,1.5),tc=(x,y)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr.toFixed(1)}" fill="#b87333" opacity=".85"/>`;
+    for(let k=0;k<d.Ee;k++){const r=d.rIn+d.pitch*(k+0.5);g+=tc(sx-r*sc,sy-(d.Lc+od/2)*sc)+tc(sx+r*sc,sy-(d.Lc+od/2)*sc);}
+    for(let i=0;i<d.Sn;i++){const z=d.Lc-od/2-d.pitch*(i+0.5);g+=tc(sx-d.Rc*sc,sy-z*sc)+tc(sx+d.Rc*sc,sy-z*sc);}
+    g+=dim(sx-d.Rm*sc,sx+d.Rm*sc,sy+12,'ID '+fmt(d.ID));g+=dimV(sx+d.Rc*sc+12,sy-d.Lc*sc,sy,fmt(d.Lc));
+  } else if(d.kind==='die'){
+    const P=d.poly;const maxR=Math.max(...P.map(p=>p[0]));const sc=Math.min((W-80)/(2*maxR),(H-60)/d.H);const sx=W/2,sy=H-40;title='Section through center';
+    g+=poly(P.map(p=>[sx+p[0]*sc,sy-p[1]*sc]));g+=poly(P.map(p=>[sx-p[0]*sc,sy-p[1]*sc]).reverse());
+    g+=dim(sx-maxR*sc,sx+maxR*sc,sy+12,'OD '+fmt(2*maxR));g+=dimV(sx+maxR*sc+8,sy-d.H*sc,sy,fmt(d.H));
+  } else if(d.kind==='gauge'){
+    const tot=d.gl+d.gw;const sc=Math.min((W-80)/tot,8);const x0=30,sy=H/2+10;title='Side view';
+    if(d.stepped){const segL=d.gl/d.steps.length;d.steps.forEach((th,i)=>{g+=`<rect x="${x0+d.gw*sc+segL*sc*i}" y="${sy-th*sc*3}" width="${segL*sc}" height="${th*sc*3}" fill="#1d3b33" stroke="#5dcaa5"/><text x="${x0+d.gw*sc+segL*sc*(i+.5)}" y="${sy+14}" text-anchor="middle">${th.toFixed(0)}</text>`;});g+=`<rect x="${x0}" y="${sy-d.steps[0]*sc*3}" width="${d.gw*sc}" height="${d.steps[0]*sc*3}" fill="#1d3b33" stroke="#5dcaa5"/>`;}
+    else g+=`<rect x="${x0}" y="${sy-d.gt*sc*3}" width="${tot*sc}" height="${d.gt*sc*3}" fill="#1d3b33" stroke="#5dcaa5"/>`;
+    g+=`<text x="${x0}" y="${H-6}" fill="#9a9890">thickness exaggerated 3x</text>`;
+  }
+  $('elevTitle').textContent=title;
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+// ---------- Heat map: where the eddy currents land ----------
+// The coil's field in open air (each turn a round loop) is projected onto the steel surface. Heating goes with the
+// square of the field running along the surface, then dies off inward over the skin depth.
+function workpiece(m){
+  const lp=m&&m.loops;if(!lp||!lp.length||!m.heatKind)return null;
+  const od=mm('tube'),clr=4.76,bar=m.heatKind==='bar';
+  const rMin=Math.min(...lp.map(l=>l[0]));
+  let rs=mm('hmD')/2;if(!(rs>0.5))rs=bar?rMin-od/2-clr:m.heatAutoR;rs=Math.max(rs,1);
+  const through=bar&&$('hmThrough').checked;
+  const zLow=Math.min(...lp.map(l=>l[1]));
+  const zf=bar?zLow+mm('hmGap'):m.heatFaceZ+mm('hmGap');
+  const crown=mm('hmCrown');
+  return {rs,zf,crown:crown>rs?crown:0,through,auto:!(mm('hmD')>0.5)};
+}
+const HEAT_STOPS=[[0,[46,46,52]],[0.12,[92,22,12]],[0.32,[168,40,14]],[0.55,[242,101,34]],[0.8,[255,196,104]],[1,[255,247,226]]];
+function heatRGB(t){t=Math.min(Math.max(t,0),1);for(let i=1;i<HEAT_STOPS.length;i++){const [t1,c1]=HEAT_STOPS[i],[t0,c0]=HEAT_STOPS[i-1];if(t<=t1){const f=(t-t0)/(t1-t0);return c0.map((v,k)=>Math.round(v+(c1[k]-v)*f));}}return HEAT_STOPS[HEAT_STOPS.length-1][1];}
+function renderHeat(){
+  const card=$('heatCard');const wp=M&&workpiece(M);
+  if(!wp){card.style.display='none';return;}card.style.display='';
+  const lp=M.match?M.match.loops:M.loops,od=mm('tube'),hot=S.hmTemp!=='cold';
+  const zF=r=>wp.crown?wp.zf+wp.crown-Math.sqrt(Math.max(wp.crown*wp.crown-r*r,0)):wp.zf;
+  const fHz=(M.match?M.match.f:45)*1000;
+  const delta=(hot?503*Math.sqrt(1.15e-6/fHz):503*Math.sqrt(1.6e-7/(100*fHz)))*1000; // mm
+  const rMax=Math.max(...lp.map(l=>l[0]))+od;let Rv=Math.max(rMax,wp.rs)*1.12+4;
+  const zs=lp.map(l=>l[1]);let z0=Math.min(...zs)-od-0.3*Rv,z1=Math.max(...zs)+od+0.3*Rv;
+  if(!wp.through)z0=Math.min(z0,wp.zf-0.3*Rv);
+  if(!wp.through)z1=Math.max(z1,zF(wp.rs)+0.3*Rv);
+  if((z1-z0)>2.2*Rv)Rv=(z1-z0)/2.2;
+  const cv=$('heat');const Wpx=Math.max(240,Math.min(card.clientWidth-26,720)),Hpx=Math.round(Wpx*(z1-z0)/(2*Rv));
+  const dpr=Math.min(window.devicePixelRatio||1,2);cv.width=Math.round(Wpx*dpr);cv.height=Math.round(Hpx*dpr);cv.style.width=Wpx+'px';cv.style.height=Hpx+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const sc=Wpx/(2*Rv),X=r=>Wpx/2+r*sc,Y=z=>Hpx-(z-z0)*sc;
+  // surface samples: the face from the axis out, then up the side
+  const samp=[],nF=60,nS=140,zs0=wp.through?z0:zF(wp.rs);
+  if(!wp.through)for(let i=0;i<=nF;i++){const r=wp.rs*i/nF;let nr=0,nz=-1;if(wp.crown){const q=Math.sqrt(Math.max(wp.crown*wp.crown-r*r,1e-9));nr=r/q;const l=Math.hypot(nr,1);nr/=l;nz=-1/l;}samp.push({r,z:zF(r),nr,nz,part:'face'});}
+  for(let i=0;i<=nS;i++)samp.push({r:wp.rs,z:zs0+(z1-zs0)*i/nS,nr:1,nz:0,part:'side'});
+  let s=0;samp.forEach((p,i)=>{if(i)s+=Math.hypot(p.r-samp[i-1].r,p.z-samp[i-1].z);p.s=s;
+    const [br,bz]=fieldAt(lp,p.r+p.nr*0.6,p.z+p.nz*0.6);const bn=br*p.nr+bz*p.nz;p.h=Math.max(br*br+bz*bz-bn*bn,0);});
+  const hMax=Math.max(...samp.map(p=>p.h))||1;samp.forEach(p=>p.h/=hMax);
+  const face=samp.filter(p=>p.part==='face'),side=samp.filter(p=>p.part==='side');
+  const dVis=Math.max(delta,2/sc);
+  // field in the air, log scale
+  const step=2,cols=Math.ceil(Wpx/step),rows=Math.ceil(Hpx/step);const air=new Float32Array(cols*rows).fill(NaN);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const r=((i+0.5)*step-Wpx/2)/sc,z=z0+(Hpx-(j+0.5)*step)/sc,ar=Math.abs(r);
+    const inSteel=ar<wp.rs&&(wp.through||z>=zF(ar));if(inSteel)continue;
+    const [br,bz]=fieldAt(lp,r,z);air[j*cols+i]=Math.log10(Math.hypot(br,bz)+1e-12);}
+  const vals=Array.from(air).filter(v=>!isNaN(v)).sort((a,b)=>a-b);const top=vals[Math.floor(vals.length*0.97)]||0,bot=top-2;
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const x=i*step,y=j*step,r=Math.abs((x+step/2-Wpx/2)/sc),z=z0+(Hpx-(y+step/2))/sc;const v=air[j*cols+i];let c;
+    if(isNaN(v)){ // steel
+      const dS=wp.rs-r,dF=wp.through?1e9:z-zF(r);let h,d;
+      if(dS<dF){h=side[Math.min(nS,Math.max(0,Math.round((z-zs0)/(z1-zs0)*nS)))].h;d=dS;}else{h=face[Math.min(nF,Math.round(r/wp.rs*nF))].h;d=dF;}
+      c=heatRGB(h*Math.exp(-2*d/dVis));}
+    else{const t=Math.min(Math.max((v-bot)/(top-bot),0),1);c=[16+24*t,19+50*t,24+70*t].map(Math.round);}
+    ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`;ctx.fillRect(x,y,step,step);}
+  // steel outline
+  ctx.strokeStyle='#9a9890';ctx.lineWidth=1;ctx.beginPath();
+  if(wp.through){ctx.moveTo(X(-wp.rs),0);ctx.lineTo(X(-wp.rs),Hpx);ctx.moveTo(X(wp.rs),0);ctx.lineTo(X(wp.rs),Hpx);}
+  else{ctx.moveTo(X(-wp.rs),0);ctx.lineTo(X(-wp.rs),Y(zF(wp.rs)));for(let i=-nF;i<=nF;i++){const r=wp.rs*i/nF;ctx.lineTo(X(r),Y(zF(Math.abs(r))));}ctx.lineTo(X(wp.rs),0);}
+  ctx.stroke();
+  // copper
+  const cu=M.loops;ctx.fillStyle='#b87333';ctx.strokeStyle='#e9a86a';
+  const drawTurn=(r,z,dim)=>{for(const sg of [-1,1]){ctx.globalAlpha=dim?0.55:1;ctx.beginPath();ctx.arc(X(sg*r),Y(z),Math.max(od/2*sc,2),0,2*Math.PI);ctx.fill();ctx.stroke();}ctx.globalAlpha=1;};
+  lp.forEach(l=>drawTurn(l[0],l[1],!cu.includes(l)));
+  ctx.fillStyle='#e8e6e0';ctx.font='11px system-ui,sans-serif';ctx.fillText('copper',6,14);
+  ctx.fillStyle='#9a9890';ctx.fillText(M.roundEq?'section through the axis, round-equivalent turns':'section through the axis',6,Hpx-6);
+  // profile along the surface
+  const pv=$('heatProf'),PH=96;pv.width=Math.round(Wpx*dpr);pv.height=Math.round(PH*dpr);pv.style.width=Wpx+'px';pv.style.height=PH+'px';
+  const p2=pv.getContext('2d');p2.setTransform(dpr,0,0,dpr,0,0);p2.clearRect(0,0,Wpx,PH);
+  const S0=samp[samp.length-1].s||1,px=v=>8+v/S0*(Wpx-16),py=h=>PH-18-h*(PH-30);
+  if(face.length){p2.fillStyle='rgba(226,162,59,0.08)';p2.fillRect(px(0),4,px(face[face.length-1].s)-px(0),PH-22);}
+  p2.strokeStyle='#2e3139';p2.beginPath();p2.moveTo(8,py(0));p2.lineTo(Wpx-8,py(0));p2.stroke();
+  p2.strokeStyle='#f26522';p2.lineWidth=2;p2.beginPath();samp.forEach((p,i)=>{i?p2.lineTo(px(p.s),py(p.h)):p2.moveTo(px(p.s),py(p.h));});p2.stroke();
+  p2.fillStyle='#9a9890';p2.font='11px system-ui,sans-serif';
+  if(face.length){p2.fillText('face, center to edge',px(0)+2,PH-4);if(Wpx-px(face[face.length-1].s)>130)p2.fillText('side, up from the face',px(face[face.length-1].s)+6,PH-4);}else p2.fillText('along the bar',10,PH-4);
+  p2.fillText('heat along the surface',Wpx-140,12);
+  // words
+  const pct=v=>Math.round(v*100)+'%';let txt='';
+  if(face.length){const sp=side.reduce((a,b)=>b.h>a.h?b:a,side[0]),fp=face.reduce((a,b)=>b.h>a.h?b:a,face[0]),up=sp.z-zF(wp.rs);
+    txt=`Face: center ${pct(face[0].h)}, hottest ${pct(fp.h)} at ${fmt(fp.r)} out from center, edge ${pct(face[face.length-1].h)}. Sides peak ${pct(sp.h)} ${up<1?'right at the corner':'about '+fmt(up)+' up from the face'}. `;
+    const fAvg=face.reduce((a,b)=>a+b.h,0)/face.length;
+    if(fAvg<0.25&&sp.h>0.6)txt+='Most of the heat lands on the sides and corner. Close the face gap or add end turns to bring the face up. ';
+    else if(face[0].h<0.2*fp.h)txt+='The middle of the face lags because the field is zero on the axis. Let it soak, or start the end spiral smaller. ';}
+  else{const hot2=side.filter(p=>p.h>0.5);if(hot2.length)txt=`Heat runs strongest over about ${fmt(hot2[hot2.length-1].z-hot2[0].z)} of the bar. `;}
+  txt+=`Heat starts about ${delta<1?delta.toFixed(2):delta.toFixed(1)} mm deep at ~${(fHz/1000).toFixed(0)} kHz in ${hot?'hot steel (past nonmagnetic)':'cold steel'}, then soaks in. Stock ${fmt(2*wp.rs)}${wp.auto?' (auto, 5 mm clearance)':''}${wp.crown?', face crown R'+fmt(wp.crown):''}. Relative, from the coil's field in open air. Real steel pulls heat even tighter to the nearest copper.`;
+  $('heatNote').textContent=txt;
+}
+let M=null;
+function update(){try{updateInner();}catch(e){$('msg').textContent='Preview error: '+(e&&e.message||e);console.error(e);}}
+function updateInner(){
+  M=model();
+  while(group.children.length){const c=group.children.pop();c.geometry&&c.geometry.dispose();}
+  if(!M){$('msg').textContent='Those numbers don\'t make a solid. Check chamfer, taper, or hole.';return;}
+  $('msg').textContent='';
+  let xoff=0,maxZ=0,span=0;
+  const od=mm('tube'),gap=mm('gap'),turns=Math.max(1,Math.round(num('turns'))),turnsB=Math.max(1,Math.round(num('turnsB')));
+  const assembled=(S.type==='mandrel'||S.type==='combo'||S.type==='die'); // split pieces shown in place, slightly exploded
+  M.parts.forEach((p,i)=>{
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p.tris,3));g.computeVertexNormals();g.computeBoundingBox();
+    const bb=g.boundingBox;const w=bb.max.x-bb.min.x;
+    const holder=new THREE.Group();
+    if(assembled)holder.position.x=p.explode||0;else holder.position.x=xoff+(i>0?w/2+15:0);
+    if(S.type==='die'){const d0=M.draw;if(p.name.startsWith('bender_keeper')){holder.position.set(d0.clr,-20,M.parts[0].die.H/2+mm('tube')/2*1.04+3+2);}
+      if(p.name.startsWith('bender_roller')){holder.position.set(d0.D,0,0);}
+      if(p.name.startsWith('bender_arm')){holder.position.set(0,0,M.parts[0].die.H+1);}}
+    holder.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:i===0?0xe8e6e0:0xc9c6bd,metalness:0.05,roughness:0.6})));
+    const showTube=$('showTube').checked;
+    if(showTube&&M.mandrelSecs&&i===0)coilGhost(M.mandrelSecs,od,gap,[turns,turnsB],M.zA).forEach(m=>holder.add(m));
+    if(showTube&&S.type==='pancake'&&S.pkStyle==='post')holder.add(spiralGhost(mm('pkID'),od,gap,turns,0,p.sections[0].L));
+    if(showTube&&S.type==='pancake'&&S.pkStyle==='channel'){const ang=Math.min(Math.max(num('pkAng'),0),45)*Math.PI/180;const base=mm('pkBase'),ID=mm('pkID'),margin=mm('pkMargin'),cw=od+Math.max(mm('pkClr'),0),pitch=Math.max(od+gap,cw+1.2);
+      const rb=spiralRib(ID/2,cw,pitch,turns,48);const outerR=rb.outerR+margin+0;const surf=r=>base+(outerR-Math.min(Math.max(r,ID/2),outerR))*Math.tan(ang);
+      const pts=rb.tubePath.map(q=>new THREE.Vector3(q[0],q[1],surf(Math.hypot(q[0],q[1]))+od/2));
+      const s0=rb.tubePath[0];const z0=surf(Math.hypot(s0[0],s0[1]))+od/2;const Rb=Math.max(mm('pkBend'),od);
+      const dx=pts[1].x-s0[0],dy=pts[1].y-s0[1],dl=Math.hypot(dx,dy),ux=dx/dl,uy=dy/dl;
+      const lead=[];for(let i=12;i>=1;i--){const ph=Math.PI/2*i/12;lead.push(new THREE.Vector3(s0[0]-ux*Rb*Math.sin(ph),s0[1]-uy*Rb*Math.sin(ph),z0+Rb*(1-Math.cos(ph))));}
+      lead.unshift(new THREE.Vector3(s0[0]-ux*Rb,s0[1]-uy*Rb,z0+Rb+2.5*od));
+      const mat=new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55});
+      holder.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lead.concat(pts)),pts.length+24,od/2,8,false),mat));}
+    if(showTube&&S.type==='die'&&i===0){const d0=M.draw;const z=d0.H/2;const pts=[];for(let y=-70;y<=0;y+=10)pts.push(new THREE.Vector3(d0.clr,y,z));for(let a=0;a<=Math.PI/2;a+=Math.PI/24)pts.push(new THREE.Vector3(d0.clr*Math.cos(a),d0.clr*Math.sin(a),z));
+      holder.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,od/2,8,false),new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55})));}
+    if(showTube&&S.type==='taco'&&i===0){const rb=M.tacoRib;const surf=p.tacoSurf;const pts=rb.tubePath.map(q=>new THREE.Vector3(q[0],q[1],surf(q)+od/2));
+      const s0=rb.tubePath[0];const z0=surf(s0)+od/2;const Rb=Math.max(mm('tcBend'),od);const dx=pts[1].x-s0[0],dy=pts[1].y-s0[1],dl=Math.hypot(dx,dy),ux=dx/dl,uy=dy/dl;
+      const lead=[];for(let k=12;k>=1;k--){const ph=Math.PI/2*k/12;lead.push(new THREE.Vector3(s0[0]-ux*Rb*Math.sin(ph),s0[1]-uy*Rb*Math.sin(ph),z0+Rb*(1-Math.cos(ph))));}
+      lead.unshift(new THREE.Vector3(s0[0]-ux*Rb,s0[1]-uy*Rb,z0+Rb+2.5*od));
+      holder.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lead.concat(pts)),pts.length+24,od/2,8,false),new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55})));}
+    if(showTube&&S.type==='cup'&&i===0&&M.cupPath){const pts=M.cupPath.map(q=>new THREE.Vector3(q[0],q[1],q[2]));const s0=M.cupPath[0];pts.unshift(new THREE.Vector3(s0[0],s0[1],s0[2]+2.5*od));
+      holder.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),pts.length*2,od/2,8,false),new THREE.MeshStandardMaterial({color:0xb87333,metalness:0.6,roughness:0.35,transparent:true,opacity:0.55})));}
+    group.add(holder);
+    if(!assembled){if(i===0){xoff=w/2;}else xoff+=w+15;}
+    maxZ=Math.max(maxZ,bb.max.z);span=Math.max(span,assembled?w:xoff+w/2,bb.max.y-bb.min.y,bb.max.z);
+  });
+  if(!assembled&&M.parts.length>1){group.position.x=-xoff/2;}else group.position.x=0;
+  orbit.tz=maxZ/2;if(orbit.fit)orbit.dist=Math.max(span*2.4,120);
+  // cards
+  const c=M.coil;let cards='';
+  if(S.type==='mandrel'||S.type==='combo'){
+    const secs=M.mandrelSecs;
+    if(M.warn)cards+=`<div class="card"><div class="bad">${M.warn}</div></div>`;
+    if(M.split)cards+=`<div class="card"><h3>Removable center</h3><div class="big">3 pieces</div><div class="sub">Slab ${fmt(M.split.sw)} wide${M.split.tp?', tapers '+fmt(M.split.tp)+' a side over the length. Tap it out from the clamp end.':', straight, friction fit.'} Tape or band the shells on while winding.</div></div>`;
+    cards+=`<div class="card"><h3>Mandrel = coil ID</h3><div class="big">${secs.map(s=>fmt(s.w)+' x '+fmt(s.t)).join(' + ')}</div><div class="sub">${secs.map(s=>fmt(s.L)).join(' + ')} long. Heats stock up to about ${c.fits.join(' / ')} with 5 mm clearance a side.</div></div>`;
+    cards+=`<div class="card"><h3>Coil</h3><div class="big">${c.coilLen.map((l,i)=>([turns,turnsB][i])+' turns, '+fmt(l)).join(' + ')}</div><div class="sub">${fmt(od)} tube, ${fmt(gap)} gap${c.coilLen.some((l,i)=>l>secs[i].L)?'. <span class="bad">Coil longer than its section.</span>':''}</div></div>`;
+    if(M.parts.length===1&&M.parts[0].flatLift==null)cards+=`<div class="card"><div class="sub">Sections differ in thickness, so this exports standing on end.</div></div>`;
+  } else if(S.type==='pancake'||S.type==='taco'){
+    if(M.warn)cards+=`<div class="card"><div class="bad">${M.warn}</div></div>`;
+    cards+=`<div class="card"><h3>${S.type==='pancake'?'Pancake':'Taco blank'}</h3><div class="big">${turns} turns, ${fmt(c.outer)} across</div><div class="sub">${fmt(od)} tube, ${fmt(gap)} gap</div></div>`;
+  } else if(S.type==='cup'){
+    if(M.warn)cards+=`<div class="card"><div class="bad">${M.warn}</div></div>`;
+    const d=M.draw;cards+=`<div class="card"><h3>Cup coil</h3><div class="big">${fmt(d.ID)} ID, ${d.Sn} side + ${d.Ee} end turns</div><div class="sub">Fits a head up to about ${fmt(d.ID-2*4.76)}. ${fmt(od)} tube, ${fmt(gap)} gap.</div></div>`;
+  } else if(S.type==='gauge'){
+    const d=M.draw;cards+=`<div class="card"><h3>Feeler gauge</h3><div class="big">${d.stepped?d.steps.map(v=>v.toFixed(0)).join(' / ')+' mm':d.gt.toFixed(1)+' mm'}</div><div class="sub">${fmt(d.gw)} wide, ${fmt(d.gl+d.gw)} overall</div></div>`;
+  } else {
+    const d=M.parts[0].die;cards+=`<div class="card"><h3>Bend die</h3><div class="big">CLR ${fmt(d.clr)}, OD ${fmt(2*d.clr)}</div><div class="sub">${fmt(d.H)} thick, ${fmt(d.dh)} bolt hole. Groove fits ${fmt(d.od)} tube.</div></div>`;
+  }
+  if(c.tube){cards+=`<div class="card"><h3>Tube to cut</h3><div class="big">${fmtLen(c.tube)}</div><div class="math">${c.lines.join('\n')}\n= ${fmt(c.tube)}. Add ~10% for scrap.</div></div>`;}
+  else cards+=`<div class="card"><h3>Bend math</h3><div class="math">${c.lines.join('\n')}</div></div>`;
+  if(M.match){const m=M.match;cards+=`<div class="card"><h3>Machine match</h3><div class="big">${(m.L*1e6).toFixed(2)} µH, ~${m.f.toFixed(0)} kHz</div><div class="sub"><span class="${m.st==='ok'?'ok':m.st==='bad'?'bad':''}" style="${m.st==='edge'?'color:var(--accent)':''}">${m.msg}</span> ${m.ratio.toFixed(1)}x your go-to coil${m.series?', series section included':''}${S.type==='taco'?', flat blank (folding drops it a little)':''}. Estimate from the turn layout. Set your go-to coil and its kHz under Machine match.</div></div>`;}
+  // volume
+  let vol=0;M.parts.forEach(p=>vol+=meshStats(p.tris).volume_mm3);
+  cards+=`<div class="card"><h3>Print</h3><div class="big">${(vol/1000).toFixed(0)} cm³</div><div class="sub">about ${(vol/1000*1.24*0.4).toFixed(0)} g PLA at 40% infill, ${(vol/1000*1.24).toFixed(0)} g solid. ${M.parts.length>1?M.parts.length+' parts.':''}</div></div>`;
+  $('cards').innerHTML=cards;
+  $('xsec').innerHTML=S.type==='die'?'<div class="sub">Revolved half-round groove, see the section and 3D.</div>':S.type==='gauge'?'<div class="sub">Flat blade, see the side view.</div>':xsecSVG(M.parts);
+  $('xsecTitle').textContent=(S.type==='pancake'||S.type==='taco')?'Plan view (post)':'Cross-section';
+  $('elev').innerHTML=elevSVG();
+  $('verify').innerHTML=M.parts.map(p=>{const s=meshStats(p.tris);return `<div class="sub">${p.name}.stl</div><div>${s.triangles} triangles, <span class="${s.openEdges?'bad':'ok'}">${s.openEdges?s.openEdges+' open edges':'watertight'}</span>, ${s.volume_mm3>0?'<span class="ok">normals out</span>':'<span class="bad">normals inverted</span>'}</div>`;}).join('');
+  $('scadOut').value=M.scad;
+  renderHeat();
+}
+
+// ---------- UI ----------
+function seg(id,key,attr,cb){$(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{$(id).querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=b.dataset[attr];cb&&cb();orbit.fit=true;update();});}
+function setSeg(id,val){$(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',Object.values(x.dataset)[0]===val));}
+const UNIT_IDS=['wA','tA','rA','LA','wB','tB','rB','LB','taper','hole','chamfer','tube','gap','lead','pkID','pkBase','pkMargin','tcSize','tcStraight','tcBase','tcBarL','dieCLR','dieHole','dieFlange','clampW','clampT','clampL','slabW','slabTaper','pkClr','pkBend','rollD','pinD','handleL','tcBend','tcClr','pkWall','tcWall','tcMeat','cupID','cupL','cupClr','cupBend','refD','serD','hmD','hmGap','hmCrown'];
+const STEPS={in:{wA:.125,tA:.0625,rA:.0625,LA:.25,wB:.125,tB:.0625,rB:.0625,LB:.25,taper:.015625,hole:.0625,chamfer:.03125,tube:.0625,gap:.0625,lead:.5,pkID:.125,pkBase:.0625,pkMargin:.125,tcSize:.125,tcStraight:.25,tcBase:.0625,tcBarL:.5,dieCLR:.125,dieHole:.0625,dieFlange:.0625,clampW:.125,clampT:.125,clampL:.25,slabW:.125,slabTaper:.015625,pkClr:.01,pkBend:.125,rollD:.125,pinD:.0625,handleL:1,tcBend:.125,tcClr:.01,pkWall:.0625,tcWall:.0625,tcMeat:.0625,cupID:.125,cupL:.25,cupClr:.01,cupBend:.125,refD:.125,serD:.125,hmD:.125,hmGap:.0625,hmCrown:.25},
+ mm:{wA:1,tA:.5,rA:.5,LA:5,wB:1,tB:.5,rB:.5,LB:5,taper:.25,hole:.5,chamfer:.5,tube:.5,gap:.5,lead:10,pkID:1,pkBase:1,pkMargin:1,tcSize:1,tcStraight:5,tcBase:1,tcBarL:10,dieCLR:1,dieHole:.5,dieFlange:.5,clampW:1,clampT:1,clampL:5,slabW:1,slabTaper:.25,pkClr:.1,pkBend:1,rollD:1,pinD:.5,handleL:10,tcBend:1,tcClr:.1,pkWall:.5,tcWall:.5,tcMeat:.5,cupID:1,cupL:5,cupClr:.1,cupBend:1,refD:1,serD:1,hmD:1,hmGap:.5,hmCrown:5}};
+function applySteps(){const st=STEPS[S.units];UNIT_IDS.forEach(id=>{if(st[id]!=null)$(id).step=st[id];});}
+seg('units','units','u',()=>{const k=S.units==='in'?1/IN:IN;UNIT_IDS.forEach(id=>{$(id).value=+(num(id)*k).toFixed(S.units==='in'?4:2);});applySteps();});
+applySteps();
+function showType(){
+  ['mandrel','pancake','taco','cup','die','gauge'].forEach(t=>{const el=$('pane-'+t);if(el)el.style.display='none';});
+  $('pane-'+(S.type==='combo'?'mandrel':S.type)).style.display='';
+  $('secB').style.display=S.type==='combo'?'':'none';
+  $('taper_row').style.display=S.type==='mandrel'?'':'none';
+  $('splitBox').style.display=S.type==='mandrel'?'':'none';
+  $('turnsB_row').style.display=S.type==='combo'?'':'none';
+  $('turns_row').style.display=(S.type==='die'||S.type==='gauge'||S.type==='cup')?'none':'';
+  $('machineBox').style.display=(S.type==='die'||S.type==='gauge')?'none':'';
+  $('heatBox').style.display=(S.type==='die'||S.type==='gauge'||S.type==='taco')?'none':'';
+  $('hmThrough_row').style.display=(S.type==='mandrel'||S.type==='combo')?'':'none';
+  document.querySelectorAll('fieldset').forEach(f=>{if(f.querySelector('legend')&&f.querySelector('legend').textContent==='Coil estimate')f.style.display=S.type==='gauge'?'none':'';});
+  $('turnsLabel').textContent=S.type==='combo'?'Turns, first section':'Turns';
+  $('flat_row').style.display=(S.type==='mandrel'||S.type==='combo')?'':'none';
+  $('typeNote').textContent=NOTES[S.type];
+  renderRefs();
+}
+seg('type','type','t',()=>{ // a cup starts with a rounding-hammer crown; leaving the cup puts a crown it set back to flat
+  if(S.type==='cup'&&!(num('hmCrown')>0)){$('hmCrown').value=S.units==='in'?3:76;S.crownAuto=true;}
+  else if(S.type!=='cup'&&S.crownAuto){$('hmCrown').value=0;S.crownAuto=false;}showType();});
+seg('hmTemp','hmTemp','h');
+seg('clampEnds','clampEnds','c');
+seg('dieMode','dieMode','d',()=>{$('dieStack_row').style.display=S.dieMode==='stack'?'':'none';});
+$('dieStack').addEventListener('input',()=>{orbit.fit=true;update();});
+seg('pkStyle','pkStyle','p',()=>{['pkClr_row','pkRibH_row','pkAng_row','pkBend_row','pkWall_row'].forEach(id=>$(id).style.display=S.pkStyle==='channel'?'':'none');});
+// picking Teardrop loads its default: 2.5" long, 3/4" radius big end, 1/4" radius small end
+const teardropDefault=k=>{if(S['shape'+k]!=='teardrop')return;const p=PRESETS.teardrop[0],kk=S.units==='in'?1:IN,r=v=>+(v*kk).toFixed(2);$('w'+k).value=r(p[1]);$('t'+k).value=r(p[2]/2);$('r'+k).value=r(p[3]);};
+seg('shapeA','shapeA','s',()=>{teardropDefault('A');shapeUI('A');});seg('shapeB','shapeB','s',()=>{teardropDefault('B');shapeUI('B');});
+function shapeUI(k){const s=S['shape'+k];$('t'+k+'_row').style.display=s==='round'?'none':'';$('r'+k+'_row').style.display=(s==='box'||s==='teardrop')?'':'none';
+  if(k==='A'){$('wA_label').innerHTML=s==='teardrop'?'Overall length<small>big end to small end</small>':'Width<small>long dimension = coil ID</small>';$('tA_label').textContent=s==='teardrop'?'Big end radius':'Thickness';$('rA_label').textContent=s==='teardrop'?'Small end radius':'Corner radius';}
+  $('presets'+k).innerHTML=PRESETS[s].map((p,i)=>`<button data-i="${i}">${p[0]}</button>`).join('');
+  $('presets'+k).querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=PRESETS[s][+b.dataset.i];const kk=S.units==='in'?1:IN;$('w'+k).value=p[1]*kk;if(p[2]!=null)$('t'+k).value=(s==='teardrop'?p[2]/2:p[2])*kk;if(p[3]!=null)$('r'+k).value=p[3]*kk;update();});}
+document.querySelectorAll('aside input').forEach(i=>i.addEventListener('change',()=>{orbit.fit=true;update();}));
+document.querySelectorAll('aside input[type=number]').forEach(i=>i.addEventListener('input',()=>{orbit.fit=true;update();}));
+document.querySelectorAll('aside fieldset').forEach(f=>{const lg=f.querySelector('legend');if(!lg)return;const key='fs_'+lg.textContent.trim();
+  let closed=false;try{const v=localStorage.getItem(key);if(v!=null)closed=v==='1';else closed=['Clamp block','Removable center','Coil estimate','Stamp','Machine match','Heat map'].includes(lg.textContent.trim());}catch(e){}
+  f.classList.toggle('closed',closed);
+  lg.onclick=()=>{f.classList.toggle('closed');try{localStorage.setItem(key,f.classList.contains('closed')?'1':'0');}catch(e){}};});
+shapeUI('A');shapeUI('B');showType();update();
+
+// ---------- library ----------
+let LIB=[];try{LIB=JSON.parse(localStorage.getItem('mandrelLib')||'[]');}catch(e){LIB=[];}
+function snapshot(){const o={S:Object.assign({},S),v:{}};UNIT_IDS.concat(['turns','turnsB','res','pkRibH','pkAng','tcAng','cupS','cupE','cupRibH','refN','fRef','fMin','fMax','serN']).forEach(id=>o.v[id]=$(id).value);o.v.flat=$('flat').checked;o.v.split=$('split').checked;o.v.lockOn=$('lockOn').checked;o.v.armOn=$('armOn').checked;o.v.raceOn=$('raceOn').checked;o.v.stampOn=$('stampOn').checked;o.v.stampUrl=$('stampUrl').checked;o.v.raceH=$('raceH').value;o.v.dieStack=$('dieStack').value;o.v.ggStep=$('ggStep').checked;o.v.hmThrough=$('hmThrough').checked;['ggT','ggW','ggL','ggHole'].forEach(id=>o.v[id]=$(id).value);return o;}
+function restore(o){Object.assign(S,o.S);if(S.type==='combo')S.type='mandrel';setSeg('type',S.type);setSeg('units',S.units);setSeg('shapeA',S.shapeA);setSeg('shapeB',S.shapeB);setSeg('clampEnds',S.clampEnds||'none');setSeg('pkStyle',S.pkStyle||'channel');setSeg('hmTemp',S.hmTemp||'hot');setSeg('dieMode',S.dieMode||'single');$('dieStack_row').style.display=S.dieMode==='stack'?'':'none';
+  for(const id in o.v){if(id==='flat')$('flat').checked=o.v[id];else if(id==='split'||id==='lockOn'||id==='armOn'||id==='ggStep'||id==='raceOn'||id==='stampOn'||id==='stampUrl'||id==='hmThrough')$(id).checked=o.v[id];else if($(id))$(id).value=o.v[id];}shapeUI('A');shapeUI('B');showType();orbit.fit=true;update();}
+function renderLib(){$('libList').innerHTML=LIB.map((it,i)=>`<div class="item"><div class="nm" data-i="${i}" title="load">${it.name}<small>${it.desc}</small></div><button data-d="${i}" title="remove">✕</button></div>`).join('')||'<div class="note">Nothing saved yet. Set up a form and hit Add.</div>';
+  $('libList').querySelectorAll('.nm').forEach(el=>el.onclick=()=>restore(LIB[+el.dataset.i].snap));
+  $('libList').querySelectorAll('button').forEach(el=>el.onclick=()=>{LIB.splice(+el.dataset.d,1);saveLib();});}
+function saveLib(){try{localStorage.setItem('mandrelLib',JSON.stringify(LIB));}catch(e){}renderLib();}
+$('libAdd').onclick=()=>{if(!M)return;const desc=M.parts.map(p=>p.name).join(', ');LIB.push({name:$('libName').value.trim()||M.parts[0].name,desc,snap:snapshot()});$('libName').value='';saveLib();};
+$('libClear').onclick=()=>{LIB=[];saveLib();};
+renderLib();
+
+// ---------- export ----------
+const CRC=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c>>>0;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function makeZip(files){const enc=new TextEncoder();const parts=[];const central=[];let off=0;
+  for(const f of files){const n=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+    const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(12,0x21,true);lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);lh.setUint16(26,n.length,true);
+    parts.push(new Uint8Array(lh.buffer),n,f.data);
+    const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(14,0x21,true);ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);ch.setUint16(28,n.length,true);ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),n);off+=30+n.length+sz;}
+  let cs=0;for(const c of central)cs+=c.length;
+  const end=new DataView(new ArrayBuffer(22));end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);end.setUint32(12,cs,true);end.setUint32(16,off,true);
+  const all=[...parts,...central,new Uint8Array(end.buffer)];let tot=0;for(const a of all)tot+=a.length;
+  const out=new Uint8Array(tot);let p=0;for(const a of all){out.set(a,p);p+=a.length;}return out;}
+let downloads=null,stlDirect=true;
+let browserDl=false;
+(async()=>{try{if(window.claude&&claude.use)downloads=await claude.use('downloads');}catch(e){}
+  if(!downloads){ // standalone hosting: plain browser downloads, raw .stl allowed
+    browserDl=true;
+    downloads={save:async({filename,data})=>{const blob=data instanceof Blob?data:new Blob([data]);const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);return {status:'saved'};}};
+    $('dlStlOnly').style.display='none';$('dlStl').className='btn';$('dlStl').textContent='Download STL';$('dlScad').textContent='Download SCAD';
+    const b=document.createElement('button');b.className='btn alt';b.id='dlZip';b.textContent='Zip (STL + spec sheet)';$('dlStl').after(b);
+    b.onclick=()=>{if(!M)return;const m=M,label=m.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');withPDF(packageFiles(m,label),m,label).then(f=>save(label+'.zip',makeZip(f)));};
+  }})();
+function exportTris(p){return (S.type==='mandrel'||S.type==='combo')&&$('flat').checked&&p.flatLift!=null?layFlat(p.tris,p.flatLift):p.tris;}
+function stlFiles(m){return m.parts.map(p=>({name:p.name+'.stl',data:new Uint8Array(toSTL(exportTris(p),p.name))}));}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function sheetSVG(m,label){
+  const W=816,H=1056;const today=new Date().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+  let o=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="8.5in" height="11in" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#111">
+<rect width="${W}" height="${H}" fill="#fff"/>
+<rect x="0" y="0" width="${W}" height="64" fill="#1a1a1a"/>
+<text x="40" y="40" font-size="22" font-weight="700" fill="#fff" letter-spacing="3">PORTLAND IRONWORKS</text>
+<text x="${W-40}" y="30" text-anchor="end" fill="#e2a23b" font-size="11" letter-spacing="1">INDUCTION COIL TOOLING</text>
+<text x="${W-40}" y="48" text-anchor="end" fill="#bbb" font-size="11">${esc(today)}</text>
+<text x="40" y="96" font-size="18" font-weight="700">${esc(label)}</text>
+<text x="40" y="114" fill="#666">${esc(m.specs[0][1])} · units ${S.units==='in'?'inches':'mm'} · STL in mm</text>
+<line x1="40" y1="124" x2="${W-40}" y2="124" stroke="#ccc"/>`;
+  // dim helpers
+  const dimH=(x1,x2,y,t)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#333" stroke-width=".6"/><line x1="${x1}" y1="${y-4}" x2="${x1}" y2="${y+4}" stroke="#333" stroke-width=".6"/><line x1="${x2}" y1="${y-4}" x2="${x2}" y2="${y+4}" stroke="#333" stroke-width=".6"/><text x="${(x1+x2)/2}" y="${y+12}" text-anchor="middle" font-size="10">${esc(t)}</text>`;
+  const dimV=(x,y1,y2,t)=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#333" stroke-width=".6"/><line x1="${x-4}" y1="${y1}" x2="${x+4}" y2="${y1}" stroke="#333" stroke-width=".6"/><line x1="${x-4}" y1="${y2}" x2="${x+4}" y2="${y2}" stroke="#333" stroke-width=".6"/><text x="${x+6}" y="${(y1+y2)/2+4}" font-size="10">${esc(t)}</text>`;
+  const poly=(pts,fill,stroke)=>`<path d="M${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')}Z" fill="${fill}" stroke="${stroke||'#111'}" stroke-width="1"/>`;
+  const cap=(x,y,t)=>`<text x="${x}" y="${y}" font-size="11" font-weight="700" fill="#444">${esc(t)}</text>`;
+  const d=m.draw;const box={x:40,y:140,w:470,h:420};let g='',drawBottom=0;
+  if(d.kind==='mandrel'){
+    const secs=d.sections;const totL=secs.reduce((a,s)=>a+s.L,0);const maxT=Math.max(...secs.map(s=>s.t)),maxW=Math.max(...secs.map(s=>s.w));
+    // one scale for side and top views, sized so side, top and end views stack inside the box without touching
+    const sc=Math.min((box.w-110)/totL,210/(maxT+maxW),90/maxT,120/maxW);
+    // side view: length along x, thickness along y
+    let yy=box.y+14;g+=cap(box.x,yy,'Side view');
+    let x=box.x+30,cy=yy+(d.split?32:18)+maxT/2*sc;
+    secs.forEach(s=>{g+=`<rect x="${x}" y="${cy-s.t/2*sc}" width="${s.L*sc}" height="${s.t*sc}" fill="#f2f2f2" stroke="#111"/>`;g+=dimH(x,x+s.L*sc,cy+maxT/2*sc+14,fmt(s.L));x+=s.L*sc;});
+    g+=dimH(box.x+30,x,cy+maxT/2*sc+34,'overall '+fmt(totL));g+=dimV(x+10,cy-maxT/2*sc,cy+maxT/2*sc,fmt(maxT));
+    if(d.split){const zA=d.zA*sc;g+=`<line x1="${box.x+30+zA}" y1="${cy-secs[secs.length-1].t/2*sc-8}" x2="${box.x+30+zA}" y2="${cy+8}" stroke="#e2a23b" stroke-dasharray="4 3"/><text x="${box.x+30+zA+4}" y="${cy-maxT/2*sc-10}" font-size="10" fill="#b07a1e">split starts here</text>`;}
+    // top view (width along y)
+    yy=cy+maxT/2*sc+66;x=box.x+30;g+=cap(box.x,yy,'Top view');const cy2=yy+16+maxW/2*sc;
+    secs.forEach(s=>{if(s.shape==='round'||s.shape==='oval'||s.shape==='pill'){g+=`<rect x="${x}" y="${cy2-s.w/2*sc}" width="${s.L*sc}" height="${s.w*sc}" fill="#f2f2f2" stroke="#111"/>`;}else g+=`<rect x="${x}" y="${cy2-s.w/2*sc}" width="${s.L*sc}" height="${s.w*sc}" fill="#f2f2f2" stroke="#111"/>`;x+=s.L*sc;});
+    g+=dimV(x+10,cy2-maxW/2*sc,cy2+maxW/2*sc,fmt(maxW));
+    if(d.split){const zA=box.x+30+d.zA*sc,sw=d.split.sw*sc;g+=`<line x1="${zA}" y1="${cy2-sw/2}" x2="${x}" y2="${cy2-sw/2-d.split.tp*sc}" stroke="#e2a23b" stroke-dasharray="4 3"/><line x1="${zA}" y1="${cy2+sw/2}" x2="${x}" y2="${cy2+sw/2+d.split.tp*sc}" stroke="#e2a23b" stroke-dasharray="4 3"/><text x="${zA+6}" y="${cy2+4}" font-size="10" fill="#b07a1e">slab ${fmt(d.split.sw)}</text>`;}
+    // end views of each mandrel section
+    yy=cy2+maxW/2*sc+34;let ex=box.x+30;g+=cap(box.x,yy,'End view');
+    const ey=yy+30+Math.max(...d.mandrelSecs.map(s=>s.t/2*Math.min(140/s.w,70/s.t)));
+    d.mandrelSecs.forEach(s=>{const sc2=Math.min(140/s.w,70/s.t);const pts=profile(s,0,16).map(p=>[ex+s.w/2*sc2+p[0]*sc2,ey-p[1]*sc2]);g+=poly(pts,'#f2f2f2');
+      if(s.hole>0.05)g+=`<circle cx="${ex+s.w/2*sc2}" cy="${ey}" r="${s.hole/2*sc2}" fill="#fff" stroke="#111"/>`;
+      g+=dimH(ex,ex+s.w*sc2,ey+s.t/2*sc2+14,fmt(s.w));g+=dimV(ex+s.w*sc2+10,ey-s.t/2*sc2,ey+s.t/2*sc2,fmt(s.t));
+      if(s.shape==='teardrop')g+=`<text x="${ex}" y="${ey-s.t/2*sc2-8}" font-size="10">R ${fmt(s.t/2)}</text><text x="${ex+s.w*sc2}" y="${ey-s.t/2*sc2-8}" font-size="10" text-anchor="end">R ${fmt(s.r1)}</text>`;
+      else if(s.shape!=='round'&&s.shape!=='oval')g+=`<text x="${ex}" y="${ey-s.t/2*sc2-8}" font-size="10">R ${fmt(s.r)}</text>`;ex+=s.w*sc2+80;drawBottom=Math.max(drawBottom,ey+s.t/2*sc2+30);});
+  } else if(d.kind==='pancake'){
+    const R=d.outerR;const sc=135/R;const cx=box.x+10+R*sc,cy=box.y+50+R*sc;g+=cap(box.x,box.y+14,'Plan view');
+    g+=`<circle cx="${cx}" cy="${cy}" r="${R*sc}" fill="#f2f2f2" stroke="#111"/><circle cx="${cx}" cy="${cy}" r="${d.ID/2*sc}" fill="#e6e6e6" stroke="#111"/>`;
+    if(d.ribOuter){g+=`<path d="M${d.ribOuter.map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}L${d.ribInner.slice().reverse().map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}Z" fill="#cfcfcf" stroke="#555" stroke-width=".6"/>`;}
+    if(d.tubePath)g+=`<path d="M${d.tubePath.map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}" fill="none" stroke="#b87333" stroke-width="${Math.max(2,mm('tube')*sc)}" stroke-linecap="round" opacity=".7"/>`;
+    if(d.leadStart){const lx=cx+d.leadStart[0]*sc,ly=cy-d.leadStart[1]*sc;g+=`<circle cx="${lx}" cy="${ly}" r="${Math.max(3,mm('tube')/2*sc)}" fill="#fff" stroke="#b87333" stroke-width="1.5"/><line x1="${lx}" y1="${ly}" x2="${cx}" y2="${cy+R*sc+34}" stroke="#7a4e1e" stroke-width=".5" stroke-dasharray="2 2"/><text x="${cx}" y="${cy+R*sc+46}" text-anchor="middle" font-size="9" fill="#7a4e1e">inner lead rises here on a ${esc(fmt(d.Rb))} bend</text>`;}
+    g+=dimH(cx-R*sc,cx+R*sc,cy+R*sc+16,fmt(2*R));g+=dimH(cx-d.ID/2*sc,cx+d.ID/2*sc,cy-R*sc-10,fmt(d.ID));
+    // section view of the revolve polygon
+    const P=d.poly;const maxR=Math.max(...P.map(p=>p[0])),maxZ=Math.max(...P.map(p=>p[1]));const sc3=Math.min(80/maxR,120/maxZ);const sx=cx+R*sc+40+maxR*sc3,sy=box.y+50+R*sc;
+    g+=cap(cx+R*sc+40,box.y+14,'Section through center');
+    const half=P.map(p=>[sx+p[0]*sc3,sy-p[1]*sc3]);const mirror=P.map(p=>[sx-p[0]*sc3,sy-p[1]*sc3]).reverse();
+    g+=poly(half,'#f2f2f2');g+=poly(mirror,'#f2f2f2');g+=dimH(sx-maxR*sc3,sx+maxR*sc3,sy+16,fmt(2*maxR));g+=`<text x="${sx}" y="${sy-maxZ*sc3-8}" text-anchor="middle" font-size="10">${esc(fmt(maxZ))} tall at the post</text>`;
+  } else if(d.kind==='taco'){
+    const sc=Math.min(300/d.W,150/d.T);const cx=box.x+30+d.W/2*sc,cy=box.y+50+d.T/2*sc;g+=cap(box.x,box.y+14,'Jig, plan view');
+    g+=poly(profile({shape:'pill',w:d.W,t:d.T,r:d.T/2},0,16).map(p=>[cx+p[0]*sc,cy-p[1]*sc]),'#f2f2f2');
+    g+=`<path d="M${d.ribOuter.map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}L${d.ribInner.slice().reverse().map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}Z" fill="#cfcfcf" stroke="#555" stroke-width=".6"/>`;
+    g+=poly(profile({shape:'pill',w:d.st+d.d,t:d.d,r:d.d/2},0,16).map(p=>[cx+p[0]*sc,cy-p[1]*sc]),'#dcdcdc');
+    g+=`<path d="M${d.tubePath.map(p=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1)).join('L')}" fill="none" stroke="#b87333" stroke-width="${Math.max(2,mm('tube')*sc)}" stroke-linecap="round" opacity=".7"/>`;
+    const lx=cx+d.leadStart[0]*sc,ly=cy-d.leadStart[1]*sc;g+=`<circle cx="${lx}" cy="${ly}" r="${Math.max(3,mm('tube')/2*sc)}" fill="#fff" stroke="#b87333" stroke-width="1.5"/>`;
+    g+=dimH(cx-d.W/2*sc,cx+d.W/2*sc,cy+d.T/2*sc+16,fmt(d.W));g+=dimV(cx+d.W/2*sc+10,cy-d.T/2*sc,cy+d.T/2*sc,fmt(d.T));g+=dimH(cx-(d.st+d.d)/2*sc,cx+(d.st+d.d)/2*sc,cy-d.T/2*sc-10,'post '+fmt(d.st+d.d)+' x '+fmt(d.d));
+    // section across the short axis
+    const sc2=Math.min(100/(d.T/2),45/(d.topZ+d.postH));const sy=cy+d.T/2*sc+70+(d.topZ+d.postH)*sc2,sx=cx;g+=cap(box.x,sy-(d.topZ+d.postH)*sc2-22,'Section across the short axis');
+    const half=d.zc>0?[[0,d.zc],[d.T/2-d.vWall-d.zc,d.zc],[d.T/2-d.vWall,0],[d.T/2,0],[d.T/2,d.base],[d.d/2,d.topZ],[d.d/2,d.topZ+d.postH],[0,d.topZ+d.postH]]:[[0,0],[d.T/2,0],[d.T/2,d.base],[d.d/2,d.topZ],[d.d/2,d.topZ+d.postH],[0,d.topZ+d.postH]];
+    g+=poly(half.map(p=>[sx+p[0]*sc2,sy-p[1]*sc2]),'#f2f2f2');g+=poly(half.map(p=>[sx-p[0]*sc2,sy-p[1]*sc2]).reverse(),'#f2f2f2');
+    if(d.zc>0)g+=`<text x="${sx}" y="${sy-d.zc*sc2/2+4}" text-anchor="middle" font-size="9" fill="#666">void</text>`;
+    g+=dimH(sx-d.T/2*sc2,sx+d.T/2*sc2,sy+16,fmt(d.T));g+=`<text x="${sx}" y="${sy-(d.topZ+d.postH)*sc2-8}" text-anchor="middle" font-size="10">${esc(fmt(d.topZ+d.postH))} tall at the post</text>`;
+    const by=sy+60;g+=cap(box.x,by-10,'Fold bar');const bs=Math.min(300/d.bar.L,30/d.bar.w);g+=`<rect x="${box.x+30}" y="${by}" width="${d.bar.L*bs}" height="${d.bar.w*bs}" rx="${d.bar.w*bs/2}" fill="#f2f2f2" stroke="#111"/>`;g+=dimH(box.x+30,box.x+30+d.bar.L*bs,by+d.bar.w*bs+16,fmt(d.bar.L));g+=dimV(box.x+30+d.bar.L*bs+10,by,by+d.bar.w*bs,fmt(d.bar.w));
+  } else if(d.kind==='cup'){
+    const od=mm('tube'),R=d.Rc+od,sc=130/R,cx=box.x+10+R*sc,cy=box.y+50+R*sc;g+=cap(box.x,box.y+14,'End view, ribbed end');
+    const P=(p)=>(cx+p[0]*sc).toFixed(1)+','+(cy-p[1]*sc).toFixed(1);
+    g+=`<circle cx="${cx}" cy="${cy}" r="${d.Rm*sc}" fill="#f2f2f2" stroke="#111"/>`;
+    if(d.ribOuter)g+=`<path d="M${d.ribOuter.map(P).join('L')}L${d.ribInner.slice().reverse().map(P).join('L')}Z" fill="#cfcfcf" stroke="#555" stroke-width=".6"/>`;
+    if(d.postR>2)g+=`<circle cx="${cx}" cy="${cy}" r="${d.postR*sc}" fill="#dcdcdc" stroke="#555" stroke-width=".6"/>`;
+    g+=`<path d="M${d.path.map(P).join('L')}" fill="none" stroke="#b87333" stroke-width="${Math.max(2,od*sc)}" stroke-linecap="round" opacity=".7"/>`;
+    g+=dimH(cx-d.Rm*sc,cx+d.Rm*sc,cy+R*sc+16,'ID '+fmt(d.ID));
+    const top=d.Lc+d.ribH+od,sc3=Math.min(80/d.Rc,170/top),sx=cx+R*sc+50+d.Rc*sc3,sy=box.y+50+top*sc3;g+=cap(cx+R*sc+40,box.y+14,'Section, print orientation');
+    g+=`<rect x="${sx-d.Rm*sc3}" y="${sy-d.Lc*sc3}" width="${2*d.Rm*sc3}" height="${d.Lc*sc3}" fill="#f2f2f2" stroke="#111"/>`;
+    const rr=Math.max(od/2*sc3,1.5),tc=(x,y)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr.toFixed(1)}" fill="#b87333" opacity=".8"/>`;
+    for(let k=0;k<d.Ee;k++){const r=d.rIn+d.pitch*(k+0.5);g+=tc(sx-r*sc3,sy-(d.Lc+od/2)*sc3)+tc(sx+r*sc3,sy-(d.Lc+od/2)*sc3);}
+    for(let i=0;i<d.Sn;i++){const z=d.Lc-od/2-d.pitch*(i+0.5);g+=tc(sx-d.Rc*sc3,sy-z*sc3)+tc(sx+d.Rc*sc3,sy-z*sc3);}
+    g+=dimH(sx-d.Rm*sc3,sx+d.Rm*sc3,sy+16,fmt(d.ID));g+=dimV(sx+d.Rc*sc3+12,sy-d.Lc*sc3,sy,fmt(d.Lc));
+    const ny=Math.max(cy+R*sc+50,sy+50);g+=`<text x="${box.x}" y="${ny}" font-size="10" fill="#444">In use the ribbed end is the bottom of the cup.</text><text x="${box.x}" y="${ny+14}" font-size="10" fill="#444">Set the hammer face over the end turns on a ceramic fiber pad.</text>`;drawBottom=ny+20;
+  } else if(d.kind==='gauge'){
+    const tot=d.gl+d.gw;const sc=Math.min(400/tot,120/d.gw);const x0=box.x+30,cy=box.y+80;g+=cap(box.x,box.y+14,'Plan view');
+    g+=`<rect x="${x0+d.gw*sc}" y="${cy-d.gw/2*sc}" width="${d.gl*sc}" height="${d.gw*sc}" fill="#f2f2f2" stroke="#111"/><circle cx="${x0+d.gw/2*sc}" cy="${cy}" r="${d.gw/2*sc}" fill="#f2f2f2" stroke="#111"/>`;
+    if(d.gh>0.5)g+=`<circle cx="${x0+d.gw/2*sc}" cy="${cy}" r="${d.gh/2*sc}" fill="#fff" stroke="#111"/>`;
+    g+=dimH(x0,x0+tot*sc,cy+d.gw/2*sc+16,fmt(tot));g+=dimV(x0+tot*sc+10,cy-d.gw/2*sc,cy+d.gw/2*sc,fmt(d.gw));
+    const sy=cy+120;g+=cap(box.x,sy-30,'Side view');const sz=Math.min(8,60/Math.max(...d.steps));
+    if(d.stepped){const segL=d.gl/d.steps.length;d.steps.forEach((th,i)=>{g+=`<rect x="${x0+d.gw*sc+segL*sc*i}" y="${sy-th*sz}" width="${segL*sc}" height="${th*sz}" fill="#f2f2f2" stroke="#111"/><text x="${x0+d.gw*sc+segL*sc*(i+.5)}" y="${sy+14}" text-anchor="middle" font-size="10">${th.toFixed(1)} mm</text>`;});g+=`<rect x="${x0}" y="${sy-d.steps[0]*sz}" width="${d.gw*sc}" height="${d.steps[0]*sz}" fill="#f2f2f2" stroke="#111"/>`;}
+    else{g+=`<rect x="${x0}" y="${sy-d.gt*sz}" width="${tot*sc}" height="${d.gt*sz}" fill="#f2f2f2" stroke="#111"/>`;g+=dimV(x0+tot*sc+10,sy-d.gt*sz,sy,d.gt.toFixed(1)+' mm');}
+    g+=`<text x="${box.x}" y="${sy+40}" font-size="10" fill="#444">Thickness exaggerated in the side view.</text>`;
+  } else if(d.kind==='die'){
+    const P=d.poly;const maxR=Math.max(...P.map(p=>p[0]));const sc=Math.min(120/maxR,60/d.H);const sx=box.x+30+maxR*sc,sy=box.y+60+d.H*sc;g+=cap(box.x,box.y+14,'Die section');
+    g+=poly(P.map(p=>[sx+p[0]*sc,sy-p[1]*sc]),'#f2f2f2');g+=poly(P.map(p=>[sx-p[0]*sc,sy-p[1]*sc]).reverse(),'#f2f2f2');
+    g+=dimH(sx-maxR*sc,sx+maxR*sc,sy+16,'OD '+fmt(2*maxR));g+=dimV(sx+maxR*sc+10,sy-d.H*sc,sy,fmt(d.H));g+=dimH(sx,sx+d.clr*sc,sy-d.H*sc-12,'CLR '+fmt(d.clr));
+    if(d.lockOn||d.armOn){
+    const ext=Math.max(d.D+d.Rr,d.clr+30);const sc2=Math.min(150/ext,1e9);const cx=box.x+40+ext*sc2*0.6,cy=box.y+190+ext*sc2*0.9;g+=cap(box.x,box.y+170,'Assembly, plan view');
+    g+=`<circle cx="${cx}" cy="${cy}" r="${d.clr*sc2}" fill="#f2f2f2" stroke="#111"/><circle cx="${cx}" cy="${cy}" r="${Math.max(3,d.H/8*sc2)}" fill="#fff" stroke="#111"/>`;
+    g+=`<path d="M${cx+d.clr*sc2},${cy+70*sc2} L${cx+d.clr*sc2},${cy} A${d.clr*sc2},${d.clr*sc2} 0 0 0 ${cx},${cy-d.clr*sc2}" fill="none" stroke="#b87333" stroke-width="${Math.max(2,mm('tube')*sc2)}" opacity=".7"/>`;
+    if(d.lockOn)g+=`<rect x="${cx+d.clr*sc2-14*sc2}" y="${cy+15*sc2}" width="${28*sc2}" height="${10*sc2}" fill="#5dcaa5" opacity=".8"/><text x="${cx+d.clr*sc2+18*sc2}" y="${cy+23*sc2}" font-size="9">tube lock</text>`;
+    if(d.armOn){g+=`<line x1="${cx}" y1="${cy}" x2="${cx+(d.D+mm('handleL'))*sc2}" y2="${cy}" stroke="#e2a23b" stroke-width="${Math.max(3,8*sc2)}" stroke-linecap="round" opacity=".8"/><circle cx="${cx+d.D*sc2}" cy="${cy}" r="${d.Rr*sc2}" fill="#fff" stroke="#111"/><text x="${cx+d.D*sc2}" y="${cy+d.Rr*sc2+12}" font-size="9" text-anchor="middle">roller</text>`;g+=dimH(cx,cx+d.D*sc2,cy-d.clr*sc2-20,fmt(d.D));}
+    }
+  }
+  o+=g;
+  // specs table
+  let ty=150;o+=`<text x="530" y="${ty}" font-size="12" font-weight="700">SPECIFICATIONS</text>`;ty+=10;
+  m.specs.forEach(([k,v],i)=>{v=String(v);const kw=k.length*5.5+8;const room=Math.floor((250-kw-8)/5.2);
+    if(v.length<=room){ty+=18;o+=`<rect x="526" y="${ty-12}" width="250" height="18" fill="${i%2?'#fafafa':'#f0f0f0'}"/><text x="530" y="${ty}" fill="#555" font-size="10">${esc(k)}</text><text x="772" y="${ty}" text-anchor="end" font-size="10" font-weight="600">${esc(v)}</text>`;}
+    else{ // key on its own line, value wrapped below at full width
+      const words=v.split(' ');const lines=[];let cur='';for(const w of words){if((cur+' '+w).trim().length>40){lines.push(cur.trim());cur=w;}else cur+=' '+w;}if(cur.trim())lines.push(cur.trim());
+      const h=18+14*lines.length;ty+=18;o+=`<rect x="526" y="${ty-12}" width="250" height="${h-4}" fill="${i%2?'#fafafa':'#f0f0f0'}"/><text x="530" y="${ty}" fill="#555" font-size="10">${esc(k)}</text>`;
+      lines.forEach(l=>{ty+=14;o+=`<text x="772" y="${ty}" text-anchor="end" font-size="10" font-weight="600">${esc(l)}</text>`;});}});
+  // lower band: tube math, print, files
+  const band=Math.max(600,ty+34,drawBottom+34);let y=band;o+=`<line x1="40" y1="${y-16}" x2="${W-40}" y2="${y-16}" stroke="#ccc"/>`;
+  o+=`<text x="40" y="${y}" font-size="12" font-weight="700">${m.coil.tube?'TUBE TO CUT: '+esc(fmtLen(m.coil.tube)):'BEND MATH'}</text>`;
+  // wrap so the left column never runs into the PRINT column
+  const wrap=(t,n)=>{const out=[];let cur='';for(const w of String(t).split(' ')){if(cur&&(cur+' '+w).length>n){out.push(cur);cur='  '+w;}else cur=cur?cur+' '+w:w;}if(cur)out.push(cur);return out;};
+  m.coil.lines.forEach(l=>wrap(l,62).forEach(w=>{y+=15;o+=`<text x="40" y="${y}" font-size="10" font-family="Menlo, Consolas, monospace" fill="#333">${esc(w)}</text>`;}));
+  if(m.coil.tube){y+=15;o+=`<text x="40" y="${y}" font-size="10" font-family="Menlo, Consolas, monospace" fill="#333">= ${esc(fmt(m.coil.tube))}, add about 10% for scrap</text>`;}
+  let vol=0;m.parts.forEach(p=>vol+=meshStats(p.tris).volume_mm3);
+  let py=band;o+=`<text x="430" y="${py}" font-size="12" font-weight="700">PRINT</text>`;
+  [[`Volume`,`${(vol/1000).toFixed(0)} cm³ across ${m.parts.length} part${m.parts.length>1?'s':''}`],['Filament','about '+(vol/1000*1.24*0.4).toFixed(0)+' g PLA at 40% infill, '+(vol/1000*1.24).toFixed(0)+' g solid'],
+   ['Orientation',(S.type==='mandrel'||S.type==='combo')?($('flat').checked&&m.parts[0].flatLift!=null?'exported lying flat, wide face down':'exported standing on end'):'exported base down, as modeled'],
+   ['Walls / infill','3+ perimeters, 30 to 40% infill. Copper spring-back squeezes the form.'],['Resolution',num('res')+' segments per quarter arc']].forEach(([k,v])=>{wrap(k+': '+v,62).forEach((w,i)=>{py+=15;o+=i===0?`<text x="430" y="${py}" font-size="10"><tspan fill="#555">${esc(k)}:\u00a0</tspan>${esc(w.slice(k.length+2))}</text>`:`<text x="430" y="${py}" font-size="10">${esc(w.trim())}</text>`;});});
+  let fy=Math.max(y,py)+34;o+=`<text x="40" y="${fy}" font-size="12" font-weight="700">FILES AND MESH CHECK</text>`;
+  m.parts.forEach(p=>{const st=meshStats(p.tris);fy+=15;o+=`<text x="40" y="${fy}" font-size="10" font-family="Menlo, Consolas, monospace">${esc(p.name)}.stl</text><text x="430" y="${fy}" font-size="10">${st.triangles} triangles, ${st.openEdges?st.openEdges+' open edges':'watertight'}, ${st.volume_mm3>0?'normals out':'normals inverted'}</text>`;});
+  ['_sheet.pdf','_sheet.svg','_sheet.md','.scad'].forEach(ext=>{fy+=15;o+=`<text x="40" y="${fy}" font-size="10" font-family="Menlo, Consolas, monospace">${esc(label+ext)}</text>`;});
+  if(m.warn){fy+=20;o+=`<text x="40" y="${fy}" font-size="10" fill="#a33">${esc(m.warn)}</text>`;}
+  o+=`<line x1="40" y1="${H-50}" x2="${W-40}" y2="${H-50}" stroke="#ccc"/><text x="40" y="${H-32}" font-size="9" fill="#888">Portland Ironworks · generated by Coil Mandrel Maker · dimensions as entered, STL geometry in millimeters · check against your slicer before committing filament</text>`;
+  return o+'</svg>';
+}
+function sheetMD(m,label){
+  let vol=0;m.parts.forEach(p=>vol+=meshStats(p.tris).volume_mm3);
+  const L=[`# ${label}`,`Portland Ironworks · induction coil tooling · ${new Date().toISOString().slice(0,10)}`,'','## Specifications',...m.specs.map(([k,v])=>`- ${k}: ${v}`),'',
+    `## ${m.coil.tube?'Tube to cut: '+fmtLen(m.coil.tube):'Bend math'}`,...m.coil.lines.map(l=>'- '+l),m.coil.tube?`- = ${fmt(m.coil.tube)}, add ~10% for scrap`:'','','## Print',`- ${(vol/1000).toFixed(0)} cm³, about ${(vol/1000*1.24*0.4).toFixed(0)} g PLA at 40% infill`,'- 3+ perimeters, 30 to 40% infill','','## Files',...m.parts.map(p=>{const st=meshStats(p.tris);return `- ${p.name}.stl (${st.triangles} tris, ${st.openEdges?st.openEdges+' open edges':'watertight'})`;})];
+  if(m.warn)L.push('',`Note: ${m.warn}`);
+  return L.join('\n')+'\n';
+}
+// ---- printable spec sheet: 8.5 x 11 at 300 dpi, as PNG or a one-page PDF ----
+function sheetCanvas(svg,dpi){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=Math.round(8.5*dpi);c.height=Math.round(11*dpi);
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);res(c);};img.onerror=()=>rej(new Error('sheet render failed'));
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});}
+const canvasBytes=(c,type,q)=>new Promise(r=>c.toBlob(b=>b.arrayBuffer().then(a=>r(new Uint8Array(a))),type,q));
+async function sheetPNG(svg){return canvasBytes(await sheetCanvas(svg,300),'image/png');}
+async function sheetPDF(svg){
+  // one letter page (612 x 792 pt) holding the sheet as a full-page 300 dpi JPEG
+  const c=await sheetCanvas(svg,300);const jpg=await canvasBytes(c,'image/jpeg',0.92);const enc=new TextEncoder();
+  const chunks=[];let len=0;const offs=[];const put=x=>{const b=typeof x==='string'?enc.encode(x):x;chunks.push(b);len+=b.length;};
+  const obj=(n,body)=>{offs[n]=len;put(`${n} 0 obj\n`);for(const b of [].concat(body))put(b);put('\nendobj\n');};
+  const content='q 612 0 0 792 0 0 cm /Im0 Do Q';
+  put('%PDF-1.4\n%\xe2\xe3\xcf\xd3\n');
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>');
+  obj(4,[`<< /Length ${content.length} >>\nstream\n`,content,'\nendstream']);
+  obj(5,[`<< /Type /XObject /Subtype /Image /Width ${c.width} /Height ${c.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`,jpg,'\nendstream']);
+  const xref=len;put('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)put(String(offs[i]).padStart(10,'0')+' 00000 n \n');
+  put(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  const out=new Uint8Array(len);let o=0;for(const b of chunks){out.set(b,o);o+=b.length;}return out;}
+async function withPDF(files,m,label,prefix){try{files.push({name:(prefix||'')+label+'_sheet.pdf',data:await sheetPDF(sheetSVG(m,label))});}catch(e){}return files;}
+function packageFiles(m,label,prefix){const enc=new TextEncoder();prefix=prefix||'';
+  return [...stlFiles(m).map(f=>({name:prefix+f.name,data:f.data})),{name:prefix+label+'_sheet.svg',data:enc.encode(sheetSVG(m,label))},{name:prefix+label+'_sheet.md',data:enc.encode(sheetMD(m,label))},{name:prefix+label+'.scad',data:enc.encode(m.scad)}];}
+async function save(filename,data){try{await downloads.save({filename,data});$('msg').textContent='Saved '+filename;return true;}
+  catch(e){if(e&&e.code==='rejected_extension')return false;$('msg').textContent=e&&e.code==='declined'?'Cancelled.':'Could not save ('+(e&&e.code||e)+').';return true;}}
+async function saveStl(files,zipName){
+  if(stlDirect&&files.length===1){const ok=await save(files[0].name,files[0].data.slice(0));if(ok)return;stlDirect=false;$('msg').textContent='Host blocks raw .stl, zipping instead.';}
+  await save(zipName,makeZip(files));}
+function asciiSTL(t){let s='solid mandrel\n';for(let i=0;i<t.length;i+=9){s+=`facet normal 0 0 0\nouter loop\nvertex ${t[i]} ${t[i+1]} ${t[i+2]}\nvertex ${t[i+3]} ${t[i+4]} ${t[i+5]}\nvertex ${t[i+6]} ${t[i+7]} ${t[i+8]}\nendloop\nendfacet\n`;}return s+'endsolid mandrel\n';}
+$('dlStl').onclick=()=>{if(!M)return;const label=M.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');
+  if(browserDl){stlFiles(M).forEach((f,i)=>setTimeout(()=>save(f.name,f.data),i*400));return;}
+  if(downloads){const m=M;withPDF(packageFiles(m,label),m,label).then(f=>save(label+'.zip',makeZip(f)));}
+  else navigator.clipboard.writeText(asciiSTL(exportTris(M.parts[0]))).then(()=>$('msg').textContent='ASCII STL copied (first part). Paste into a text file, name it .stl').catch(()=>$('msg').textContent='Clipboard blocked.');};
+// just the STL: one file straight to disk; split mandrels save each piece. Falls back to a zip of the STLs only if the host refuses .stl
+$('dlStlOnly').onclick=async()=>{if(!M||!downloads)return;const files=stlFiles(M),label=M.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');
+  if(stlDirect){let ok=true;for(const f of files){if(!(await save(f.name,f.data.slice(0)))){ok=false;break;}}if(ok)return;stlDirect=false;}
+  await save(label+'_stl.zip',makeZip(files));$('msg').textContent+=' (this host only allows zips; the STL is inside)';};
+$('dlScad').onclick=()=>{if(M&&downloads)save(M.parts[0].name+(browserDl?'.scad':'.scad.txt'),M.scad);};
+$('viewSheet').onclick=()=>{if(!M)return;const label=M.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');$('sheetWrap').innerHTML=sheetSVG(M,label);$('sheetOverlay').style.display='';};
+$('sheetClose').onclick=()=>$('sheetOverlay').style.display='none';
+$('sheetOverlay').addEventListener('click',e=>{if(e.target===$('sheetOverlay'))$('sheetOverlay').style.display='none';});
+$('sheetDl').onclick=()=>{$('sheetOverlay').style.display='none';$('dlStl').click();};
+const sheetSave=async(kind)=>{if(!M||!downloads)return;const m=M,label=m.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');$('msg').textContent='Building the '+kind.toUpperCase()+'...';
+  try{const svg=sheetSVG(m,label);const data=kind==='pdf'?await sheetPDF(svg):await sheetPNG(svg);const name=label+'_sheet.'+kind;
+    if(!(await save(name,data)))save(name+'.zip',makeZip([{name,data}]));}catch(e){$('msg').textContent='Could not build the '+kind.toUpperCase()+'.';}};
+$('sheetPdf').onclick=()=>sheetSave('pdf');$('sheetPng').onclick=()=>sheetSave('png');
+$('cpScad').onclick=()=>{if(M)navigator.clipboard.writeText(M.scad).then(()=>$('msg').textContent='SCAD copied.').catch(()=>$('msg').textContent='Clipboard blocked.');};
+$('libAll').onclick=()=>{if(!downloads||!LIB.length)return;$('msg').textContent='Building '+LIB.length+' packages...';const cur=snapshot();const files=[];
+  const sheets=[];LIB.forEach(it=>{restore(it.snap);if(M){const label=M.parts[0].name.replace(/_(slab|shell_L|shell_R)$/,'');files.push(...packageFiles(M,label,label+'/'));sheets.push([label,sheetSVG(M,label)]);}});restore(cur);
+  (async()=>{for(const [label,svg] of sheets){try{files.push({name:label+'/'+label+'_sheet.pdf',data:await sheetPDF(svg)});}catch(e){}}
+    save('portland_ironworks_coil_tooling_'+LIB.length+'_items.zip',makeZip(files));})();};
+</script>
+</body>
+</html>
